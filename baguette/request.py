@@ -3,6 +3,7 @@ from urllib.parse import parse_qs
 from typing import Dict, List, Tuple
 
 from .headers import Headers
+from .utils import get_encoding_from_headers
 
 
 class Request:
@@ -14,6 +15,7 @@ class Request:
         self.asgi_version: str = scope["asgi"]["version"]
 
         self.headers: Headers = Headers(*scope["headers"])
+        self.encoding: str = get_encoding_from_headers(self.headers) or "utf-8"
         self.method: str = scope["method"]
         self.scheme: str = scope["scheme"]
         self.root_path: str = scope["root_path"]
@@ -38,7 +40,7 @@ class Request:
             body += message.get("body", b"")
             more_body = message.get("more_body", False)
 
-        self._body = body.decode("utf-8")
+        self._body = body.decode(self.encoding)
         return self._body
 
     async def json(self):

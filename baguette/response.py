@@ -5,6 +5,8 @@ from .headers import Headers
 
 
 class Response:
+    CHARSET = "utf-8"
+
     def __init__(
         self,
         body: Union[str, bytes],
@@ -12,7 +14,7 @@ class Response:
         headers: Union[dict, Headers] = {},
     ):
         if type(body) == str:
-            body = body.encode("utf-8")
+            body = body.encode(self.CHARSET)
         self.body: bytes = body
         self.status_code = status_code
         self.headers = Headers(**headers)
@@ -52,8 +54,9 @@ class PlainTextResponse(Response):
         status_code: int = 200,
         headers: Union[dict, Headers] = {},
     ):
-        headers["content-type"] = "text/plain"
+        headers["content-type"] = "text/plain; charset=" + self.CHARSET
         super().__init__(text, status_code, headers)
+
 
 class HTMLResponse(Response):
     def __init__(
@@ -62,8 +65,9 @@ class HTMLResponse(Response):
         status_code: int = 200,
         headers: Union[dict, Headers] = {},
     ):
-        headers["content-type"] = "text/html"
+        headers["content-type"] = "text/html; charset=" + self.CHARSET
         super().__init__(html, status_code, headers)
+
 
 class EmptyResponse(PlainTextResponse):
     def __init__(
