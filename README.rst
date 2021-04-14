@@ -35,9 +35,10 @@ Run the following command:
 Quickstart
 ----------
 
-Create an application, in example.py:
+Create an application, in ``example.py``:
 
 .. code:: python
+
     from baguette import Baguette
 
     app = Baguette()
@@ -48,7 +49,9 @@ Create an application, in example.py:
 
 Run the server with `uvicorn <https://www.uvicorn.org/>`_ (``pip install uvicorn``):
 
-$ uvicorn example:app
+.. code:: sh
+
+    uvicorn example:app
 
 
 Contribute
