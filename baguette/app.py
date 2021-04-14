@@ -87,13 +87,14 @@ class Baguette:
         def decorator(func_or_class):
             if inspect.isclass(func_or_class):
                 endpoint = func_or_class(self)
-                methods = endpoint.methods
+                allowed_methods = endpoint.methods
             else:
+                allowed_methods = methods.copy()
 
                 async def endpoint(request, *args, **kwargs):
-                    if request.method not in methods:
+                    if request.method not in allowed_methods:
                         return self.method_not_allowed(request)
-                    return func_or_class(request, *args, **kwargs)
+                    return await func_or_class(request, *args, **kwargs)
 
             self.endpoints[path] = endpoint
 
