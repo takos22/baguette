@@ -83,9 +83,11 @@ class Baguette:
     async def method_not_allowed(self, request):
         return "405: Method Not Allowed", 405
 
-    def endpoint(self, path, methods=["GET"]):
+    def endpoint(self, path, methods=["GET", "HEAD"]):
         def decorator(func_or_class):
-            if inspect.isclass(func_or_class):
+            if inspect.isclass(func_or_class) and issubclass(
+                func_or_class, View
+            ):
                 endpoint = func_or_class(self)
                 allowed_methods = endpoint.methods
             else:
@@ -93,7 +95,7 @@ class Baguette:
 
                 async def endpoint(request, *args, **kwargs):
                     if request.method not in allowed_methods:
-                        return self.method_not_allowed(request)
+                        return await self.method_not_allowed(request)
                     return await func_or_class(request, *args, **kwargs)
 
             self.endpoints[path] = endpoint
