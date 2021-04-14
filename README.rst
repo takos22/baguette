@@ -38,7 +38,7 @@ Quickstart
 Create an application, in example.py:
 
 .. code:: python
-    from baguette import Baguette, View
+    from baguette import Baguette
 
     app = Baguette()
 
