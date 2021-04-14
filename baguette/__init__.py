@@ -1,8 +1,8 @@
 """
 Baguette
-~~~~~~~~
+========
 
-Asynchronous web framework based on Uvicorn.
+Asynchronous web framework.
 """
 
 from typing import NamedTuple

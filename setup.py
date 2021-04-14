@@ -28,7 +28,7 @@ setup(
     version=version,
     packages=["baguette"],
     license="MIT",
-    description="Asynchronous web framework based on Uvicorn.",
+    description="Asynchronous web framework.",
     long_description=readme,
     long_description_content_type="text/x-rst",
     install_requires=requirements,

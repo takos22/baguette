@@ -1,7 +1,7 @@
 Welcome to baguette's documentation!
-=======================================
+====================================
 
-baguette is an asynchronous web framework based on `uvicorn <https://www.uvicorn.org/>`_.
+baguette is an asynchronous web framework.
 
 
 Documentation Contents
