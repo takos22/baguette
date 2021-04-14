@@ -38,7 +38,7 @@ class Request:
             body += message.get("body", b"")
             more_body = message.get("more_body", False)
 
-        self._body = body.decode("ascii")
+        self._body = body.decode("utf-8")
         return self._body
 
     async def json(self):
