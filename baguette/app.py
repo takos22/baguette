@@ -11,6 +11,7 @@ from .response import (
     HTMLResponse,
     EmptyResponse,
 )
+from .view import View
 
 
 HTML_TAG_REGEX = re.compile(r"<\s*\w+[^>]*>.*?<\s*/\s*\w+\s*>")
@@ -19,6 +20,7 @@ HTML_TAG_REGEX = re.compile(r"<\s*\w+[^>]*>.*?<\s*/\s*\w+\s*>")
 class Baguette:
     def __init__(self):
         self.endpoints = {}
+        self.default_headers = Headers(**{"server": "baguette"})
 
     async def __call__(self, scope, receive, send):
         assert scope["type"] == "http"
@@ -62,6 +64,8 @@ class Baguette:
             raise ValueError(
                 "headers must be a list, a dict, a Headers instance or None"
             )
+
+        headers += self.default_headers
 
         if type(body) in (list, dict):
             response = JSONResponse(body, status_code or 200, headers)

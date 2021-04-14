@@ -1,5 +1,5 @@
 import itertools
-from typing import Dict
+from typing import Dict, Union
 
 
 class Headers:
@@ -55,3 +55,15 @@ class Headers:
 
     def __contains__(self, name):
         return name in self._headers
+
+    def __add__(self, other: Union["Headers", Dict[str, str]]):
+        return Headers(**self, **other)
+
+    def __iadd__(self, other: Union["Headers", Dict[str, str]]):
+        for name, value in other.items():
+            if type(name) == bytes:
+                name = name.decode("ascii")
+            if type(value) == bytes:
+                value = value.decode("ascii")
+            self._headers[name.lower()] = value
+        return self
