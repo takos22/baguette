@@ -53,6 +53,7 @@ Run the server with `uvicorn <https://www.uvicorn.org/>`_ (``pip install uvicorn
 
     uvicorn example:app
 
+See `uvicorn's deployment guide <https://www.uvicorn.org/deployment/>`_ for more deployment options.
 
 Contribute
 ----------
