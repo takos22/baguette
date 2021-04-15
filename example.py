@@ -1,6 +1,6 @@
 from baguette import Baguette, View
 
-app = Baguette()
+app = Baguette(debug=True)
 
 
 @app.route("/")
