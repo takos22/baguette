@@ -7,7 +7,8 @@ from .utils import get_encoding_from_headers
 
 
 class Request:
-    def __init__(self, scope, receive):
+    def __init__(self, app, scope, receive):
+        self.app = app
         self._scope = scope
         self._receive = receive
 

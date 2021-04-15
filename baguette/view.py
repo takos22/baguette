@@ -13,7 +13,7 @@ class View:
 
     def __init__(self, app):
         self.app = app
-        self.methods = []
+        self.methods: List[str] = []
         for method in self.METHODS:
             if hasattr(self, method.lower()):
                 self.methods.append(method)
@@ -23,6 +23,6 @@ class View:
 
     async def dispatch(self, request):
         handler = getattr(
-            self, request.method.lower(), self.app.method_not_allowed
+            self, request.method.lower(), request.app.method_not_allowed
         )
         return await handler(request)
