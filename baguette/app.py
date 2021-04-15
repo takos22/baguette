@@ -1,9 +1,10 @@
 import inspect
-import functools
 import re
 import typing
+import traceback
 
 from .headers import Headers
+from .httpexceptions import HTTPException
 from .request import Request
 from .response import (
     EmptyResponse,
@@ -12,7 +13,7 @@ from .response import (
     PlainTextResponse,
     Response,
 )
-from .router import Router
+from .router import Router, Route
 from .types import Scope, Receive, Send, Result, Handler
 from .view import View
 
@@ -20,21 +21,43 @@ HTML_TAG_REGEX = re.compile(r"<\s*\w+[^>]*>.*?<\s*/\s*\w+\s*>")
 
 
 class Baguette:
-    def __init__(self):
-        self.router = Router(self)
+    def __init__(
+        self,
+        debug: bool = False,
+        error_response_type: str = "plain",
+        error_include_description: bool = False,
+    ):
+        self.router = Router()
         self.default_headers = Headers()
+        self.debug = debug
+        self.error_response_type = error_response_type
+        self.error_include_description = error_include_description or self.debug
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send):
         assert scope["type"] == "http"
         request = Request(self, scope, receive)
-        result = await self.dispatch(request)
-        response = self.make_response(result)
+        response = await self.handle_request(request)
         await response.send(send)
 
+    async def handle_request(self, request: Request) -> Response:
+        result = await self.dispatch(request)
+        response = self.make_response(result)
+        return response
+
     async def dispatch(self, request: Request) -> Result:
-        path: str = request.path
-        handler: Handler = self.router.get(path)
-        return await handler(request)
+        try:
+            route: Route = self.router.get(request.path, request.method)
+            handler: Handler = route.handler
+            return await handler(request)
+        except HTTPException as e:
+            if self.debug:
+                e.description = "\n" + "".join(
+                    traceback.format_tb(e.__traceback__)
+                )
+            return e.response(
+                type_=self.error_response_type,
+                include_description=self.error_include_description,
+            )
 
     def make_response(self, result: Result) -> Response:
         if issubclass(type(result), Response):
@@ -100,21 +123,11 @@ class Baguette:
                 allowed_methods = handler.methods
             else:
                 allowed_methods = ["GET", "HEAD"]
-                if methods is not None:
-                    allowed_methods = methods.copy()
-
-                @functools.wraps(func_or_class)
-                async def handler(request: Request, *args, **kwargs) -> Result:
-                    if request.method not in allowed_methods:
-                        return await self.method_not_allowed(request)
-                    return await func_or_class(request, *args, **kwargs)
+                handler: Handler = func_or_class
 
             self.add_route(handler, path, allowed_methods, name)
 
-            if inspect.isclass(func_or_class):
-                return func_or_class
-            else:
-                return handler
+            return func_or_class
 
         return decorator
 
