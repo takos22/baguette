@@ -3,6 +3,7 @@ import typing
 from .httpexceptions import MethodNotAllowed
 from .types import Handler
 
+
 class View:
     METHODS = [
         "GET",
@@ -29,5 +30,5 @@ class View:
     async def dispatch(self, request):
         if not hasattr(self, request.method.lower()):
             raise MethodNotAllowed()
-        handler = getattr(self, request.method.lower())
+        handler: Handler = getattr(self, request.method.lower())
         return await handler(request)

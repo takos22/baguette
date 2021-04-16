@@ -1,6 +1,5 @@
 import typing
 
-from .request import Request
 from .httpexceptions import NotFound, MethodNotAllowed
 from .types import Handler
 

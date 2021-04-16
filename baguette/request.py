@@ -50,5 +50,8 @@ class Request:
             return self._json
 
         body = await self.body()
-        self._json = json.loads(body)
+        try:
+            self._json = json.loads(body)
+        except json.JSONDecodeError:
+            raise ValueError("Can't decode body as JSON")
         return self._json

@@ -25,7 +25,7 @@ class Baguette:
         self,
         debug: bool = False,
         error_response_type: str = "plain",
-        error_include_description: bool = False,
+        error_include_description: bool = True,
     ):
         self.router = Router()
         self.default_headers = Headers()
@@ -50,13 +50,12 @@ class Baguette:
             handler: Handler = route.handler
             return await handler(request)
         except HTTPException as e:
-            if self.debug:
-                e.description = "\n" + "".join(
-                    traceback.format_tb(e.__traceback__)
-                )
             return e.response(
                 type_=self.error_response_type,
                 include_description=self.error_include_description,
+                traceback="".join(traceback.format_tb(e.__traceback__))
+                if self.debug
+                else None,
             )
 
     def make_response(self, result: Result) -> Response:
