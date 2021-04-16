@@ -14,7 +14,7 @@ from .response import (
     Response,
 )
 from .router import Router, Route
-from .types import Scope, Receive, Send, Result, Handler
+from .types import Scope, Receive, Send, Result, Handler, Headers as HeaderType
 from .view import View
 
 HTML_TAG_REGEX = re.compile(r"<\s*\w+[^>]*>.*?<\s*/\s*\w+\s*>")
@@ -23,13 +23,15 @@ HTML_TAG_REGEX = re.compile(r"<\s*\w+[^>]*>.*?<\s*/\s*\w+\s*>")
 class Baguette:
     def __init__(
         self,
+        *,
         debug: bool = False,
+        default_headers: HeaderType = Headers(),
         error_response_type: str = "plain",
         error_include_description: bool = True,
     ):
         self.router = Router()
-        self.default_headers = Headers()
         self.debug = debug
+        self.default_headers = default_headers
         self.error_response_type = error_response_type
         self.error_include_description = error_include_description or self.debug
 

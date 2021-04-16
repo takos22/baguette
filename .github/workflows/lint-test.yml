@@ -9,10 +9,6 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    env:
-      # Hide the graphical elements from pipenv's output
-      PIPENV_HIDE_EMOJIS: 1
-      PIPENV_NOSPIN: 1
 
     strategy:
       matrix:
