@@ -2,7 +2,7 @@
 HTTP Exceptions
 ---------------
 
-Exceptions for HTTP status code over 400 (client errors and server errors) from the `http module <https://docs.python.org/3/library/http.html>`_.
+Exceptions for HTTP status code over 400 (4xx client errors and 5xx server errors) from the `http module <https://docs.python.org/3/library/http.html>`_.
 
 =========== =============================== ================================= ============================================================================================================================================================================================================== ===============================================================================================
 Status code               Name                       Exception class                                                                                                           Description                                                                                                                                               RFC Link
@@ -58,47 +58,93 @@ from . import response
 
 
 class HTTPException(Exception):
+    """Base class for HTTP exceptions.
+
+
+    Attributes
+    ----------
+        status_code: :class:`int`
+            HTTP status code.
+
+        name: :class:`str`
+            Name of the HTTP exception.
+
+        description: :class:`str`
+            Description of the HTTP exception.
+    """
+
     def __init__(
-        self, status_code: int, detail: str = None, description: str = None
-    ) -> None:
-        if detail is None:
-            detail = http.HTTPStatus(status_code).phrase
+        self, status_code: int, name: str = None, description: str = None
+    ):
+        if name is None:
+            name = http.HTTPStatus(status_code).phrase
         if description is None:
             description = http.HTTPStatus(status_code).description
         self.status_code = status_code
-        self.detail = detail
+        self.name = name
         self.description = description
 
-    def response(self, type_: str = "plain", include_description: bool = False):
+    def response(
+        self,
+        type_: str = "plain",
+        include_description: bool = False,
+        traceback: str = None,
+    ) -> response.Response:
+        """Return a Response for error handling.
+
+        Arguments
+        ---------
+            type_: :class:`str`
+                Type of response. Must be one of: 'plain', 'json', 'html'.
+
+            include_description: :class:`bool`
+                Wether to include the description in the response.
+                In debug mode this is the error traceback.
+
+        Raises
+        ------
+            :exc:`ValueError`
+                ``type_`` isn't one of: 'plain', 'json', 'html'.
+
+        Returns
+        --------
+            :class:`Response`
+                Response that describes the error.
+        """
+
         if type_ == "plain":
-            text = self.detail
+            text = self.name
             if include_description and self.description:
                 text += ": " + self.description
+            if traceback is not None:
+                text += "\n" + traceback
             return response.PlainTextResponse(text, self.status_code)
 
         elif type_ == "json":
-            data = {
-                "error": {"status": self.status_code, "message": self.detail}
-            }
+            data = {"error": {"status": self.status_code, "message": self.name}}
             if include_description and self.description:
                 data["error"]["description"] = self.description
+            if traceback is not None:
+                data["error"]["traceback"] = traceback
             return response.JSONResponse(data, self.status_code)
 
         elif type_ == "html":
-            html = f"<h1>{self.status_code} {self.detail}</h1>"
+            html = f"<h1>{self.status_code} {self.name}</h1>"
             if include_description and self.description:
                 html += f"\n<h2>{self.description}</h2>"
+            if traceback is not None:
+                html += f"\n<pre><code>{traceback}</code></pre>"
             return response.HTMLResponse(html, self.status_code)
 
         else:
             raise ValueError(
-                "Bad response type. Must be one of: 'plain', 'json', 'html"
+                "Bad response type. Must be one of: 'plain', 'json', 'html'"
             )
 
     def __repr__(self) -> str:
         class_name = self.__class__.__name__
         return (
-            "HTTP Exception {1}: {0.status_code} {0.detail}"
+            "HTTP Exception {1}: {0.status_code} {0.name}"
             "{2}{0.description}".format(
                 self, class_name, ": " if self.description else ""
             )
@@ -106,222 +152,218 @@ class HTTPException(Exception):
 
 
 class BadRequest(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(400, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(400, name=name, description=description)
 
 
 class Unauthorized(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(401, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(401, name=name, description=description)
 
 
 class PaymentRequired(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(402, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(402, name=name, description=description)
 
 
 class Forbidden(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(403, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(403, name=name, description=description)
 
 
 class NotFound(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(404, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(404, name=name, description=description)
 
 
 class MethodNotAllowed(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(405, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(405, name=name, description=description)
 
 
 class NotAcceptable(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(406, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(406, name=name, description=description)
 
 
 class ProxyAuthenticationRequired(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(407, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(407, name=name, description=description)
 
 
 class RequestTimeout(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(408, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(408, name=name, description=description)
 
 
 class Conflict(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(409, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(409, name=name, description=description)
 
 
 class Gone(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(410, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(410, name=name, description=description)
 
 
 class LengthRequired(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(411, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(411, name=name, description=description)
 
 
 class PreconditionFailed(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(412, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(412, name=name, description=description)
 
 
 class RequestEntityTooLarge(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(413, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(413, name=name, description=description)
 
 
 class RequestURITooLong(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(414, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(414, name=name, description=description)
 
 
 class UnsupportedMediaType(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(415, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(415, name=name, description=description)
 
 
 class RequestedRangeNotSatisfiable(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(416, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(416, name=name, description=description)
 
 
 class ExpectationFailed(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(417, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(417, name=name, description=description)
 
 
 class IMATeapot(HTTPException):
-    """Described in https://tools.ietf.org/html/rfc2324.html#section-2.3.2"""
-
-    def __init__(self, detail: str = None, description: str = None):
-        if detail is None:
-            detail = "I'm a Teapot"  # For py < 3.9
+    def __init__(self, name: str = None, description: str = None):
+        if name is None:
+            name = "I'm a Teapot"  # For py < 3.9
         if description is None:
             description = (
                 "Server refuses to brew coffee because it is a teapot."
             )
-        super().__init__(418, detail=detail, description=description)
+        super().__init__(418, name=name, description=description)
 
 
 class MisdirectedRequest(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        if detail is None:
-            detail = "Misdirected Request"  # For py < 3.7
+    def __init__(self, name: str = None, description: str = None):
+        if name is None:
+            name = "Misdirected Request"  # For py < 3.7
         if description is None:
             description = "Server is not able to produce a response"
-        super().__init__(421, detail=detail, description=description)
+        super().__init__(421, name=name, description=description)
 
 
 class UnprocessableEntity(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(422, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(422, name=name, description=description)
 
 
 class Locked(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(423, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(423, name=name, description=description)
 
 
 class FailedDependency(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(424, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(424, name=name, description=description)
 
 
 class TooEarly(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        if detail is None:
-            detail = "Too Early"  # For py < 3.9
+    def __init__(self, name: str = None, description: str = None):
+        if name is None:
+            name = "Too Early"  # For py < 3.9
         if description is None:
             description = "Server is unwilling to risk processing a request that might be replayed"
-        super().__init__(425, detail=detail, description=description)
+        super().__init__(425, name=name, description=description)
 
 
 class UpgradeRequired(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(426, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(426, name=name, description=description)
 
 
 class PreconditionRequired(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(428, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(428, name=name, description=description)
 
 
 class TooManyRequests(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(429, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(429, name=name, description=description)
 
 
 class RequestHeaderFieldsTooLarge(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(431, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(431, name=name, description=description)
 
 
 class UnavailableForLegalReasons(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        if detail is None:
-            detail = "Unavailable For Legal Reasons"  # For py < 3.8
+    def __init__(self, name: str = None, description: str = None):
+        if name is None:
+            name = "Unavailable For Legal Reasons"  # For py < 3.8
         if description is None:
             description = "The server is denying access to the resource as a consequence of a legal demand"
-        super().__init__(451, detail=detail, description=description)
+        super().__init__(451, name=name, description=description)
 
 
 class InternalServerError(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(500, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(500, name=name, description=description)
 
 
 class NotImplemented(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(501, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(501, name=name, description=description)
 
 
 class BadGateway(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(502, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(502, name=name, description=description)
 
 
 class ServiceUnavailable(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(503, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(503, name=name, description=description)
 
 
 class GatewayTimeout(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(504, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(504, name=name, description=description)
 
 
 class HTTPVersionNotSupported(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(505, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(505, name=name, description=description)
 
 
 class VariantAlsoNegotiates(HTTPException):
-    """Described in https://tools.ietf.org/html/rfc2295.html#section-8.1"""
-
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(506, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(506, name=name, description=description)
 
 
 class InsufficientStorage(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(507, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(507, name=name, description=description)
 
 
 class LoopDetected(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(508, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(508, name=name, description=description)
 
 
 class NotExtended(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(510, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(510, name=name, description=description)
 
 
 class NetworkAuthenticationRequired(HTTPException):
-    def __init__(self, detail: str = None, description: str = None):
-        super().__init__(511, detail=detail, description=description)
+    def __init__(self, name: str = None, description: str = None):
+        super().__init__(511, name=name, description=description)
