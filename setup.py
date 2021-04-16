@@ -1,40 +1,77 @@
 from setuptools import setup
 import re
+import os
 
-requirements = []
-with open("requirements.txt") as f:
-    requirements = f.read().splitlines()
 
-version = ""
-with open("baguette/__init__.py") as f:
-    version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', f.read(), re.MULTILINE).group(1)
+def get_version(package):
+    """Return package version as listed in `__version__` in `init.py`."""
+    path = os.path.join(package, "__init__.py")
+    version = ""
+    with open(path, "r", encoding="utf8") as init_py:
+        version = re.search(
+            r"^__version__\s*=\s*['\"]([^'\"]*)['\"]",
+            init_py.read(),
+            re.MULTILINE,
+        ).group(1)
 
-if not version:
-    raise RuntimeError("version is not set")
+    if not version:
+        raise RuntimeError(f"__version__ is not set in {path}")
 
-readme = ""
-with open("README.rst") as f:
-    readme = f.read()
+    return version
+
+
+def get_packages(package):
+    """Return root package and all sub-packages."""
+    return [
+        dirpath
+        for dirpath, *_ in os.walk(package)
+        if os.path.exists(os.path.join(dirpath, "__init__.py"))
+    ]
+
+
+def get_long_description():
+    """Return the README."""
+    with open("README.rst", "r", encoding="utf8") as readme:
+        long_description = readme.read()
+    return long_description
+
+
+def get_requirements():
+    """Return the requirements."""
+    requirements = []
+    with open("requirements.txt", "r", encoding="utf8") as requirements_txt:
+        requirements = requirements_txt.read().splitlines()
+    return requirements
 
 
 setup(
     name="baguette",
-    author="takos22",
+    version=get_version("baguette"),
     url="https://github.com/takos22/baguette",
-    project_urls={
-        "Documentation": "https://baguette.readthedocs.io/en/latest/",
-        "Issue tracker": "https://github.com/takos22/baguette/issues",
-    },
-    version=version,
-    packages=["baguette"],
     license="MIT",
     description="Asynchronous web framework.",
-    long_description=readme,
+    long_description=get_long_description(),
     long_description_content_type="text/x-rst",
-    install_requires=requirements,
+    author="takos22",
+    author_email="takos2210@gmail.com",
+    packages=get_packages("baguette"),
     python_requires=">=3.6",
+    install_requires=get_requirements(),
+    extras_require={"uvicorn": ["uvicorn[standard]"]},
+    project_urls={
+        "Documentation": "https://baguette.readthedocs.io/",
+        "Issue tracker": "https://github.com/takos22/baguette/issues",
+    },
     classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Environment :: Web Environment",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Topic :: Internet :: WWW/HTTP",
         "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
