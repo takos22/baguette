@@ -15,6 +15,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.abspath(".."))
+sys.path.append(os.path.abspath("extensions"))
 
 
 # -- Project information -----------------------------------------------------
@@ -31,11 +32,14 @@ author = "takos22"
 
 version = ""
 with open("../baguette/__init__.py") as f:
-    version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]', f.read(), re.MULTILINE).group(1)
+    version = re.search(
+        r"^__version__\s*=\s*['\"]([^'\"]*)['\"]", f.read(), re.MULTILINE
+    ).group(1)
 
 # The full version, including alpha/beta/rc tags
 release = version
 
+branch = "master" if version.endswith("a") else "v" + version
 
 # -- General configuration ---------------------------------------------------
 
@@ -48,15 +52,15 @@ needs_sphinx = "3.0"
 extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.coverage",
-    'sphinx.ext.extlinks',
+    "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
+    "resourcelinks"
 ]
 
 # Links used for cross-referencing stuff in other documentation
 intersphinx_mapping = {
     "py": ("https://docs.python.org/3", None),
-    "req": ("https://requests.readthedocs.io/en/latest/", None)
 }
 
 # Add any paths that contain templates here, relative to this directory.
@@ -82,3 +86,9 @@ html_theme = "alabaster"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+
+resource_links = {
+    "discord": "https://discord.gg/PGC3eAznJ6",
+    "issues": "https://github.com/takos22/baguette/issues",
+    "examples": f"https://github.com/takos22/baguette/tree/{branch}/examples",
+}
