@@ -1,12 +1,11 @@
 from baguette import Baguette, View
 
-app = Baguette(debug=True)
+app = Baguette(error_response_type="html")
 
 
 @app.route("/")
-@app.route("/index")
 async def index(request):
-    return "<h1>Hello world</h1>"
+    return "<h1>Hello world</h1>\n<a href=\"/home\">Home</a>"
 
 
 @app.route("/home")
