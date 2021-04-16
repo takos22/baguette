@@ -21,3 +21,5 @@ __all__ = ["Baguette", "View"]
 
 from .app import Baguette
 from .view import View
+from . import testing
+
