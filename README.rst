@@ -14,6 +14,7 @@ baguette - asynchronous web framework
     :target: https://baguette.readthedocs.io/en/latest/
     :alt: Documentation Status
 .. image:: https://img.shields.io/github/license/takos22/baguette?color=brightgreen
+    :target: https://github.com/takos22/baguette/blob/master/LICENSE
     :alt: License: MIT
 .. image:: https://img.shields.io/discord/831992562986123376.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2
     :target: https://discord.gg/PGC3eAznJ6
