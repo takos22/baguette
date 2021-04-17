@@ -51,7 +51,7 @@ Create an application, in ``example.py``:
 
     app = Baguette()
 
-    @app.endpoint("/")
+    @app.route("/")
     async def index(request):
         return "<h1>Hello world</h1>"
 
