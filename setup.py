@@ -29,20 +29,25 @@ def get_packages(package):
     ]
 
 
-def get_long_description():
+def get_long_description(filename: str = "README.rst"):
     """Return the README."""
-    with open("README.rst", "r", encoding="utf8") as readme:
+    with open(filename, "r", encoding="utf8") as readme:
         long_description = readme.read()
     return long_description
 
 
-def get_requirements():
+def get_requirements(filename: str = "requirements.txt"):
     """Return the requirements."""
     requirements = []
-    with open("requirements.txt", "r", encoding="utf8") as requirements_txt:
+    with open(filename, "r", encoding="utf8") as requirements_txt:
         requirements = requirements_txt.read().splitlines()
     return requirements
 
+
+extra_requires = {
+    "uvicorn": ["uvicorn[standard]"],
+    "dev": get_requirements("dev-requirements.txt")
+}
 
 setup(
     name="baguette",
@@ -57,7 +62,7 @@ setup(
     packages=get_packages("baguette"),
     python_requires=">=3.6",
     install_requires=get_requirements(),
-    extras_require={"uvicorn": ["uvicorn[standard]"]},
+    extras_require=extra_requires,
     project_urls={
         "Documentation": "https://baguette.readthedocs.io/",
         "Issue tracker": "https://github.com/takos22/baguette/issues",
