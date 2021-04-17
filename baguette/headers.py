@@ -1,10 +1,10 @@
 import itertools
-from typing import Dict, Union
+import typing
 
 
 class Headers:
     def __init__(self, *args, **kwargs):
-        self._headers: Dict[str, str] = {}
+        self._headers: typing.Dict[str, str] = {}
 
         for name, value in itertools.chain(args, kwargs.items()):
             if type(name) == bytes:
@@ -56,10 +56,12 @@ class Headers:
     def __contains__(self, name):
         return name in self._headers
 
-    def __add__(self, other: Union["Headers", Dict[str, str]]):
+    def __add__(self, other: typing.Union["Headers", typing.Mapping[str, str]]):
         return Headers(**self, **other)
 
-    def __iadd__(self, other: Union["Headers", Dict[str, str]]):
+    def __iadd__(
+        self, other: typing.Union["Headers", typing.Mapping[str, str]]
+    ):
         for name, value in other.items():
             if type(name) == bytes:
                 name = name.decode("ascii")

@@ -1,6 +1,6 @@
 import json
+import typing
 from urllib.parse import parse_qs
-from typing import Dict, List, Tuple
 
 from .headers import Headers
 from .utils import get_encoding_from_headers
@@ -21,12 +21,12 @@ class Request:
         self.scheme: str = scope["scheme"]
         self.root_path: str = scope["root_path"]
         self.path: str = scope["path"].rstrip("/") or "/"
-        self.querystring: Dict[str, List[str]] = parse_qs(
+        self.querystring: typing.Dict[str, typing.List[str]] = parse_qs(
             scope["query_string"].decode("ascii")
         )
 
-        self.server: Tuple[str, int] = scope["server"]
-        self.client: Tuple[str, int] = scope["client"]
+        self.server: typing.Tuple[str, int] = scope["server"]
+        self.client: typing.Tuple[str, int] = scope["client"]
 
     async def body(self):
         # caching

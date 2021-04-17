@@ -1,7 +1,7 @@
 import inspect
 import re
-import typing
 import traceback
+import typing
 
 from .headers import Headers
 from .httpexceptions import HTTPException
@@ -13,8 +13,10 @@ from .response import (
     PlainTextResponse,
     Response,
 )
-from .router import Router, Route
-from .types import Scope, Receive, Send, Result, Handler, Headers as HeaderType
+from .router import Route, Router
+from .types import Handler
+from .types import Headers as HeaderType
+from .types import Receive, Result, Scope, Send
 from .view import View
 
 HTML_TAG_REGEX = re.compile(r"<\s*\w+[^>]*>.*?<\s*/\s*\w+\s*>")

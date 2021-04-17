@@ -1,5 +1,5 @@
 import json
-from typing import Any, Union
+import typing
 
 from .headers import Headers
 
@@ -9,9 +9,9 @@ class Response:
 
     def __init__(
         self,
-        body: Union[str, bytes],
+        body: typing.Union[str, bytes],
         status_code: int = 200,
-        headers: Union[dict, Headers] = {},
+        headers: typing.Union[dict, Headers] = {},
     ):
         if type(body) == str:
             body = body.encode(self.CHARSET)
@@ -38,9 +38,9 @@ class Response:
 class JSONResponse(Response):
     def __init__(
         self,
-        data: Any,
+        data: typing.Any,
         status_code: int = 200,
-        headers: Union[dict, Headers] = {},
+        headers: typing.Union[dict, Headers] = {},
     ):
         body: str = json.dumps(data)
         headers["content-type"] = "application/json"
@@ -50,9 +50,9 @@ class JSONResponse(Response):
 class PlainTextResponse(Response):
     def __init__(
         self,
-        text: Union[str, bytes],
+        text: typing.Union[str, bytes],
         status_code: int = 200,
-        headers: Union[dict, Headers] = {},
+        headers: typing.Union[dict, Headers] = {},
     ):
         headers["content-type"] = "text/plain; charset=" + self.CHARSET
         super().__init__(text, status_code, headers)
@@ -61,9 +61,9 @@ class PlainTextResponse(Response):
 class HTMLResponse(Response):
     def __init__(
         self,
-        html: Union[str, bytes],
+        html: typing.Union[str, bytes],
         status_code: int = 200,
-        headers: Union[dict, Headers] = {},
+        headers: typing.Union[dict, Headers] = {},
     ):
         headers["content-type"] = "text/html; charset=" + self.CHARSET
         super().__init__(html, status_code, headers)
@@ -73,6 +73,6 @@ class EmptyResponse(PlainTextResponse):
     def __init__(
         self,
         status_code: int = 204,
-        headers: Union[dict, Headers] = {},
+        headers: typing.Union[dict, Headers] = {},
     ):
         super().__init__("", status_code, headers)

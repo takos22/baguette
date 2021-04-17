@@ -1,6 +1,7 @@
-from setuptools import setup
-import re
 import os
+import re
+
+from setuptools import setup
 
 
 def get_version(package):
@@ -46,7 +47,7 @@ def get_requirements(filename: str = "requirements.txt"):
 
 extra_requires = {
     "uvicorn": ["uvicorn[standard]"],
-    "dev": get_requirements("dev-requirements.txt")
+    "dev": get_requirements("dev-requirements.txt"),
 }
 
 setup(

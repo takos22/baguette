@@ -5,7 +5,7 @@ app = Baguette(error_response_type="html")
 
 @app.route("/")
 async def index(request):
-    return "<h1>Hello world</h1>\n<a href=\"/home\">Home</a>"
+    return '<h1>Hello world</h1>\n<a href="/home">Home</a>'
 
 
 @app.route("/home")

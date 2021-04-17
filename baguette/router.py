@@ -1,6 +1,6 @@
 import typing
 
-from .httpexceptions import NotFound, MethodNotAllowed
+from .httpexceptions import MethodNotAllowed, NotFound
 from .types import Handler
 
 

@@ -14,8 +14,8 @@ ASGIApp = typing.Callable[[Scope, Receive, Send], typing.Awaitable[None]]
 
 Headers = typing.Union[
     Headers_,
-    typing.Dict[str, str],
-    typing.List[typing.Tuple[str, str]],
+    typing.Mapping[str, str],
+    typing.Sequence[typing.Tuple[str, str]],
 ]
 
 Result = typing.Union[
