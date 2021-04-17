@@ -56,7 +56,7 @@ class TestClient:
             json=json,
             headers=headers,
         )
-        response = self.app.handle_request(request)
+        response = await self.app.handle_request(request)
         return response
 
     def prepare_request(
@@ -71,11 +71,14 @@ class TestClient:
     ) -> Request:
         headers: Headers = self.prepare_headers(headers)
         querystring: str = self.prepare_querystring(params)
-        scope = self.default_scope + {
-            "method": method.upper(),
-            "path": path,
-            "headers": headers.raw(),
-            "query_string": querystring.encode("ascii"),
+        scope = {
+            **self.default_scope,
+            **{
+                "method": method.upper(),
+                "path": path,
+                "headers": headers.raw(),
+                "query_string": querystring.encode("ascii"),
+            },
         }
 
         request = Request(self.app, scope, None)
