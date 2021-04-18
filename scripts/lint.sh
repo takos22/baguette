@@ -1,4 +1,5 @@
-#!/bin/sh -e
+#!/bin/sh
+set -e
 set -x
 
 folders="baguette tests examples"
@@ -15,5 +16,5 @@ black $folders --check --line-length 80
 isort $folders --check-only
 
 # check package build for README.rst
-python setup.py --quiet sdist
+python3 setup.py --quiet sdist
 twine check dist/*

@@ -1,8 +1,9 @@
 import pytest
-from baguette.testing import TestClient
+
+from baguette import testing
 
 
 @pytest.mark.asyncio
-async def test_app(app: TestClient):
+async def test_app(app: testing.TestClient):
     response = await app.request("GET", "/")
     assert response.body == "Hello, world!".encode("utf-8")

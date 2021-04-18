@@ -1,4 +1,5 @@
-#!/bin/sh -e
+#!/bin/sh
+set -e
 set -x
 
 # put every import on one line for autoflake remove unused imports
