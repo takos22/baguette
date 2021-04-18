@@ -13,4 +13,4 @@ async def json(request):
     if request.method == "GET":
         return {"message": "Hello, World!"}
     elif request.method == "POST":
-        return {"message": "Posted"}
+        return await request.json()
