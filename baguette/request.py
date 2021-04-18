@@ -3,6 +3,7 @@ import typing
 from urllib.parse import parse_qs
 
 from .headers import Headers
+from .httpexceptions import BadRequest
 from .utils import get_encoding_from_headers
 
 
@@ -17,7 +18,7 @@ class Request:
 
         self.headers: Headers = Headers(*scope["headers"])
         self.encoding: str = get_encoding_from_headers(self.headers) or "utf-8"
-        self.method: str = scope["method"]
+        self.method: str = scope["method"].upper()
         self.scheme: str = scope["scheme"]
         self.root_path: str = scope["root_path"]
         self.path: str = scope["path"].rstrip("/") or "/"
@@ -53,5 +54,5 @@ class Request:
         try:
             self._json = json.loads(body)
         except json.JSONDecodeError:
-            raise ValueError("Can't decode body as JSON")
+            raise BadRequest(description="Can't decode body as JSON")
         return self._json
