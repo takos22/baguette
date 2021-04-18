@@ -27,14 +27,17 @@ class Headers:
     def raw(self):
         return [
             [name.encode("ascii"), value.encode("ascii")]
-            for name, value in self.items()
+            for name, value in self
         ]
 
     def __str__(self) -> str:
-        return "\n".join(name + ": " + value for name, value in self.items())
+        return "\n".join(name + ": " + value for name, value in self)
 
     def __iter__(self):
-        return iter(self._headers.items())
+        return iter(self.items())
+
+    def __len__(self):
+        return len(self._headers)
 
     def __getitem__(self, name):
         if type(name) == bytes:
@@ -57,7 +60,9 @@ class Headers:
         return name in self._headers
 
     def __add__(self, other: typing.Union["Headers", typing.Mapping[str, str]]):
-        return Headers(**self, **other)
+        new = Headers(**self)
+        new += other
+        return new
 
     def __iadd__(
         self, other: typing.Union["Headers", typing.Mapping[str, str]]

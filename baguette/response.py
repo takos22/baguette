@@ -13,9 +13,15 @@ class Response:
         status_code: int = 200,
         headers: typing.Union[dict, Headers] = {},
     ):
-        if type(body) == str:
-            body = body.encode(self.CHARSET)
-        self.body: bytes = body
+        if isinstance(body, str):
+            self.text: str = body
+            self.body: bytes = body.encode(self.CHARSET)
+        elif isinstance(body, bytes):
+            self.text: str = body.decode(self.CHARSET)
+            self.body: bytes = body
+        else:
+            raise ValueError("body must be str or bytes")
+
         self.status_code = status_code
         self.headers = Headers(**headers)
 
@@ -42,6 +48,7 @@ class JSONResponse(Response):
         status_code: int = 200,
         headers: typing.Union[dict, Headers] = {},
     ):
+        self.json = data
         body: str = json.dumps(data)
         headers["content-type"] = "application/json"
         super().__init__(body, status_code, headers)

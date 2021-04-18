@@ -38,7 +38,7 @@ Status code               Name                       Exception class            
 451         Unavailable For Legal Reasons   ``UnavailableForLegalReasons``    Server is denying access to the resource as a consequence of a legal demand.                                                                                                                                   `RFC 7725, Section 3       <https://tools.ietf.org/html/rfc7725.html#section-3>`_
 
 500         Internal Server Error           ``InternalServerError``           Server got itself in trouble.                                                                                                                                                                                  `RFC 7231, Section 6.6.1   <https://tools.ietf.org/html/rfc7231.html#section-6.6.1>`_
-501         Not Implemented                 ``Not Implemented``               Server does not support this operation.                                                                                                                                                                        `RFC 7231, Section 6.6.2   <https://tools.ietf.org/html/rfc7231.html#section-6.6.2>`_
+501         Not Implemented                 ``NotImplemented``               Server does not support this operation.                                                                                                                                                                        `RFC 7231, Section 6.6.2   <https://tools.ietf.org/html/rfc7231.html#section-6.6.2>`_
 502         Bad Gateway                     ``BadGateway``                    Invalid responses from another server/proxy.                                                                                                                                                                   `RFC 7231, Section 6.6.3   <https://tools.ietf.org/html/rfc7231.html#section-6.6.3>`_
 503         Service Unavailable             ``ServiceUnavailable``            Server cannot process the request due to a high load.                                                                                                                                                          `RFC 7231, Section 6.6.4   <https://tools.ietf.org/html/rfc7231.html#section-6.6.4>`_
 504         Gateway Timeout                 ``GatewayTimeout``                Gateway server did not receive a timely response.                                                                                                                                                              `RFC 7231, Section 6.6.5   <https://tools.ietf.org/html/rfc7231.html#section-6.6.5>`_
@@ -87,7 +87,7 @@ class HTTPException(Exception):
     def response(
         self,
         type_: str = "plain",
-        include_description: bool = False,
+        include_description: bool = True,
         traceback: str = None,
     ) -> response.Response:
         """Return a Response for error handling.
@@ -99,7 +99,9 @@ class HTTPException(Exception):
 
             include_description: :class:`bool`
                 Wether to include the description in the response.
-                In debug mode this is the error traceback.
+
+            traceback: Optional[:class:`str`]
+                Error traceback, usually only included in debug mode.
 
         Raises
         ------
@@ -142,11 +144,9 @@ class HTTPException(Exception):
             )
 
     def __repr__(self) -> str:
-        class_name = self.__class__.__name__
         return (
-            "HTTP Exception {1}: {0.status_code} {0.name}"
-            "{2}{0.description}".format(
-                self, class_name, ": " if self.description else ""
+            "HTTP Exception: {0.status_code} {0.name}{1}{0.description}".format(
+                self, ": " if self.description else ""
             )
         )
 
