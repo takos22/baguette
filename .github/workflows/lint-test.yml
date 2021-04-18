@@ -27,6 +27,15 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r dev-requirements.txt
 
-    - name: Run linting and testing script
+    - name: Run linting script
+      run: |
+        ./scripts/lint.sh
+
+    - name: Run testing script
       run: |
         ./scripts/test.sh
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        fail_ci_if_error: true
