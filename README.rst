@@ -6,22 +6,16 @@ baguette - asynchronous web framework
     :alt: PyPI version info
 .. image:: https://img.shields.io/pypi/pyversions/baguette?color=orange
     :target: https://pypi.python.org/pypi/baguette
-    :alt: PyPI supported Python versions
-.. image:: https://img.shields.io/pypi/dm/baguette
-    :target: https://pypi.python.org/pypi/baguette
-    :alt: PyPI downloads
-.. image:: https://img.shields.io/github/checks-status/takos22/baguette/master?label=workflows
+    :alt: Supported Python versions
+.. image:: https://img.shields.io/github/checks-status/takos22/baguette/master?label=tests
     :target: https://github.com/takos22/baguette/actions/workflows/lint-test.yml
     :alt: Lint and test workflow status
+.. image:: https://readthedocs.org/projects/baguette/badge/?version=latest
+    :target: https://baguette.readthedocs.io/en/latest/
+    :alt: Documentation build status
 .. image:: https://codecov.io/gh/takos22/baguette/branch/master/graph/badge.svg?token=0P3BV8D3AJ
     :target: https://codecov.io/gh/takos22/baguette
     :alt: Code coverage
-.. image:: https://readthedocs.org/projects/baguette/badge/?version=latest
-    :target: https://baguette.readthedocs.io/en/latest/
-    :alt: Documentation Status
-.. image:: https://img.shields.io/github/license/takos22/baguette?color=brightgreen
-    :target: https://github.com/takos22/baguette/blob/master/LICENSE
-    :alt: License: MIT
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/psf/black
     :alt: Code style: Black
