@@ -10,12 +10,21 @@ baguette - asynchronous web framework
 .. image:: https://img.shields.io/pypi/dm/baguette
     :target: https://pypi.python.org/pypi/baguette
     :alt: PyPI downloads
+.. image:: https://codecov.io/gh/takos22/baguette/branch/master/graph/badge.svg?token=0P3BV8D3AJ
+    :target: https://codecov.io/gh/takos22/baguette
+    :alt: Code coverage
+.. image:: https://github.com/takos22/baguette/actions/workflows/lint-test.yml/badge.svg
+    :target: https://github.com/takos22/baguette/actions/workflows/lint-test.yml
+    :alt: Lint and test workflow status
 .. image:: https://readthedocs.org/projects/baguette/badge/?version=latest
     :target: https://baguette.readthedocs.io/en/latest/
     :alt: Documentation Status
 .. image:: https://img.shields.io/github/license/takos22/baguette?color=brightgreen
     :target: https://github.com/takos22/baguette/blob/master/LICENSE
     :alt: License: MIT
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/psf/black
+    :alt: Code style: Black
 .. image:: https://img.shields.io/discord/831992562986123376.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2
     :target: https://discord.gg/PGC3eAznJ6
     :alt: Discord support server
