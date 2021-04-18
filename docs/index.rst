@@ -32,7 +32,7 @@ baguette is a micro web framework for ASGI servers.
 Getting started
 -----------------
 
-Is this your first time using the framwork? This is the place to get started!
+Is this your first time using the framweork? This is the place to get started!
 
 - **First steps:** :doc:`intro` | :doc:`quickstart`
 - **Examples:** Many examples are available in the :resource:`repository <examples>`.
