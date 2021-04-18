@@ -125,7 +125,7 @@ class Baguette:
                 handler: Handler = func_or_class(self)
                 allowed_methods = handler.methods
             else:
-                allowed_methods = ["GET", "HEAD"]
+                allowed_methods = methods or ["GET", "HEAD"]
                 handler: Handler = func_or_class
 
             self.add_route(handler, path, allowed_methods, name)
@@ -133,9 +133,3 @@ class Baguette:
             return func_or_class
 
         return decorator
-
-    async def not_found(self, request):
-        return "404: Not Found", 404
-
-    async def method_not_allowed(self, request):
-        return "405: Method Not Allowed", 405
