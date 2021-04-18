@@ -10,12 +10,12 @@ baguette - asynchronous web framework
 .. image:: https://img.shields.io/pypi/dm/baguette
     :target: https://pypi.python.org/pypi/baguette
     :alt: PyPI downloads
+.. image:: https://img.shields.io/github/checks-status/takos22/baguette/master?label=workflows
+    :target: https://github.com/takos22/baguette/actions/workflows/lint-test.yml
+    :alt: Lint and test workflow status
 .. image:: https://codecov.io/gh/takos22/baguette/branch/master/graph/badge.svg?token=0P3BV8D3AJ
     :target: https://codecov.io/gh/takos22/baguette
     :alt: Code coverage
-.. image:: https://github.com/takos22/baguette/actions/workflows/lint-test.yml/badge.svg
-    :target: https://github.com/takos22/baguette/actions/workflows/lint-test.yml
-    :alt: Lint and test workflow status
 .. image:: https://readthedocs.org/projects/baguette/badge/?version=latest
     :target: https://baguette.readthedocs.io/en/latest/
     :alt: Documentation Status
