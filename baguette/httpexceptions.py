@@ -54,7 +54,7 @@ Status code               Name                       Exception class            
 
 import http
 
-from . import response
+from . import responses
 
 
 class HTTPException(Exception):
@@ -89,7 +89,7 @@ class HTTPException(Exception):
         type_: str = "plain",
         include_description: bool = True,
         traceback: str = None,
-    ) -> response.Response:
+    ) -> responses.Response:
         """Return a Response for error handling.
 
         Arguments
@@ -120,7 +120,7 @@ class HTTPException(Exception):
                 text += ": " + self.description
             if traceback is not None:
                 text += "\n" + traceback
-            return response.PlainTextResponse(text, self.status_code)
+            return responses.PlainTextResponse(text, self.status_code)
 
         elif type_ == "json":
             data = {"error": {"status": self.status_code, "message": self.name}}
@@ -128,7 +128,7 @@ class HTTPException(Exception):
                 data["error"]["description"] = self.description
             if traceback is not None:
                 data["error"]["traceback"] = traceback
-            return response.JSONResponse(data, self.status_code)
+            return responses.JSONResponse(data, self.status_code)
 
         elif type_ == "html":
             html = f"<h1>{self.status_code} {self.name}</h1>"
@@ -136,7 +136,7 @@ class HTTPException(Exception):
                 html += f"\n<h2>{self.description}</h2>"
             if traceback is not None:
                 html += f"\n<pre><code>{traceback}</code></pre>"
-            return response.HTMLResponse(html, self.status_code)
+            return responses.HTMLResponse(html, self.status_code)
 
         else:
             raise ValueError(

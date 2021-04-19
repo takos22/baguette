@@ -2,7 +2,7 @@ import typing
 
 from .headers import Headers as Headers_
 from .request import Request
-from .response import Response
+from .responses import Response
 
 Scope = typing.MutableMapping[str, typing.Any]
 Message = typing.MutableMapping[str, typing.Any]

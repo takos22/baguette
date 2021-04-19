@@ -6,7 +6,7 @@ import typing
 from .headers import Headers
 from .httpexceptions import HTTPException
 from .request import Request
-from .response import (
+from .responses import (
     EmptyResponse,
     HTMLResponse,
     JSONResponse,

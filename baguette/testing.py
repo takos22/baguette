@@ -6,7 +6,7 @@ from urllib.parse import urlencode
 from .app import Baguette
 from .headers import Headers
 from .request import Request
-from .response import Response
+from .responses import Response
 from .types import Headers as HeadersType
 
 ParamsType = typing.Union[

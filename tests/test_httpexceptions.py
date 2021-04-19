@@ -2,7 +2,7 @@ import typing
 
 import pytest
 
-from baguette import response
+from baguette import responses
 from baguette.httpexceptions import (
     BadGateway,
     BadRequest,
@@ -265,13 +265,13 @@ def test_errors(
 @pytest.mark.parametrize(
     ["type_", "response_type"],
     [
-        ["plain", response.PlainTextResponse],
-        ["json", response.JSONResponse],
-        ["html", response.HTMLResponse],
+        ["plain", responses.PlainTextResponse],
+        ["json", responses.JSONResponse],
+        ["html", responses.HTMLResponse],
     ],
 )
 def test_error_response(
-    type_: str, response_type: typing.Type[response.Response]
+    type_: str, response_type: typing.Type[responses.Response]
 ):
     error = HTTPException(400)
     response = error.response(
