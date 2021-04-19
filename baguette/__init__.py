@@ -17,8 +17,17 @@ __title__ = "baguette"
 __author__ = "takos22"
 __version__ = "0.0.3"
 
-__all__ = ["Baguette", "View"]
+__all__ = [
+    "Baguette",
+    "Headers",
+    "Response",
+    "Request",
+    "View",
+]
 
 from . import testing
 from .app import Baguette
+from .headers import Headers
+from .request import Request
+from .responses import Response
 from .view import View
