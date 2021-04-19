@@ -44,3 +44,10 @@ def create_scope():
         ],
         "query_string": b"a=b",
     }
+
+
+@pytest.fixture(name="test_request")
+def create_request(scope):
+    from .app import app
+
+    return baguette.Request(app, scope, Receive())
