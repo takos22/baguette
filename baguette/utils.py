@@ -2,7 +2,7 @@ import cgi
 
 
 def get_encoding_from_headers(headers):
-    """Returns encodings from given HTTP Header Dict."""
+    """Returns encodings from given HTTP Headers."""
 
     content_type = headers.get("content-type")
 
