@@ -1,6 +1,7 @@
-import cachetools
 import re
 import typing
+
+import cachetools
 
 from .converters import (
     Converter,
@@ -8,7 +9,7 @@ from .converters import (
     IntegerConverter,
     StringConverter,
 )
-from .httpexceptions import MethodNotAllowed, NotFound
+from .httpexceptions import MethodNotAllowed
 from .types import Handler
 
 
@@ -40,7 +41,7 @@ class Route:
         self.converters = {}
         self.build_converters()
 
-        self.regex = r""
+        self.regex = re.compile(r"")
         self.build_regex()
 
     def build_converters(self):
