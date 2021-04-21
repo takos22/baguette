@@ -1,25 +1,27 @@
 from baguette import Baguette, View
-from baguette.httpexceptions import BadRequest
+from baguette.httpexceptions import BadRequest, NotFound
+from baguette.responses import EmptyResponse
 
 app = Baguette(debug=True, error_response_type="json")
 
 API_VERSION = "1.0"
+REQUIRED_FIELDS = {"name", "email"}
+
+users = {}  # TODO: use DB
+# user: {"id": int, "name": str, "email": str}
 
 
 @app.route("/", methods=["GET"])
-async def index(request):
+async def index():
     return {"version": API_VERSION}
 
 
 @app.route("/users")
-class UserView(View):
+class UserList(View):
     id = 1
-    users = []  # TODO: use DB
-    REQUIRED_FIELDS = {"name", "email"}
-    # user: {"id": int, "name": str, "email": str}
 
-    async def get(self, request):
-        return self.users
+    async def get(self):
+        return list(users.values())
 
     async def post(self, request):
         try:
@@ -30,19 +32,34 @@ class UserView(View):
         if type(user) is not dict:
             raise BadRequest(description="Dict required")
 
-        if self.REQUIRED_FIELDS - set(user.keys()) != set():
+        if REQUIRED_FIELDS - set(user.keys()) != set():
             raise BadRequest(
                 description="Must include: " + ", ".join(self.REQUIRED_FIELDS)
             )
 
-        if set(user.keys()) - self.REQUIRED_FIELDS != set():
+        if set(user.keys()) - REQUIRED_FIELDS != set():
             raise BadRequest(
-                description="Must only include: "
-                + ", ".join(self.REQUIRED_FIELDS)
+                description="Must only include: " + ", ".join(REQUIRED_FIELDS)
             )
 
         user["id"] = self.id
-        self.users.append(user)
+        users[user["id"]] = user
         self.id += 1
 
         return user
+
+
+@app.route("/users/<user_id:int>")
+class UserDetail(View):
+    async def get(self, user_id: int):
+        if user_id not in users:
+            raise NotFound(description=f"No user with ID {user_id}")
+
+        return users[user_id]
+
+    async def delete(self, user_id: int):
+        if user_id not in users:
+            raise NotFound(description=f"No user with ID {user_id}")
+
+        del users[user_id]
+        return EmptyResponse()
