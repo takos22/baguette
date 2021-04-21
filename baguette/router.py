@@ -10,8 +10,9 @@ from .converters import (
     IntegerConverter,
     StringConverter,
 )
-from .httpexceptions import MethodNotAllowed
+from .httpexceptions import MethodNotAllowed, NotFound
 from .types import Handler
+from .view import View
 
 
 class Route:
@@ -45,6 +46,7 @@ class Route:
             for param in handler_signature.parameters.values()
             if param.kind in (param.POSITIONAL_OR_KEYWORD, param.KEYWORD_ONLY)
         ]
+        self.handler_is_class = isinstance(handler, View)
 
         self.converters = {}
         self.build_converters()
@@ -55,13 +57,12 @@ class Route:
     def build_converters(self):
         segments = self.path.strip("/").split("/")
         for index, segment in enumerate(segments):
-            param = self.PARAM_REGEX.match(segment)
+            param = self.PARAM_REGEX.fullmatch(segment)
             if param is None:
                 continue
 
             groups = param.groupdict()
             groups.setdefault("type", "str")
-            groups.setdefault("args", "")
 
             if groups["type"] not in self.PARAM_CONVERTERS:
                 raise ValueError(
@@ -71,26 +72,36 @@ class Route:
                 )
             converter: Converter = self.PARAM_CONVERTERS[groups["type"]]
 
-            args = self.PARAM_ARGS_REGEX.findall(groups["args"])
             kwargs = {}
-            for name, value in args:
-                if value in ["True", "False"]:
-                    value = True if value == "True" else False
-                elif value.lstrip("+-").isdecimal():
-                    value = int(value)
-                elif value.lstrip("+-").replace(".", "", 1).isdecimal():
-                    value = float(value)
-                else:
-                    value = value.strip("'\"")
-                kwargs[name] = value
+            if "args" in groups and groups["args"] is not None:
+                args = self.PARAM_ARGS_REGEX.findall(groups["args"])
+                for name, value in args:
+                    if value in ["True", "False"]:
+                        value = True if value == "True" else False
+                    elif value.lstrip("+-").isdecimal():
+                        value = int(value)
+                    elif value.lstrip("+-").replace(".", "", 1).isdecimal():
+                        value = float(value)
+                    else:
+                        value = value.strip("'\"")
+                    kwargs[name] = value
 
             self.converters[index] = (groups["name"], converter(**kwargs))
 
     def build_regex(self):
-        pass
+        segments = self.path.strip("/").split("/")
+        regex = r""
+        for index, segment in enumerate(segments):
+            regex += r"\/"
+            if index in self.converters:
+                regex += self.converters[index][1].REGEX
+            else:
+                regex += re.escape(segment)
+
+        self.regex = re.compile(regex)
 
     def match(self, path: str) -> bool:
-        return self.regex.match(path)
+        return self.regex.fullmatch(path)
 
     def convert(self, path: str) -> typing.Dict[str, typing.Any]:
         kwargs = self.defaults.copy()
@@ -129,19 +140,21 @@ class Router:
         methods: typing.List[str] = None,
         name: str = None,
     ) -> Route:
-        name = name or handler.__name__
+        name = name
         route = Route(path, name, handler, methods)
         self.routes.append(route)
         return route
 
     def get(self, path: str, method: str) -> Route:
-        # TODO: regex matching
         route = self._cache.get(path)
         if route is None:
             for possible_route in self.routes:
                 if possible_route.match(path):
                     route = possible_route
                     break
+
+            if route is None:
+                raise NotFound()
 
             self._cache[path] = route
 

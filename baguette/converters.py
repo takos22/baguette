@@ -4,12 +4,20 @@ import typing
 
 
 class Converter(abc.ABC):
+    @property
+    @classmethod
+    @abc.abstractmethod
+    def REGEX(cls) -> str:
+        ...
+
     @abc.abstractmethod
     def convert(self, string: str):
         ...
 
 
 class StringConverter(Converter):
+    REGEX = r"[^\/]+"
+
     def __init__(self, length: typing.Optional[int] = None):
         self.length = length
 
@@ -23,14 +31,14 @@ class StringConverter(Converter):
 
 
 class IntegerConverter(Converter):
+    REGEX = r"(?:\+|-)?\d+"
+
     def __init__(
         self,
-        base: int = 10,
         signed: bool = False,
         min: typing.Optional[int] = None,
         max: typing.Optional[int] = None,
     ):
-        self.base = base
         self.signed = signed
         self.min = min
         self.max = max
@@ -42,7 +50,7 @@ class IntegerConverter(Converter):
                 + string.strip()[0]
             )
 
-        integer = int(string, base=self.base)
+        integer = int(string)
 
         if self.min is not None and integer < self.min:
             raise ValueError(f"Expected integer higher than {self.min}")
@@ -54,6 +62,8 @@ class IntegerConverter(Converter):
 
 
 class FloatConverter(Converter):
+    REGEX = r"(?:\+|-)?(?:\d|\.)+"
+
     def __init__(
         self,
         signed: bool = False,

@@ -55,9 +55,10 @@ class Baguette:
 
             kwargs = route.convert(request.path)
             kwargs["request"] = request
-            kwargs = {
-                k: v for k, v in kwargs.items() if k in route.handler_kwargs
-            }
+            if not route.handler_is_class:
+                kwargs = {
+                    k: v for k, v in kwargs.items() if k in route.handler_kwargs
+                }
 
             return await handler(**kwargs)
 
@@ -132,11 +133,14 @@ class Baguette:
             ):
                 handler: Handler = func_or_class(self)
                 allowed_methods = handler.methods
+
             else:
                 allowed_methods = methods or ["GET", "HEAD"]
                 handler: Handler = func_or_class
 
-            self.add_route(handler, path, allowed_methods, name)
+            self.add_route(
+                handler, path, allowed_methods, name or func_or_class.__name__
+            )
 
             return func_or_class
 

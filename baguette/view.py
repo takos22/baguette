@@ -1,3 +1,4 @@
+import inspect
 import typing
 
 from .httpexceptions import MethodNotAllowed
@@ -24,11 +25,29 @@ class View:
             if hasattr(self, method.lower()):
                 self.methods.append(method)
 
-    async def __call__(self, request):
-        return await self.dispatch(request)
+        self.methods_kwargs = {}
+        for method in self.methods:
+            handler_signature = inspect.signature(getattr(self, method.lower()))
+            self.methods_kwargs[method] = [
+                param.name
+                for param in handler_signature.parameters.values()
+                if param.kind
+                in (param.POSITIONAL_OR_KEYWORD, param.KEYWORD_ONLY)
+            ]
 
-    async def dispatch(self, request):
+    async def __call__(self, request, **kwargs):
+        return await self.dispatch(request, **kwargs)
+
+    async def dispatch(self, request, **kwargs):
         if not hasattr(self, request.method.lower()):
             raise MethodNotAllowed()
         handler: Handler = getattr(self, request.method.lower())
-        return await handler(request)
+
+        kwargs["request"] = request
+        kwargs = {
+            k: v
+            for k, v in kwargs.items()
+            if k in self.methods_kwargs[request.method]
+        }
+
+        return await handler(**kwargs)
