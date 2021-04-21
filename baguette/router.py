@@ -1,3 +1,4 @@
+import inspect
 import re
 import typing
 
@@ -38,10 +39,17 @@ class Route:
         self.methods = methods
         self.defaults = defaults
 
+        handler_signature = inspect.signature(self.handler)
+        self.handler_kwargs = [
+            param.name
+            for param in handler_signature.parameters.values()
+            if param.kind in (param.POSITIONAL_OR_KEYWORD, param.KEYWORD_ONLY)
+        ]
+
         self.converters = {}
         self.build_converters()
 
-        self.regex = re.compile(r"")
+        self.regex = re.compile(path)
         self.build_regex()
 
     def build_converters(self):
@@ -130,8 +138,9 @@ class Router:
         # TODO: regex matching
         route = self._cache.get(path)
         if route is None:
-            for route in self.routes:
-                if route.match(path):
+            for possible_route in self.routes:
+                if possible_route.match(path):
+                    route = possible_route
                     break
 
             self._cache[path] = route

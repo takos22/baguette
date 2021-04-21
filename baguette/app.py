@@ -52,7 +52,15 @@ class Baguette:
         try:
             route: Route = self.router.get(request.path, request.method)
             handler: Handler = route.handler
-            return await handler(request)
+
+            kwargs = route.convert(request.path)
+            kwargs["request"] = request
+            kwargs = {
+                k: v for k, v in kwargs.items() if k in route.handler_kwargs
+            }
+
+            return await handler(**kwargs)
+
         except HTTPException as e:
             return e.response(
                 type_=self.error_response_type,
