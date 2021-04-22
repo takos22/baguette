@@ -4,10 +4,8 @@ import typing
 
 
 class Converter(abc.ABC):
-    @property
-    @classmethod
-    @abc.abstractmethod
-    def REGEX(cls) -> str:
+    @abc.abstractproperty
+    def REGEX(self) -> str:
         ...
 
     @abc.abstractmethod
@@ -18,8 +16,15 @@ class Converter(abc.ABC):
 class StringConverter(Converter):
     REGEX = r"[^\/]+"
 
-    def __init__(self, length: typing.Optional[int] = None):
+    def __init__(
+        self,
+        length: typing.Optional[int] = None,
+        allow_slash: bool = False,
+    ):
         self.length = length
+        self.allow_slash = allow_slash
+        if self.allow_slash:
+            self.REGEX = r".+"
 
     def convert(self, string: str):
         if self.length is not None and len(string) != self.length:
@@ -27,11 +32,14 @@ class StringConverter(Converter):
                 f"Expected string of length {self.length}. Got {len(string)}"
             )
 
+        if not self.allow_slash and "/" in string:
+            raise ValueError(f"Expected string without '/'. Got {string!r}")
+
         return str(string)
 
 
 class IntegerConverter(Converter):
-    REGEX = r"(?:\+|-)?\d+"
+    REGEX = r"[\+-]?\d+"
 
     def __init__(
         self,
@@ -62,7 +70,7 @@ class IntegerConverter(Converter):
 
 
 class FloatConverter(Converter):
-    REGEX = r"(?:\+|-)?(?:\d|\.)+"
+    REGEX = r"[\+-]?\d*\.?\d*"
 
     def __init__(
         self,

@@ -51,3 +51,32 @@ def create_request(scope):
     from .app import app
 
     return baguette.Request(app, scope, Receive())
+
+
+# modified verison of https://stackoverflow.com/a/9759329/12815996
+def concreter(abcls):
+    """Create a concrete class for testing from an ABC.
+    >>> import abc
+    >>> class Abstract(abc.ABC):
+    ...     @abc.abstractmethod
+    ...     def bar(self):
+    ...        ...
+
+    >>> c = concreter(Abstract)
+    >>> c.__name__
+    'dummy_concrete_Abstract'
+    >>> c().bar()
+    """
+    if not hasattr(abcls, "__abstractmethods__"):
+        return abcls
+
+    new_dict = abcls.__dict__.copy()
+    del new_dict["__abstractmethods__"]
+
+    for abstractmethod in abcls.__abstractmethods__:
+        method = abcls.__dict__[abstractmethod]
+        method.__isabstractmethod__ = False
+        new_dict[abstractmethod] = method
+
+    # creates a new class, with the overriden ABCs:
+    return type("dummy_concrete_" + abcls.__name__, (abcls,), new_dict)
