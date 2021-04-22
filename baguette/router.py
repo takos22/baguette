@@ -17,9 +17,9 @@ from .view import View
 
 class Route:
     PARAM_REGEX = re.compile(
-        r"<(?P<name>\w+)(?::(?P<type>\w+)(?:\((?P<args>(?:\w+=\w+,?\s*)*)\))?)?>"  # noqa: E501
+        r"<(?P<name>\w+)(?::(?P<type>\w+)(?:\((?P<args>(?:\w+=(?:\w|\+|-|\.)+,?\s*)*)\))?)?>"  # noqa: E501
     )
-    PARAM_ARGS_REGEX = re.compile(r"(\w+)=(\w+)")
+    PARAM_ARGS_REGEX = re.compile(r"(\w+)=((?:\w|\+|-|\.)+)")
     PARAM_CONVERTERS = {
         "str": StringConverter,
         "int": IntegerConverter,
@@ -51,7 +51,7 @@ class Route:
         self.converters = {}
         self.build_converters()
 
-        self.regex = re.compile(path)
+        self.regex = re.compile("")
         self.build_regex()
 
     def build_converters(self):
@@ -86,6 +86,7 @@ class Route:
                         value = value.strip("'\"")
                     kwargs[name] = value
 
+            print(kwargs)
             self.converters[index] = (groups["name"], converter(**kwargs))
 
     def build_regex(self):
