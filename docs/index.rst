@@ -30,15 +30,15 @@ baguette is a micro web framework for ASGI servers.
 - High performance framework, especially when using the uvicorn server
 
 Getting started
------------------
+---------------
 
 Is this your first time using the framweork? This is the place to get started!
 
-- **First steps:** :doc:`intro` | :doc:`quickstart`
+- **First steps:** :ref:`intro` | :ref:`quickstart`
 - **Examples:** Many examples are available in the :resource:`repository <examples>`.
 
 Getting help
---------------
+------------
 
 If you're having trouble with something, these resources might help.
 
@@ -47,14 +47,24 @@ If you're having trouble with something, these resources might help.
 - Report bugs in the :resource:`issue tracker <issues>`.
 
 
-Documentation Contents
------------------------
+User Guide
+----------
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
 
-    intro
-    quickstart
+    user_guide/intro
+    user_guide/quickstart
+    user_guide/dynamic_routing
+    user_guide/responses
+
+
+API Reference
+-------------
+
+.. toctree::
+    :maxdepth: 3
+
     api
 
 

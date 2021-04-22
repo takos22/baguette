@@ -5,10 +5,10 @@
 API Reference
 =============
 
-The following section outlines the API of codingame.
+The following section documents every class and function in the baguette module.
 
 Version Related Info
-----------------------
+--------------------
 
 There are two main ways to query version information about the library.
 
@@ -24,3 +24,88 @@ There are two main ways to query version information about the library.
     A string representation of the version. e.g. ``'1.0.0rc1'``. This is based
     off of :pep:`440`.
 
+Application
+-----------
+
+.. autoclass:: Baguette()
+    :members:
+    :undoc-members:
+
+View
+----
+
+.. autoclass:: View()
+    :members:
+    :exclude-members: METHODS
+    :undoc-members:
+
+Request
+-------
+
+.. autoclass:: Request()
+    :members:
+    :undoc-members:
+
+Responses
+---------
+
+Base Response
+*************
+
+.. autoclass:: Response()
+    :members:
+    :exclude-members: CHARSET
+    :undoc-members:
+
+Plain Text Response
+*******************
+
+.. autoclass:: PlainTextResponse()
+    :members:
+    :undoc-members:
+
+HTML Response
+*************
+
+.. autoclass:: HTMLResponse()
+    :members:
+    :undoc-members:
+
+JSON Response
+*************
+
+.. autoclass:: JSONResponse()
+    :members:
+    :undoc-members:
+
+Empty Response
+**************
+
+.. autoclass:: EmptyResponse()
+    :members:
+    :undoc-members:
+
+Headers
+-------
+
+.. autoclass:: Headers()
+    :members:
+    :undoc-members:
+
+Routing
+-------
+
+Router
+******
+
+.. autoclass:: baguette.router.Router()
+    :members:
+    :undoc-members:
+
+Route
+*****
+
+.. autoclass:: baguette.router.Route()
+    :members:
+    :exclude-members: PARAM_ARGS_REGEX, PARAM_CONVERTERS, PARAM_REGEX
+    :undoc-members:

@@ -92,4 +92,8 @@ resource_links = {
     "discord": "https://discord.gg/PGC3eAznJ6",
     "issues": "https://github.com/takos22/baguette/issues",
     "examples": f"https://github.com/takos22/baguette/tree/{branch}/examples",
+    "uvicorn": "https://www.uvicorn.org/",
 }
+
+# remove type hints in docs
+autodoc_typehints = "none"

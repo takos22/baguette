@@ -152,6 +152,8 @@ class Router:
             for possible_route in self.routes:
                 if possible_route.match(path):
                     route = possible_route
+                    if method not in route.methods:
+                        continue
                     break
 
             if route is None:

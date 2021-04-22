@@ -98,7 +98,7 @@ class HTTPException(Exception):
                 Type of response. Must be one of: 'plain', 'json', 'html'.
 
             include_description: :class:`bool`
-                Wether to include the description in the response.
+                Whether to include the description in the response.
 
             traceback: Optional[:class:`str`]
                 Error traceback, usually only included in debug mode.
