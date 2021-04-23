@@ -67,7 +67,7 @@ class TestClient:
         json: typing.Optional[JSONType] = None,
         headers: typing.Optional[HeadersType] = None,
     ) -> Response:
-        return self.request(
+        return await self.request(
             method="GET",
             path=path,
             params=params,
@@ -85,7 +85,7 @@ class TestClient:
         json: typing.Optional[JSONType] = None,
         headers: typing.Optional[HeadersType] = None,
     ) -> Response:
-        return self.request(
+        return await self.request(
             method="HEAD",
             path=path,
             params=params,
@@ -103,7 +103,7 @@ class TestClient:
         json: typing.Optional[JSONType] = None,
         headers: typing.Optional[HeadersType] = None,
     ) -> Response:
-        return self.request(
+        return await self.request(
             method="POST",
             path=path,
             params=params,
@@ -121,7 +121,7 @@ class TestClient:
         json: typing.Optional[JSONType] = None,
         headers: typing.Optional[HeadersType] = None,
     ) -> Response:
-        return self.request(
+        return await self.request(
             method="PUT",
             path=path,
             params=params,
@@ -139,7 +139,7 @@ class TestClient:
         json: typing.Optional[JSONType] = None,
         headers: typing.Optional[HeadersType] = None,
     ) -> Response:
-        return self.request(
+        return await self.request(
             method="DELETE",
             path=path,
             params=params,
@@ -157,7 +157,7 @@ class TestClient:
         json: typing.Optional[JSONType] = None,
         headers: typing.Optional[HeadersType] = None,
     ) -> Response:
-        return self.request(
+        return await self.request(
             method="CONNECT",
             path=path,
             params=params,
@@ -175,7 +175,7 @@ class TestClient:
         json: typing.Optional[JSONType] = None,
         headers: typing.Optional[HeadersType] = None,
     ) -> Response:
-        return self.request(
+        return await self.request(
             method="OPTIONS",
             path=path,
             params=params,
@@ -193,7 +193,7 @@ class TestClient:
         json: typing.Optional[JSONType] = None,
         headers: typing.Optional[HeadersType] = None,
     ) -> Response:
-        return self.request(
+        return await self.request(
             method="TRACE",
             path=path,
             params=params,
@@ -211,7 +211,7 @@ class TestClient:
         json: typing.Optional[JSONType] = None,
         headers: typing.Optional[HeadersType] = None,
     ) -> Response:
-        return self.request(
+        return await self.request(
             method="PATCH",
             path=path,
             params=params,
@@ -260,8 +260,8 @@ class TestClient:
     ) -> str:
         query = {}
 
-        if params is None:
-            return ""
+        if params is None or isinstance(params, str):
+            return params or ""
 
         if isinstance(params, Mapping):
             params = list(params.items())
@@ -274,6 +274,8 @@ class TestClient:
                 if isinstance(value, str):
                     values = [value]
                 elif isinstance(value, Sequence):
+                    if not all(isinstance(v, str) for v in value):
+                        raise ValueError("Incorrect param type")
                     values = list(value)
                 else:
                     raise ValueError("Incorrect param type")
