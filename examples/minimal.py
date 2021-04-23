@@ -12,7 +12,7 @@ async def index(request):
 class Home(View):
     home_text = "<h1>Home</h1>"
 
-    async def get(self, request):
+    async def get(self):
         return self.home_text
 
     async def post(self, request):
