@@ -300,6 +300,6 @@ class TestClient:
         if body is None:
             if json is None:
                 return ""
-            else:
-                body = dumps(json)
+
+            body = dumps(json)
         return body

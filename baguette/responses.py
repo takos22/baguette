@@ -14,7 +14,7 @@ class Response:
         self,
         body: typing.Union[str, bytes],
         status_code: int = 200,
-        headers: typing.Union[dict, Headers] = {},
+        headers: typing.Union[dict, Headers] = None,
     ):
         if isinstance(body, str):
             self.text: str = body
@@ -26,7 +26,7 @@ class Response:
             raise ValueError("body must be str or bytes")
 
         self.status_code = status_code
-        self.headers = Headers(**headers)
+        self.headers = Headers(**(headers or {}))
 
     async def send(self, send):
         await send(
@@ -49,7 +49,7 @@ class JSONResponse(Response):
         self,
         data: typing.Any,
         status_code: int = 200,
-        headers: typing.Union[dict, Headers] = {},
+        headers: typing.Union[dict, Headers] = None,
     ):
         self.json = data
         body: str = json.dumps(data)
@@ -62,7 +62,7 @@ class PlainTextResponse(Response):
         self,
         text: typing.Union[str, bytes],
         status_code: int = 200,
-        headers: typing.Union[dict, Headers] = {},
+        headers: typing.Union[dict, Headers] = None,
     ):
         headers["content-type"] = "text/plain; charset=" + self.CHARSET
         super().__init__(text, status_code, headers)
@@ -73,7 +73,7 @@ class HTMLResponse(Response):
         self,
         html: typing.Union[str, bytes],
         status_code: int = 200,
-        headers: typing.Union[dict, Headers] = {},
+        headers: typing.Union[dict, Headers] = None,
     ):
         headers["content-type"] = "text/html; charset=" + self.CHARSET
         super().__init__(html, status_code, headers)
@@ -83,7 +83,7 @@ class EmptyResponse(PlainTextResponse):
     def __init__(
         self,
         status_code: int = 204,
-        headers: typing.Union[dict, Headers] = {},
+        headers: typing.Union[dict, Headers] = None,
     ):
         super().__init__("", status_code, headers)
 

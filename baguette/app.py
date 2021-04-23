@@ -205,7 +205,7 @@ class Baguette:
         handler: Handler,
         methods: typing.List[str] = None,
         name: str = None,
-        defaults: dict = {},
+        defaults: dict = None,
     ) -> Route:
         """Adds a route to the application router.
 
@@ -238,7 +238,7 @@ class Baguette:
             name=name,
             handler=handler,
             methods=methods or ["GET", "HEAD"],
-            defaults=defaults,
+            defaults=defaults or {},
         )
 
     def route(
@@ -246,7 +246,7 @@ class Baguette:
         path: str,
         methods: typing.List[str] = None,
         name: str = None,
-        defaults: dict = {},
+        defaults: dict = None,
     ):
         """Adds the handler function to the router with the given path.
 
@@ -285,7 +285,7 @@ class Baguette:
                 name=name or func_or_class.__name__,
                 handler=handler,
                 methods=allowed_methods,
-                defaults=defaults,
+                defaults=defaults or {},
             )
 
             return func_or_class

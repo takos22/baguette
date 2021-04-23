@@ -34,13 +34,13 @@ class Route:
         name: str,
         handler: Handler,
         methods: typing.List[str],
-        defaults: typing.Dict[str, typing.Any] = {},
+        defaults: typing.Dict[str, typing.Any] = None,
     ):
         self.path = path
         self.name = name
         self.handler = handler
         self.methods = methods
-        self.defaults = defaults
+        self.defaults = defaults or {}
 
         handler_signature = inspect.signature(self.handler)
         self.handler_kwargs = [
@@ -120,10 +120,8 @@ class Route:
             if index >= len(segments):
                 if name in kwargs:
                     continue
-                else:
-                    raise ValueError(
-                        f"{name} is a required value that is missing."
-                    )
+
+                raise ValueError(f"{name} is a required value that is missing.")
 
             segment = segments[index]
             try:
@@ -148,14 +146,14 @@ class Router:
         path: str,
         methods: typing.List[str] = None,
         name: str = None,
-        defaults: dict = {},
+        defaults: dict = None,
     ) -> Route:
         route = Route(
             path=path,
             name=name,
             handler=handler,
             methods=methods,
-            defaults=defaults,
+            defaults=defaults or {},
         )
         self.routes.append(route)
         return route
