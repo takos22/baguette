@@ -53,6 +53,7 @@ class JSONResponse(Response):
     ):
         self.json = data
         body: str = json.dumps(data)
+        headers = headers or {}
         headers["content-type"] = "application/json"
         super().__init__(body, status_code, headers)
 
@@ -64,6 +65,7 @@ class PlainTextResponse(Response):
         status_code: int = 200,
         headers: typing.Union[dict, Headers] = None,
     ):
+        headers = headers or {}
         headers["content-type"] = "text/plain; charset=" + self.CHARSET
         super().__init__(text, status_code, headers)
 
@@ -75,6 +77,7 @@ class HTMLResponse(Response):
         status_code: int = 200,
         headers: typing.Union[dict, Headers] = None,
     ):
+        headers = headers or {}
         headers["content-type"] = "text/html; charset=" + self.CHARSET
         super().__init__(html, status_code, headers)
 
