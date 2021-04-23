@@ -1,6 +1,6 @@
 import pytest
 
-from baguette import View
+from baguette import View, make_response
 from baguette.httpexceptions import MethodNotAllowed
 
 from .app import app
@@ -54,7 +54,7 @@ def create_view():
 @pytest.mark.asyncio
 async def test_view_call(view, test_request):
     result = await view(test_request)
-    response = app.make_response(result)
+    response = make_response(result)
     assert response.status_code == 200
     assert response.text == "GET"
 
@@ -76,7 +76,7 @@ async def test_view_dispatch(view, test_request, method, method_allowed):
 
     if method_allowed:
         result = await view.dispatch(test_request)
-        response = app.make_response(result)
+        response = make_response(result)
 
         assert response.status_code == 200
         assert response.text == method
