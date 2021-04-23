@@ -4,7 +4,7 @@ from json import dumps
 from urllib.parse import urlencode
 
 from .app import Baguette
-from .headers import Headers
+from .headers import Headers, make_headers
 from .request import Request
 from .responses import Response
 from .types import Headers as HeadersType
@@ -25,8 +25,7 @@ class TestClient:
         default_headers: typing.Optional[HeadersType] = None,
     ):
         self.app = app
-        self.default_headers = Headers()
-        self.default_headers = self.prepare_headers(default_headers)
+        self.default_headers: Headers = make_headers(default_headers)
 
         self.default_scope = {
             "type": "http",
@@ -48,7 +47,7 @@ class TestClient:
         json: typing.Optional[JSONType] = None,
         headers: typing.Optional[HeadersType] = None,
     ) -> Response:
-        request = self.prepare_request(
+        request = self._prepare_request(
             method=method,
             path=path,
             params=params,
@@ -59,7 +58,169 @@ class TestClient:
         response = await self.app.handle_request(request)
         return response
 
-    def prepare_request(
+    async def get(
+        self,
+        path: str,
+        *,
+        params: typing.Optional[ParamsType] = None,
+        body: typing.Optional[BodyType] = None,
+        json: typing.Optional[JSONType] = None,
+        headers: typing.Optional[HeadersType] = None,
+    ) -> Response:
+        return self.request(
+            method="GET",
+            path=path,
+            params=params,
+            body=body,
+            json=json,
+            headers=headers,
+        )
+
+    async def head(
+        self,
+        path: str,
+        *,
+        params: typing.Optional[ParamsType] = None,
+        body: typing.Optional[BodyType] = None,
+        json: typing.Optional[JSONType] = None,
+        headers: typing.Optional[HeadersType] = None,
+    ) -> Response:
+        return self.request(
+            method="HEAD",
+            path=path,
+            params=params,
+            body=body,
+            json=json,
+            headers=headers,
+        )
+
+    async def post(
+        self,
+        path: str,
+        *,
+        params: typing.Optional[ParamsType] = None,
+        body: typing.Optional[BodyType] = None,
+        json: typing.Optional[JSONType] = None,
+        headers: typing.Optional[HeadersType] = None,
+    ) -> Response:
+        return self.request(
+            method="POST",
+            path=path,
+            params=params,
+            body=body,
+            json=json,
+            headers=headers,
+        )
+
+    async def put(
+        self,
+        path: str,
+        *,
+        params: typing.Optional[ParamsType] = None,
+        body: typing.Optional[BodyType] = None,
+        json: typing.Optional[JSONType] = None,
+        headers: typing.Optional[HeadersType] = None,
+    ) -> Response:
+        return self.request(
+            method="PUT",
+            path=path,
+            params=params,
+            body=body,
+            json=json,
+            headers=headers,
+        )
+
+    async def delete(
+        self,
+        path: str,
+        *,
+        params: typing.Optional[ParamsType] = None,
+        body: typing.Optional[BodyType] = None,
+        json: typing.Optional[JSONType] = None,
+        headers: typing.Optional[HeadersType] = None,
+    ) -> Response:
+        return self.request(
+            method="DELETE",
+            path=path,
+            params=params,
+            body=body,
+            json=json,
+            headers=headers,
+        )
+
+    async def connect(
+        self,
+        path: str,
+        *,
+        params: typing.Optional[ParamsType] = None,
+        body: typing.Optional[BodyType] = None,
+        json: typing.Optional[JSONType] = None,
+        headers: typing.Optional[HeadersType] = None,
+    ) -> Response:
+        return self.request(
+            method="CONNECT",
+            path=path,
+            params=params,
+            body=body,
+            json=json,
+            headers=headers,
+        )
+
+    async def options(
+        self,
+        path: str,
+        *,
+        params: typing.Optional[ParamsType] = None,
+        body: typing.Optional[BodyType] = None,
+        json: typing.Optional[JSONType] = None,
+        headers: typing.Optional[HeadersType] = None,
+    ) -> Response:
+        return self.request(
+            method="OPTIONS",
+            path=path,
+            params=params,
+            body=body,
+            json=json,
+            headers=headers,
+        )
+
+    async def trace(
+        self,
+        path: str,
+        *,
+        params: typing.Optional[ParamsType] = None,
+        body: typing.Optional[BodyType] = None,
+        json: typing.Optional[JSONType] = None,
+        headers: typing.Optional[HeadersType] = None,
+    ) -> Response:
+        return self.request(
+            method="TRACE",
+            path=path,
+            params=params,
+            body=body,
+            json=json,
+            headers=headers,
+        )
+
+    async def patch(
+        self,
+        path: str,
+        *,
+        params: typing.Optional[ParamsType] = None,
+        body: typing.Optional[BodyType] = None,
+        json: typing.Optional[JSONType] = None,
+        headers: typing.Optional[HeadersType] = None,
+    ) -> Response:
+        return self.request(
+            method="PATCH",
+            path=path,
+            params=params,
+            body=body,
+            json=json,
+            headers=headers,
+        )
+
+    def _prepare_request(
         self,
         method: str,
         path: str,
@@ -69,8 +230,8 @@ class TestClient:
         json: typing.Optional[JSONType] = None,
         headers: typing.Optional[HeadersType] = None,
     ) -> Request:
-        headers: Headers = self.prepare_headers(headers)
-        querystring: str = self.prepare_querystring(params)
+        headers: Headers = self._prepare_headers(headers)
+        querystring: str = self._prepare_querystring(params)
         scope = {
             **self.default_scope,
             **{
@@ -82,26 +243,19 @@ class TestClient:
         }
 
         request = Request(self.app, scope, None)
-        request._body = self.prepare_body(body=body, json=json)
+        request._body = self._prepare_body(body=body, json=json)
 
         return request
 
-    def prepare_headers(
+    def _prepare_headers(
         self, headers: typing.Optional[HeadersType] = None
     ) -> Headers:
-        if headers is None:
-            headers = Headers()
-        elif isinstance(headers, Sequence):
-            headers = Headers(*headers)
-        elif isinstance(headers, Mapping):
-            headers = Headers(**headers)
-        else:
-            raise ValueError("Incorrect header type")
-
+        headers = make_headers(headers)
         headers = self.default_headers + headers
+
         return headers
 
-    def prepare_querystring(
+    def _prepare_querystring(
         self, params: typing.Optional[ParamsType] = None
     ) -> str:
         query = {}
@@ -136,7 +290,7 @@ class TestClient:
 
         return querystring
 
-    def prepare_body(
+    def _prepare_body(
         self,
         body: typing.Optional[BodyType] = None,
         json: typing.Optional[JSONType] = None,
