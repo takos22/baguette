@@ -41,8 +41,8 @@ from .responses import (
     EmptyResponse,
     HTMLResponse,
     JSONResponse,
-    make_response,
     PlainTextResponse,
     Response,
+    make_response,
 )
 from .view import View
