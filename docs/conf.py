@@ -52,10 +52,12 @@ needs_sphinx = "3.0"
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.autosectionlabel",
     "sphinx.ext.coverage",
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
+    "sphinx.ext.todo",
     "resourcelinks",
 ]
 
@@ -97,3 +99,9 @@ resource_links = {
 
 # remove type hints in docs
 autodoc_typehints = "none"
+
+# display TODOs in docs
+todo_include_todos = True
+
+# avoid confusion between section references
+autosectionlabel_prefix_document = True

@@ -109,3 +109,30 @@ Route
     :members:
     :exclude-members: PARAM_ARGS_REGEX, PARAM_CONVERTERS, PARAM_REGEX
     :undoc-members:
+
+Path parameters converters
+**************************
+
+.. autoclass:: baguette.converters.StringConverter()
+    :members:
+    :exclude-members: REGEX
+    :undoc-members:
+    :inherited-members:
+
+.. autoclass:: baguette.converters.PathConverter()
+    :members:
+    :exclude-members: REGEX
+    :undoc-members:
+    :inherited-members:
+
+.. autoclass:: baguette.converters.IntegerConverter()
+    :members:
+    :exclude-members: REGEX
+    :undoc-members:
+    :inherited-members:
+
+.. autoclass:: baguette.converters.FloatConverter()
+    :members:
+    :exclude-members: REGEX
+    :undoc-members:
+    :inherited-members:

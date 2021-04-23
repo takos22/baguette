@@ -55,8 +55,10 @@ User Guide
 
     user_guide/intro
     user_guide/quickstart
-    user_guide/dynamic_routing
+    user_guide/routing
+    user_guide/request
     user_guide/responses
+    user_guide/view
 
 
 API Reference
@@ -72,5 +74,4 @@ Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`

@@ -2,8 +2,8 @@
 
 .. currentmodule:: baguette
 
-About responses
-===============
+Responses
+=========
 
 The return value from a view function is automatically converted into a :class:`Response` object for you.
 The return value will be converted to a :class:`Response` object following the logic described bellow:

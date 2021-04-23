@@ -1,9 +1,17 @@
-.. _dynamic_routing:
-
 .. currentmodule:: baguette
 
+.. _routing:
+
+Routing
+=======
+
+.. todo::
+    Add information about normal routing
+
+.. _dynamic_routing:
+
 Dynamic Routing
-===============
+---------------
 
 Dynamic routing is useful to pass variables in URLs.
 For example, if you want to show a user's profile from their username, you won't hardcode every username,
@@ -24,9 +32,9 @@ To do this with baguette, it's easy:
 .. _converters:
 
 Converters
-----------
+**********
 
-Use converters if you want the variables to be of a certain type and reject the request otherwise.
+Use converters if you want the path parameters to be of a certain type and reject the request otherwise.
 For example, if you work with user IDs, you can make sure that the provided user ID is an integer:
 
 .. code:: python
@@ -54,6 +62,5 @@ For example if you only want strings that have a length of 4:
     async def profile(request, text):
         return f"{text} is 4 characters long"
 
-.. automodule:: baguette.converters
-    :members: StringConverter, IntegerConverter, FloatConverter
-    :member-order: bysource
+.. seealso::
+    :ref:`api:Path parameters converters`
