@@ -59,6 +59,7 @@ User Guide
     user_guide/request
     user_guide/responses
     user_guide/view
+    user_guide/testing
 
 
 API Reference

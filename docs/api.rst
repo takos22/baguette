@@ -146,3 +146,11 @@ Path parameters converters
     :exclude-members: REGEX
     :undoc-members:
     :inherited-members:
+
+Testing
+-------
+
+.. autoclass:: baguette.testing.TestClient()
+    :members:
+    :undoc-members:
+    :member-order: bysource
