@@ -29,7 +29,7 @@ class UserList(View):
         except ValueError:
             raise BadRequest(description="Can't decode body as JSON")
 
-        if type(user) is not dict:
+        if not isinstance(user, dict):
             raise BadRequest(description="Dict required")
 
         if REQUIRED_FIELDS - set(user.keys()) != set():
