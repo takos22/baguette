@@ -85,12 +85,22 @@ Empty Response
     :members:
     :undoc-members:
 
+Make Response
+*************
+
+.. autofunction:: make_response()
+
 Headers
 -------
 
 .. autoclass:: Headers()
     :members:
     :undoc-members:
+
+Make Headers
+************
+
+.. autofunction:: make_headers()
 
 Routing
 -------
