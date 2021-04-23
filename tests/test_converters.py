@@ -4,6 +4,7 @@ from baguette.converters import (
     Converter,
     FloatConverter,
     IntegerConverter,
+    PathConverter,
     StringConverter,
 )
 
@@ -17,6 +18,9 @@ from .conftest import concreter
         [StringConverter(), "test", "test"],
         [StringConverter(length=4), "test", "test"],
         [StringConverter(allow_slash=True), "test/test", "test/test"],
+        # path converters
+        [PathConverter(), "test", "test"],
+        [PathConverter(), "test/test", "test/test"],
         # integer converters
         [IntegerConverter(), "1", 1],
         [IntegerConverter(signed=True), "+1", 1],
@@ -65,6 +69,7 @@ def test_converter(converter: Converter, string: str, expected):
         # string converters
         [StringConverter(), "test/test"],
         [StringConverter(length=1), "test"],
+        # path converters
         # integer converters
         [IntegerConverter(), "text"],
         [IntegerConverter(), "+1"],
@@ -88,5 +93,6 @@ def test_converter_error(converter, string):
 
 def test_abstract_converter():
     converter = concreter(Converter)()
+    # run the code for coverage
     converter.REGEX
     converter.convert("test")

@@ -7,6 +7,7 @@ from baguette.responses import (
     JSONResponse,
     PlainTextResponse,
     Response,
+    make_response,
 )
 
 from .conftest import Send
@@ -93,3 +94,45 @@ async def test_response_send():
         "type": "http.response.body",
         "body": b"Hello, World!",
     }
+
+
+@pytest.mark.parametrize(
+    ["result", "expected_response"],
+    [
+        # result is already a response
+        [Response("test"), Response("test")],
+        [PlainTextResponse("test"), PlainTextResponse("test")],
+        # only the response body is provided
+        ["test", PlainTextResponse("test")],
+        ["<h1>test</h1>", HTMLResponse("<h1>test</h1>")],
+        [["test", "test2"], JSONResponse(["test", "test2"])],
+        [
+            {"test": "a", "test2": "b"},
+            JSONResponse({"test": "a", "test2": "b"}),
+        ],
+        [None, EmptyResponse()],
+        [2, PlainTextResponse("2")],
+        # body and status code are provided
+        [("test", 201), PlainTextResponse("test", status_code=201)],
+        # body and headers are provided
+        [
+            ("test", {"server": "baguette"}),
+            PlainTextResponse("test", headers=Headers(server="baguette")),
+        ],
+        # body, status code and headers are provided
+        [
+            ("test", 201, {"server": "baguette"}),
+            PlainTextResponse(
+                "test", status_code=201, headers=Headers(server="baguette")
+            ),
+        ],
+    ],
+)
+def test_make_response(result, expected_response: Response):
+    response = make_response(result)
+    assert type(response) == type(expected_response)
+    assert response.body == expected_response.body
+    assert response.status_code == expected_response.status_code
+    assert set(response.headers.keys()) == set(expected_response.headers.keys())
+    for name, value in expected_response.headers:
+        assert response.headers[name] == value

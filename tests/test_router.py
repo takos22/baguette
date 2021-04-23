@@ -3,7 +3,8 @@ import re
 import pytest
 
 from baguette.converters import FloatConverter, IntegerConverter
-from baguette.router import Route
+from baguette.httpexceptions import MethodNotAllowed, NotFound
+from baguette.router import Route, Router
 
 
 def test_route():
@@ -76,4 +77,56 @@ def test_route2():
     assert id_converter[1].max == pytest.approx(10.0)
 
 
-# TODO: test Router
+def test_router():
+    async def handler(request):
+        pass
+
+    index = Route(
+        path="/",
+        name="index",
+        handler=handler,
+        methods=["GET"],
+    )
+    router = Router(routes=[index])
+    assert len(router.routes) == 1
+
+    home = router.add_route(
+        path="/home",
+        name="home",
+        handler=handler,
+        methods=["GET", "HEAD"],
+    )
+    assert len(router.routes) == 2
+
+    user_get = router.add_route(
+        path="/user/<user_id:int(min=1)>",
+        name="home",
+        handler=handler,
+        methods=["GET"],
+    )
+    assert len(router.routes) == 3
+
+    user_delete = router.add_route(
+        path="/user/<user_id:int(min=1)>",
+        name="home",
+        handler=handler,
+        methods=["DELETE"],
+    )
+    assert len(router.routes) == 4
+
+    with pytest.raises(NotFound):
+        router.get("/nonexistent", "GET")
+
+    assert router.get("/", "GET") == index
+    with pytest.raises(MethodNotAllowed):
+        router.get("/", "POST")
+
+    assert router.get("/home", "GET") == home
+    assert router.get("/home", "HEAD") == home
+    with pytest.raises(MethodNotAllowed):
+        router.get("/home", "POST")
+
+    assert router.get("/user/1", "GET") == user_get
+    assert router.get("/user/1", "DELETE") == user_delete
+    with pytest.raises(MethodNotAllowed):
+        router.get("/user/1", "POST")

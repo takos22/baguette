@@ -1,9 +1,9 @@
 import pytest
 
-from baguette import View, make_response
+from baguette.app import Baguette
 from baguette.httpexceptions import MethodNotAllowed
-
-from .app import app
+from baguette.responses import make_response
+from baguette.view import View
 
 
 @pytest.mark.asyncio
@@ -24,7 +24,7 @@ async def test_view_create():
         async def nonexistent_method(self, request):
             return "NONEXISTENT"
 
-    view = TestView(app)
+    view = TestView(Baguette())
     assert view.methods == ["GET", "POST", "PUT", "DELETE"]
     assert await view.get(None) == "GET"
     assert await view.post(None) == "POST"
@@ -48,7 +48,7 @@ def create_view():
         async def delete(self, request):
             return "DELETE"
 
-    return TestView(app)
+    return TestView(Baguette())
 
 
 @pytest.mark.asyncio
@@ -68,7 +68,7 @@ async def test_view_call(view, test_request):
         ["PUT", True],
         ["DELETE", True],
         ["PATCH", False],
-        ["NONEXISTANT", False],
+        ["NONEXISTENT", False],
     ],
 )
 async def test_view_dispatch(view, test_request, method, method_allowed):

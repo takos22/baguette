@@ -1,6 +1,6 @@
 import pytest
 
-from baguette import Headers
+from baguette.headers import Headers
 from baguette.utils import get_encoding_from_headers
 
 

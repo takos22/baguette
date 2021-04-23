@@ -1,13 +1,8 @@
 import pytest
 
-import baguette
-
-
-@pytest.fixture(name="app")
-async def app_test_client():
-    from .app import app
-
-    return baguette.testing.TestClient(app)
+from baguette.app import Baguette
+from baguette.headers import make_headers
+from baguette.request import Request
 
 
 class Send:
@@ -15,7 +10,7 @@ class Send:
         self.values = []
 
     async def __call__(self, message):
-        return self.values.append(message)
+        self.values.append(message)
 
 
 class Receive:
@@ -26,8 +21,12 @@ class Receive:
         return self.values.pop(0)
 
 
-@pytest.fixture(name="scope")
-def create_scope():
+def create_http_scope(
+    path: str = "/",
+    method: str = "GET",
+    headers={"server": "baguette", "content-type": "text/plain; charset=utf-8"},
+    querystring: str = "a=b",
+):
     return {
         "type": "http",
         "asgi": {"version": "3.0", "spec_version": "2.1"},
@@ -36,21 +35,46 @@ def create_scope():
         "client": ("127.0.0.1", 9000),
         "scheme": "http",
         "root_path": "",
-        "method": "GET",
-        "path": "/",
-        "headers": [
-            (b"Host", b"baguette"),
-            (b"Content-Type", b"text/plain; charset=utf-8"),
-        ],
-        "query_string": b"a=b",
+        "method": method.upper(),
+        "path": path,
+        "headers": make_headers(headers).raw(),
+        "query_string": querystring.encode("ascii"),
     }
 
 
-@pytest.fixture(name="test_request")
-def create_request(scope):
-    from .app import app
+@pytest.fixture(name="http_scope")
+def create_http_scope_fixture():
+    return create_http_scope()
 
-    return baguette.Request(app, scope, Receive())
+
+def create_test_request(
+    path: str = "/",
+    method: str = "GET",
+    headers={"server": "baguette", "content-type": "text/plain; charset=utf-8"},
+    querystring: str = "a=b",
+    body: str = "",
+    json=None,
+):
+    request = Request(
+        Baguette(),
+        create_http_scope(
+            path=path,
+            method=method,
+            headers=headers,
+            querystring=querystring,
+        ),
+        Receive(),
+    )
+    request._body = body
+    if json is not None:
+        request._json = json
+
+    return request
+
+
+@pytest.fixture(name="test_request")
+def create_test_request_fixture():
+    return create_test_request()
 
 
 # modified verison of https://stackoverflow.com/a/9759329/12815996

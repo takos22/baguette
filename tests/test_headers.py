@@ -1,6 +1,6 @@
 import pytest
 
-from baguette.headers import Headers
+from baguette.headers import Headers, make_headers
 
 
 def test_create_headers():
@@ -122,3 +122,23 @@ def test_headers_iadd(headers: Headers, other):
         if isinstance(value, bytes):
             value = value.decode("ascii")
         assert headers[name] == value
+
+
+@pytest.mark.parametrize(
+    ["headers", "expected_headers"],
+    [
+        [None, Headers()],
+        [[["server", "baguette"]], Headers(server="baguette")],
+        [{"server": "baguette"}, Headers(server="baguette")],
+        [Headers(server="baguette"), Headers(server="baguette")],
+    ],
+)
+def test_make_headers(headers, expected_headers):
+    headers = make_headers(headers)
+    for name, value in expected_headers:
+        assert headers[name] == value
+
+
+def test_make_headers_error():
+    with pytest.raises(ValueError):
+        make_headers(1)
