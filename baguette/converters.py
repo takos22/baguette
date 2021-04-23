@@ -38,6 +38,13 @@ class StringConverter(Converter):
         return str(string)
 
 
+class PathConverter(StringConverter):
+    REGEX = r".+"
+
+    def __init__(self):
+        super().__init__(allow_slash=True)
+
+
 class IntegerConverter(Converter):
     REGEX = r"[\+-]?\d+"
 

@@ -8,6 +8,7 @@ from .converters import (
     Converter,
     FloatConverter,
     IntegerConverter,
+    PathConverter,
     StringConverter,
 )
 from .httpexceptions import MethodNotAllowed, NotFound
@@ -22,6 +23,7 @@ class Route:
     PARAM_ARGS_REGEX = re.compile(r"(\w+)=((?:\w|\+|-|\.)+)")
     PARAM_CONVERTERS = {
         "str": StringConverter,
+        "path": PathConverter,
         "int": IntegerConverter,
         "float": FloatConverter,
     }
