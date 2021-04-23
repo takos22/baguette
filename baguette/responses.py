@@ -131,6 +131,7 @@ def make_response(result: Result) -> Response:
         status_code = status_code_or_headers
     elif isinstance(status_code_or_headers, (list, dict, Headers)):
         headers = status_code_or_headers
+        status_code = None
 
     headers = make_headers(headers)
 

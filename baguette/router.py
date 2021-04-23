@@ -48,7 +48,14 @@ class Route:
             for param in handler_signature.parameters.values()
             if param.kind in (param.POSITIONAL_OR_KEYWORD, param.KEYWORD_ONLY)
         ]
-        self.handler_is_class = isinstance(handler, View)
+        self.handler_is_class = isinstance(self.handler, View)
+
+        if self.name is None:
+            self.name = (
+                self.handler.__class__.__name__
+                if self.handler_is_class
+                else self.handler.__name__
+            )
 
         self.converters = {}
         self.build_converters()
@@ -88,7 +95,6 @@ class Route:
                         value = value.strip("'\"")
                     kwargs[name] = value
 
-            print(kwargs)
             self.converters[index] = (groups["name"], converter(**kwargs))
 
     def build_regex(self):
@@ -142,14 +148,20 @@ class Router:
         path: str,
         methods: typing.List[str] = None,
         name: str = None,
+        defaults: dict = {},
     ) -> Route:
-        name = name
-        route = Route(path, name, handler, methods)
+        route = Route(
+            path=path,
+            name=name,
+            handler=handler,
+            methods=methods,
+            defaults=defaults,
+        )
         self.routes.append(route)
         return route
 
     def get(self, path: str, method: str) -> Route:
-        route = self._cache.get(path)
+        route = self._cache.get(method + " " + path)
         if route is None:
             for possible_route in self.routes:
                 if possible_route.match(path):
@@ -161,9 +173,9 @@ class Router:
             if route is None:
                 raise NotFound()
 
-            self._cache[path] = route
-
         if method not in route.methods:
             raise MethodNotAllowed()
+
+        self._cache[method + " " + path] = route
 
         return route

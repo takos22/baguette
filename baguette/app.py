@@ -201,10 +201,11 @@ class Baguette:
 
     def add_route(
         self,
-        handler: Handler,
         path: str,
+        handler: Handler,
         methods: typing.List[str] = None,
         name: str = None,
+        defaults: dict = {},
     ) -> Route:
         """Adds a route to the application router.
 
@@ -233,11 +234,19 @@ class Baguette:
         """
 
         return self.router.add_route(
-            handler, path, methods or ["GET", "HEAD"], name
+            path=path,
+            name=name,
+            handler=handler,
+            methods=methods or ["GET", "HEAD"],
+            defaults=defaults,
         )
 
     def route(
-        self, path: str, methods: typing.List[str] = None, name: str = None
+        self,
+        path: str,
+        methods: typing.List[str] = None,
+        name: str = None,
+        defaults: dict = {},
     ):
         """Adds the handler function to the router with the given path.
 
@@ -268,11 +277,15 @@ class Baguette:
                 allowed_methods = handler.methods
 
             else:
-                allowed_methods = methods or ["GET", "HEAD"]
+                allowed_methods = methods
                 handler: Handler = func_or_class
 
             self.add_route(
-                handler, path, allowed_methods, name or func_or_class.__name__
+                path=path,
+                name=name or func_or_class.__name__,
+                handler=handler,
+                methods=allowed_methods,
+                defaults=defaults,
             )
 
             return func_or_class
