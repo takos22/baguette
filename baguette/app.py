@@ -84,10 +84,62 @@ class Baguette:
     async def __call__(self, scope: Scope, receive: Receive, send: Send):
         """Entry point of the ASGI application."""
 
-        assert scope["type"] == "http"
+        asgi_handlers = {
+            "http": self._handle_http,
+            "lifespan": self._handle_lifespan,
+        }
+
+        asgi_handler = asgi_handlers.get(scope["type"])
+        if asgi_handler is None:
+            raise NotImplementedError(
+                "{0!r} scope is not supported".format(scope["type"])
+            )
+
+        await asgi_handler(scope, receive, send)
+
+    async def _handle_http(self, scope: Scope, receive: Receive, send: Send):
         request = Request(self, scope, receive)
         response = await self.handle_request(request)
         await response.send(send)
+
+    async def _handle_lifespan(
+        self, scope: Scope, receive: Receive, send: Send
+    ):
+        while True:
+            message = await receive()
+            if message["type"] == "lifespan.startup":
+                try:
+                    await self.startup()
+                except Exception as e:
+                    await send(
+                        {
+                            "type": "lifespan.startup.failed",
+                            "message": str(e),
+                        }
+                    )
+                else:
+                    await send({"type": "lifespan.startup.complete"})
+
+            elif message["type"] == "lifespan.shutdown":
+                try:
+                    await self.startup()
+                except Exception as e:
+                    await send(
+                        {
+                            "type": "lifespan.shutdown.failed",
+                            "message": str(e),
+                        }
+                    )
+                else:
+                    await send({"type": "lifespan.shutdown.complete"})
+
+                return
+
+    async def startup(self):
+        pass
+
+    async def shutdown(self):
+        pass
 
     async def handle_request(self, request: Request) -> Response:
         """Handles a request and returns a response.
