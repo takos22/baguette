@@ -138,8 +138,8 @@ class Route:
 
 
 class Router:
-    def __init__(self, routes: typing.List[Route] = []):
-        self.routes: typing.List[Route] = routes
+    def __init__(self, routes: typing.Optional[typing.List[Route]] = None):
+        self.routes: typing.List[Route] = routes or []
         self._cache: typing.Mapping[str, Route] = cachetools.LFUCache(256)
 
     def add_route(
