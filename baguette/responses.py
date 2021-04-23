@@ -1,7 +1,10 @@
 import json
+import re
 import typing
 
-from .headers import Headers
+from .headers import Headers, make_headers
+
+HTML_TAG_REGEX = re.compile(r"<\s*\w+[^>]*>.*?<\s*/\s*\w+\s*>")
 
 
 class Response:
@@ -83,3 +86,70 @@ class EmptyResponse(PlainTextResponse):
         headers: typing.Union[dict, Headers] = {},
     ):
         super().__init__("", status_code, headers)
+
+
+Result = typing.Union[
+    Response,
+    typing.Tuple[
+        typing.Any,
+        typing.Optional[int],
+        typing.Optional[Headers],
+    ],
+]
+
+
+def make_response(result: Result) -> Response:
+    """Makes a :class:`Response` object from a handler return value.
+
+    Parameters
+    ----------
+        result: Anything described in :ref:`responses`
+            The handler return value.
+
+    Returns
+    -------
+        :class:`Response`
+            The handler response.
+    """
+
+    if issubclass(type(result), Response):
+        return result
+
+    if isinstance(result, tuple):
+        body, status_code_or_headers, headers = result + (None,) * (
+            3 - len(result)
+        )
+    else:
+        body = result
+        status_code_or_headers = None
+        status_code = None
+        headers = None
+
+    if status_code_or_headers is None:
+        status_code = None
+    elif isinstance(status_code_or_headers, int):
+        status_code = status_code_or_headers
+    elif isinstance(status_code_or_headers, (list, dict, Headers)):
+        headers = status_code_or_headers
+
+    headers = make_headers(headers)
+
+    if isinstance(body, (list, dict)):
+        response = JSONResponse(body, status_code or 200, headers)
+    elif isinstance(body, str):
+        if HTML_TAG_REGEX.search(body) is not None:
+            response = HTMLResponse(body, status_code or 200, headers)
+        else:
+            response = PlainTextResponse(body, status_code or 200, headers)
+    elif body is None:
+        response = EmptyResponse(status_code or 204, headers)
+        # print(
+        #     RuntimeWarning(
+        #         "The value returned by the view function shouldn't be None,"  # noqa: E501
+        #         " but instead an empty string and a 204 status code or an EmptyResponse() instance"  # noqa: E501
+        #     )
+        # )
+    else:
+        response = PlainTextResponse(str(body), status_code or 200, headers)
+
+    return response

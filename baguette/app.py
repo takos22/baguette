@@ -1,26 +1,14 @@
 import inspect
-import re
 import traceback
 import typing
-from collections.abc import Mapping, Sequence
 
-from .headers import Headers
+from .headers import Headers, make_headers
 from .httpexceptions import BadRequest, HTTPException
 from .request import Request
-from .responses import (
-    EmptyResponse,
-    HTMLResponse,
-    JSONResponse,
-    PlainTextResponse,
-    Response,
-)
+from .responses import Response, make_response
 from .router import Route, Router
-from .types import Handler
-from .types import Headers as HeaderType
-from .types import Receive, Result, Scope, Send
+from .types import Handler, Receive, Result, Scope, Send
 from .view import View
-
-HTML_TAG_REGEX = re.compile(r"<\s*\w+[^>]*>.*?<\s*/\s*\w+\s*>")
 
 
 class Baguette:
@@ -77,13 +65,13 @@ class Baguette:
         self,
         *,
         debug: bool = False,
-        default_headers: HeaderType = None,
+        default_headers=None,
         error_response_type: str = "plain",
         error_include_description: bool = True,
     ):
         self.router = Router()
         self.debug = debug
-        self.default_headers = self.make_headers(default_headers)
+        self.default_headers: Headers = make_headers(default_headers)
 
         if error_response_type not in ("plain", "json", "html"):
             raise ValueError(
@@ -116,7 +104,8 @@ class Baguette:
         """
 
         result = await self.dispatch(request)
-        response = self.make_response(result)
+        response = make_response(result)
+        response.headers += self.default_headers
         return response
 
     async def dispatch(self, request: Request) -> Result:
@@ -157,97 +146,6 @@ class Baguette:
                 if self.debug
                 else None,
             )
-
-    def make_response(self, result: Result) -> Response:
-        """Makes a :class:`Response` object from a handler return value.
-
-        Parameters
-        ----------
-            result: Anything described in :ref:`responses`
-                The handler return value.
-
-        Returns
-        -------
-            :class:`Response`
-                The handler response.
-        """
-
-        if issubclass(type(result), Response):
-            return result
-
-        if isinstance(result, tuple):
-            body, status_code_or_headers, headers = result + (None,) * (
-                3 - len(result)
-            )
-        else:
-            body = result
-            status_code_or_headers = None
-            status_code = None
-            headers = None
-
-        if status_code_or_headers is None:
-            status_code = None
-        elif isinstance(status_code_or_headers, int):
-            status_code = status_code_or_headers
-        elif isinstance(status_code_or_headers, (list, dict, Headers)):
-            headers = status_code_or_headers
-
-        headers = self.make_headers(headers)
-        headers += self.default_headers
-
-        if isinstance(body, (list, dict)):
-            response = JSONResponse(body, status_code or 200, headers)
-        elif isinstance(body, str):
-            if HTML_TAG_REGEX.search(body) is not None:
-                response = HTMLResponse(body, status_code or 200, headers)
-            else:
-                response = PlainTextResponse(body, status_code or 200, headers)
-        elif body is None:
-            response = EmptyResponse(status_code or 204, headers)
-            # print(
-            #     RuntimeWarning(
-            #         "The value returned by the view function shouldn't be None,"  # noqa: E501
-            #         " but instead an empty string and a 204 status code or an EmptyResponse() instance"  # noqa: E501
-            #     )
-            # )
-        else:
-            response = PlainTextResponse(str(body), status_code or 200, headers)
-
-        return response
-
-    def make_headers(self, headers=None) -> Headers:
-        """Makes a :class:`Headers` object from a :class:`list` of
-        ``(str, str)`` tuples, a :class:`dict`, or a :class:`Headers` instance.
-
-        Parameters
-        ----------
-            headers: :class:`list` of ``(str, str)`` tuples, \
-            :class:`dict` or :class:`Headers`
-                The raw headers to convert.
-
-        Raises
-        ------
-            :exc:`ValueError`
-                ``type_`` isn't one of: 'plain', 'json', 'html'.
-
-        Returns
-        -------
-            :class:`Headers`
-                The converted headers.
-        """
-
-        if headers is None:
-            headers = Headers()
-        elif isinstance(headers, Sequence):
-            headers = Headers(*headers)
-        elif isinstance(headers, (Mapping, Headers)):
-            headers = Headers(**headers)
-        else:
-            raise ValueError(
-                "headers must be a list, a dict, a Headers instance or None"
-            )
-
-        return headers
 
     def add_route(
         self,
@@ -304,6 +202,10 @@ class Baguette:
             name: :class:`str`
                 Name of the route.
                 Default: handler function name.
+
+        .. versionchanged:: 0.0.3
+            Renamed from ``Baguette.endpoint`` to :meth:`Baguette.route`
+
         """
 
         def decorator(func_or_class):

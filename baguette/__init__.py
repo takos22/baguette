@@ -22,23 +22,26 @@ __version__ = "0.0.4a"
 __all__ = [
     "Baguette",
     "Headers",
+    "make_headers",
     "Response",
     "HTMLResponse",
     "PlainTextResponse",
     "JSONResponse",
     "EmptyResponse",
+    "make_response",
     "Request",
     "View",
 ]
 
 from . import testing
 from .app import Baguette
-from .headers import Headers
+from .headers import Headers, make_headers
 from .request import Request
 from .responses import (
     EmptyResponse,
     HTMLResponse,
     JSONResponse,
+    make_response,
     PlainTextResponse,
     Response,
 )
