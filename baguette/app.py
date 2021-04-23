@@ -122,7 +122,7 @@ class Baguette:
 
             elif message["type"] == "lifespan.shutdown":
                 try:
-                    await self.startup()
+                    await self.shutdown()
                 except Exception as e:
                     await send(
                         {
