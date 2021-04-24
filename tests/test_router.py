@@ -2,7 +2,11 @@ import re
 
 import pytest
 
-from baguette.converters import FloatConverter, IntegerConverter
+from baguette.converters import (
+    FloatConverter,
+    IntegerConverter,
+    StringConverter,
+)
 from baguette.httpexceptions import MethodNotAllowed, NotFound
 from baguette.router import Route, Router
 
@@ -75,6 +79,39 @@ def test_route2():
     assert id_converter[1].signed is True
     assert id_converter[1].min == -10
     assert id_converter[1].max == pytest.approx(10.0)
+
+
+def test_route3():
+    async def handler(request, test: str):
+        pass
+
+    route = Route(
+        path="/test/<test>/test",
+        name="test",
+        handler=handler,
+        methods=["GET"],
+    )
+    assert route.handler_kwargs == ["request", "test"]
+    assert route.handler_is_class is False
+
+    id_converter = route.converters[1]
+    assert id_converter[0] == "test"
+    assert isinstance(id_converter[1], StringConverter)
+
+    assert route.regex == re.compile(r"\/test\/[^\/]+\/test")
+    assert route.match("/test/1/test")
+    assert route.match("/test/test/test")
+    assert not route.match("/test")
+    assert not route.match("/test/1")
+    assert not route.match("/test//test")
+
+    assert route.convert("/test/test/test") == {"test": "test"}
+    assert route.convert("/test/1/test") == {"test": "1"}
+    with pytest.raises(ValueError):
+        route.convert("/test")
+
+    route.defaults["test"] = "test"
+    assert route.convert("/test") == {"test": "test"}
 
 
 def test_router():
