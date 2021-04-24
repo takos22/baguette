@@ -71,7 +71,8 @@ class Route:
                 continue
 
             groups = param.groupdict()
-            groups.setdefault("type", "str")
+            if groups["type"] is None:
+                groups["type"] = "str"
 
             if groups["type"] not in self.PARAM_CONVERTERS:
                 raise ValueError(
