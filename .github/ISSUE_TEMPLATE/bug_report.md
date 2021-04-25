@@ -17,16 +17,18 @@ Steps to reproduce the behavior:
 3. Scroll down to '....'
 4. See error
 
+Code:
+```py
+# include code here
+```
+
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
-
 **Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+ - OS: [e.g. Windows]
+ - Python version: [e.g. 3.7.6]
+ - Baguette version [e.g. 0.1.1]
 
 **Additional context**
 Add any other context about the problem here.
