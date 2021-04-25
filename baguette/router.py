@@ -114,6 +114,7 @@ class Route:
         return self.regex.fullmatch(path)
 
     def convert(self, path: str) -> typing.Dict[str, typing.Any]:
+        # BUG: path converters dont work
         kwargs = self.defaults.copy()
         segments = path.strip("/").split("/")
 
