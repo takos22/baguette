@@ -63,3 +63,7 @@ class UserDetail(View):
 
         del users[user_id]
         return EmptyResponse()
+
+
+if __name__ == "__main__":
+    app.run()

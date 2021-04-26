@@ -18,3 +18,7 @@ class Home(View):
     async def post(self, request):
         self.home_text = await request.body()
         return self.home_text
+
+
+if __name__ == "__main__":
+    app.run()
