@@ -102,10 +102,8 @@ def make_headers(headers=None) -> Headers:
         headers = Headers()
     elif isinstance(headers, Sequence):
         headers = Headers(*headers)
-    elif isinstance(headers, Mapping):
+    elif isinstance(headers, (Mapping, Headers)):
         headers = Headers(**headers)
-    elif isinstance(headers, Headers):
-        pass
     else:
         raise ValueError(
             "headers must be a list, a dict, a Headers instance or None"
