@@ -140,18 +140,19 @@ class Baguette:
 
         This will be executed when you start the application.
         For example, you can connect to a database.
-        """
 
-        pass
+        .. versionadded:: 0.1.0
+        """
 
     async def shutdown(self):
         """Runs on application shutdown.
 
         This will be executed when you stop the application.
         For example, you can disconnect from a database.
-        """
 
-        pass
+
+        .. versionadded:: 0.1.0
+        """
 
     async def handle_request(self, request: Request) -> Response:
         """Handles a request and returns a response.
@@ -239,6 +240,10 @@ class Baguette:
                 Name of the route.
                 Default: handler function name.
 
+            defaults: Optional :class:`dict`
+                Default arguments to give to your handler.
+                Default: ``{}``.
+
         Returns
         -------
             :class:`~baguette.router.Route`
@@ -268,13 +273,17 @@ class Baguette:
                 The path that the handler will handle.
                 Can be dynamic, see :ref:`dynamic_routing`.
 
-            methods: :class:`list` of :class:`str`
+            methods: Optional :class:`list` of :class:`str`
                 Allowed methods for this path.
                 Default: ``["GET", "HEAD"]``.
 
-            name: :class:`str`
+            name: Optional :class:`str`
                 Name of the route.
                 Default: handler function name.
+
+            defaults: Optional :class:`dict`
+                Default arguments to give to your handler.
+                Default: ``{}``.
 
         .. versionchanged:: 0.0.3
             Renamed from ``Baguette.endpoint`` to :meth:`Baguette.route`
