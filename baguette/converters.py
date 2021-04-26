@@ -38,11 +38,14 @@ class StringConverter(Converter):
         return str(string)
 
 
-class PathConverter(StringConverter):
+class PathConverter(Converter):
     REGEX = r".+"
 
     def __init__(self):
-        super().__init__(allow_slash=True)
+        pass
+
+    def convert(self, string: str):
+        return string
 
 
 class IntegerConverter(Converter):
