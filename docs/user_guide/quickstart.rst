@@ -15,7 +15,8 @@ Let's see how a very simple app that returns a small HTML response looks.
 
 ``hello-world.py``
 
-.. code:: python
+.. code-block:: python
+    :linenos:
 
     from baguette import Baguette
 

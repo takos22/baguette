@@ -1,9 +1,9 @@
-Welcome to baguette's documentation!
-====================================
+Baguette
+========
 
-.. image:: /images/banner.png
+.. image:: /_static/images/banner.png
 
-baguette is a micro web framework for ASGI servers.
+Baguette is an asynchronous web framework for ASGI servers.
 
 .. image:: https://img.shields.io/pypi/v/baguette?color=blue
     :target: https://pypi.python.org/pypi/baguette
@@ -76,3 +76,12 @@ Indices and tables
 
 * :ref:`genindex`
 * :ref:`search`
+
+.. toctree::
+    :caption: References
+    :hidden:
+
+    GitHub Repository <https://github.com/takos22/baguette>
+    Examples <https://github.com/takos22/baguette/tree/master/examples>
+    Issue Tracker <https://github.com/takos22/baguette/issues>
+    Discord support server <https://discord.gg/PGC3eAznJ6>

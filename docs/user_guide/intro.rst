@@ -20,17 +20,17 @@ Installing
 
 Install ``baguette`` with pip:
 
-- Linux or MacOS:
+.. tab:: Linux or MacOS
 
     .. code:: sh
 
-        $ python3 -m pip install -U baguette
+        python3 -m pip install -U baguette
 
-- Windows:
+.. tab:: Windows
 
     .. code:: sh
 
-        > py -3 -m pip install -U baguette
+        py -3 -m pip install -U baguette
 
 .. _installing_asgi_server:
 
@@ -40,31 +40,31 @@ ASGI server
 You also need an ASGI server to run your app like `uvicorn <https://www.uvicorn.org/>`_ or `hypercorn <https://gitlab.com/pgjones/hypercorn/>`_.
 To install `uvicorn <https://www.uvicorn.org/>`_ directly with baguette, you can add the ``uvicorn`` argument:
 
-- Linux or MacOS:
+.. tab:: Linux or MacOS
 
     .. code:: sh
 
-        $ python3 -m pip install -U baguette[uvicorn]
+        python3 -m pip install -U baguette[uvicorn]
 
-- Windows:
+.. tab:: Windows
 
     .. code:: sh
 
-        > py -3 -m pip install -U baguette[uvicorn]
+        py -3 -m pip install -U baguette[uvicorn]
 
 You can also install it with pip:
 
-- Linux or MacOS:
+.. tab:: Linux or MacOS
 
     .. code:: sh
 
-        $ python3 -m pip install -U uvicorn[standard]
+        python3 -m pip install -U uvicorn[standard]
 
-- Windows:
+.. tab:: Windows
 
     .. code:: sh
 
-        > py -3 -m pip install -U uvicorn[standard]
+        py -3 -m pip install -U uvicorn[standard]
 
 .. _venv:
 
@@ -82,42 +82,58 @@ However, for the quick and dirty:
 
 1. Go to your project's working directory:
 
-    .. code:: sh
+    .. tab:: Linux or MacOS
 
-        $ cd your-website-dir
+        .. code:: sh
+
+            cd your-website-dir
+
+    .. tab:: Windows
+
+        .. code:: sh
+
+            cd your-website-dir
 
 2. Create a virtual environment:
 
-    - Linux or MacOS:
+    .. tab:: Linux or MacOS
 
         .. code:: sh
 
-            $ python3 -m venv venv
+            python3 -m venv venv
 
-    - Windows:
+    .. tab:: Windows
 
         .. code:: sh
 
-            > py -3 -m venv venv
+            py -3 -m venv venv
 
 3. Activate the virtual environment:
 
-    - Linux or MacOS:
+    .. tab:: Linux or MacOS
 
         .. code:: sh
 
-            $ source venv/bin/activate
+            source venv/bin/activate
 
-    - Windows:
+    .. tab:: Windows
 
         .. code:: sh
 
-            > venv\Scripts\activate.bat
+            venv\Scripts\activate.bat
 
 4. Use pip like usual:
 
-    .. code:: sh
+    .. tab:: Linux or MacOS
 
-        $ pip install -U baguette
+        .. code:: sh
+
+            pip install -U baguette
+
+    .. tab:: Windows
+
+        .. code:: sh
+
+            pip install -U baguette
 
 Congratulations. You now have a virtual environment all set up. You can start to code, learn more in the :doc:`quickstart`.

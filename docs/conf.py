@@ -18,6 +18,7 @@ import sys
 sys.path.insert(0, os.path.abspath(".."))
 sys.path.append(os.path.abspath("extensions"))
 
+import sphinx_bootstrap_theme
 
 # -- Project information -----------------------------------------------------
 
@@ -58,6 +59,9 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
     "sphinx.ext.todo",
+    "sphinx_inline_tabs",
+    "sphinx_copybutton",
+    "sphinxext.opengraph",
     "resourcelinks",
 ]
 
@@ -83,7 +87,13 @@ exclude_patterns = ["_build"]
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "alabaster"
+html_title = "Baguette"
+html_theme = "furo"
+html_theme_options = {
+    "navigation_with_keys": True,
+    "light_logo": "small_logo_black.png",
+    "dark_logo": "small_logo.png",
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -105,3 +115,15 @@ todo_include_todos = True
 
 # avoid confusion between section references
 autosectionlabel_prefix_document = True
+
+# pygments styles
+pygments_style = "sphinx"
+pygments_dark_style = "monokai"
+
+# open graph data
+ogp_site_url = "https://baguette.readthedocs.io/"
+ogp_custom_meta_tags = [
+    '<meta property="og:title" content="Baguette Documentation">',
+    '<meta property="og:description" '
+    'content="Asynchronous web framework for ASGI servers.">',
+]

@@ -19,7 +19,8 @@ instead you will pass the username in the URL: ``/profile/{username}``.
 
 To do this with baguette, it's easy:
 
-.. code:: python
+.. code-block:: python
+    :linenos:
 
     from baguette import Baguette
 
@@ -37,7 +38,8 @@ Converters
 Use converters if you want the path parameters to be of a certain type and reject the request otherwise.
 For example, if you work with user IDs, you can make sure that the provided user ID is an integer:
 
-.. code:: python
+.. code-block:: python
+    :linenos:
 
     from baguette import Baguette
 
@@ -52,7 +54,8 @@ For example, if you work with user IDs, you can make sure that the provided user
 You can also pass arguments to the converters to customize how they convert and what they can convert.
 For example if you only want strings that have a length of 4:
 
-.. code:: python
+.. code-block:: python
+    :linenos:
 
     from baguette import Baguette
 

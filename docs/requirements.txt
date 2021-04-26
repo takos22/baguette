@@ -1,2 +1,6 @@
 # requirements for building the docs
 sphinx==3
+furo
+sphinx-inline-tabs
+sphinx-copybutton
+sphinxext-opengraph

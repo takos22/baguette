@@ -135,7 +135,7 @@ Path parameters converters
     :undoc-members:
     :inherited-members:
 
-.. warning::
+.. danger::
     BUG: PathConverter only returns the first part of the path, see https://github.com/takos22/baguette/issues/2
 
 .. autoclass:: baguette.converters.IntegerConverter()
