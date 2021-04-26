@@ -55,10 +55,10 @@ User Guide
 
     user_guide/intro
     user_guide/quickstart
+    user_guide/view
     user_guide/routing
     user_guide/request
     user_guide/responses
-    user_guide/view
     user_guide/testing
 
 

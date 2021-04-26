@@ -34,8 +34,8 @@ Install ``baguette`` with pip:
 
 .. _installing_asgi_server:
 
-ASGI server
-~~~~~~~~~~~
+Installing ASGI server
+~~~~~~~~~~~~~~~~~~~~~~
 
 You also need an ASGI server to run your app like `uvicorn <https://www.uvicorn.org/>`_ or `hypercorn <https://gitlab.com/pgjones/hypercorn/>`_.
 To install `uvicorn <https://www.uvicorn.org/>`_ directly with baguette, you can add the ``uvicorn`` argument:

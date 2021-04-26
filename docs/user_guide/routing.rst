@@ -27,7 +27,7 @@ To do this with baguette, it's easy:
     app = Baguette()
 
     @app.route("/profile/<username>")
-    async def profile(request, username):
+    async def profile(username):
         return f"<h1>{username}'s profile</h1>"
 
 .. _converters:
@@ -46,7 +46,7 @@ For example, if you work with user IDs, you can make sure that the provided user
     app = Baguette()
 
     @app.route("/profile/<user_id:int>")
-    async def profile(request, user_id):
+    async def profile(user_id):
         # let's assume we have a database from where we can query the user from their ID
         user = User.fetch(id=user_id)
         return f"<h1>{user.name}'s profile</h1>"
@@ -62,7 +62,7 @@ For example if you only want strings that have a length of 4:
     app = Baguette()
 
     @app.route("/text/<text:str(length=4)>")
-    async def profile(request, text):
+    async def profile(text):
         return f"{text} is 4 characters long"
 
 .. seealso::
