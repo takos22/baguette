@@ -15,7 +15,7 @@ version_info = VersionInfo(major=0, minor=1, micro=1, releaselevel="", serial=0)
 
 __title__ = "baguette"
 __author__ = "takos22"
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 __all__ = [
     "Baguette",
