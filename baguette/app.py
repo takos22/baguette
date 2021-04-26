@@ -136,9 +136,21 @@ class Baguette:
                 return
 
     async def startup(self):
+        """Runs on application startup.
+
+        This will be executed when you start the application.
+        For example, you can connect to a database.
+        """
+
         pass
 
     async def shutdown(self):
+        """Runs on application shutdown.
+
+        This will be executed when you stop the application.
+        For example, you can disconnect from a database.
+        """
+
         pass
 
     async def handle_request(self, request: Request) -> Response:
