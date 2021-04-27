@@ -99,6 +99,8 @@ class Baguette:
         await asgi_handler(scope, receive, send)
 
     async def _handle_http(self, scope: Scope, receive: Receive, send: Send):
+        """Handles rquests where ``scope["type"] == "http"``."""
+
         request = Request(self, scope, receive)
         response = await self.handle_request(request)
         await response.send(send)
@@ -106,6 +108,8 @@ class Baguette:
     async def _handle_lifespan(
         self, scope: Scope, receive: Receive, send: Send
     ):
+        """Handles rquests where ``scope["type"] == "lifespan"``."""
+
         while True:
             message = await receive()
             if message["type"] == "lifespan.startup":
@@ -486,9 +490,11 @@ class Baguette:
         """
 
         try:
-            import uvicorn
-        except ImportError:
-            raise RuntimeError("Install uvicorn to use app.run()")
+            import uvicorn  # pragma: no cover
+        except ModuleNotFoundError:  # pragma: no cover
+            raise RuntimeError(  # pragma: no cover
+                "Install uvicorn to use app.run()"
+            )
 
         last_debug = self.debug
         if isinstance(debug, bool):

@@ -5,6 +5,7 @@ import pytest
 from baguette.converters import (
     FloatConverter,
     IntegerConverter,
+    PathConverter,
     StringConverter,
 )
 from baguette.httpexceptions import MethodNotAllowed, NotFound
@@ -24,11 +25,10 @@ def test_route():
     assert route.handler_kwargs == ["request", "id"]
     assert route.handler_is_class is False
 
-    id_converter = route.converters[1]
-    assert id_converter[0] == "id"
-    assert isinstance(id_converter[1], IntegerConverter)
+    id_converter = route.converters["id"]
+    assert isinstance(id_converter, IntegerConverter)
 
-    assert route.regex == re.compile(r"\/test\/[\+-]?\d+\/test")
+    assert route.regex == re.compile(r"\/test\/(?P<id>[\+-]?\d+)\/test\/?")
     assert route.match("/test/1/test")
     assert not route.match("/test")
     assert not route.match("/test/1")
@@ -40,7 +40,10 @@ def test_route():
         route.convert("/test")
     with pytest.raises(ValueError):
         route.convert("/test/test/test")
+
+    route.path = "/test/<id:int>"
     route.defaults["id"] = 1
+    route.build_regex()
     assert route.convert("/test") == {"id": 1}
 
 
@@ -73,12 +76,11 @@ def test_route2():
     assert route.handler_kwargs == ["request"]
     assert route.handler_is_class is False
 
-    id_converter = route.converters[1]
-    assert id_converter[0] == "id"
-    assert isinstance(id_converter[1], FloatConverter)
-    assert id_converter[1].signed is True
-    assert id_converter[1].min == -10
-    assert id_converter[1].max == pytest.approx(10.0)
+    id_converter = route.converters["id"]
+    assert isinstance(id_converter, FloatConverter)
+    assert id_converter.signed is True
+    assert id_converter.min == -10
+    assert id_converter.max == pytest.approx(10.0)
 
 
 def test_route3():
@@ -94,11 +96,10 @@ def test_route3():
     assert route.handler_kwargs == ["request", "test"]
     assert route.handler_is_class is False
 
-    id_converter = route.converters[1]
-    assert id_converter[0] == "test"
-    assert isinstance(id_converter[1], StringConverter)
+    id_converter = route.converters["test"]
+    assert isinstance(id_converter, StringConverter)
 
-    assert route.regex == re.compile(r"\/test\/[^\/]+\/test")
+    assert route.regex == re.compile(r"\/test\/(?P<test>[^\/]+)\/test\/?")
     assert route.match("/test/1/test")
     assert route.match("/test/test/test")
     assert not route.match("/test")
@@ -110,8 +111,46 @@ def test_route3():
     with pytest.raises(ValueError):
         route.convert("/test")
 
+    route.path = "/test/<test>"
     route.defaults["test"] = "test"
+    route.build_regex()
     assert route.convert("/test") == {"test": "test"}
+
+
+def test_route4():
+    async def handler(path: str):
+        pass
+
+    route = Route(
+        path="/test/<path:path>/test",
+        name="path",
+        handler=handler,
+        methods=["GET"],
+    )
+    assert route.handler_kwargs == ["path"]
+    assert route.handler_is_class is False
+
+    path_converter = route.converters["path"]
+    assert isinstance(path_converter, PathConverter)
+
+    assert route.regex == re.compile(r"\/test\/(?P<path>.+)\/test\/?")
+    assert route.match("/test/1/test")
+    assert route.match("/test/test/test")
+    assert route.match("/test/test/test/test")
+    assert not route.match("/test")
+    assert not route.match("/test/1")
+    assert not route.match("/test//test")
+
+    assert route.convert("/test/test/test") == {"path": "test"}
+    assert route.convert("/test/test/test/test") == {"path": "test/test"}
+    assert route.convert("/test/1/test") == {"path": "1"}
+    with pytest.raises(ValueError):
+        route.convert("/test")
+
+    route.path = "/test/<path:path>"
+    route.defaults["path"] = "test/test"
+    route.build_regex()
+    assert route.convert("/test") == {"path": "test/test"}
 
 
 def test_router():

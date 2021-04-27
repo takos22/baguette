@@ -1,4 +1,7 @@
+import threading
+
 import pytest
+import requests
 
 from baguette.app import Baguette
 from baguette.headers import Headers
@@ -273,3 +276,34 @@ async def test_app_call_error():
 
     with pytest.raises(NotImplementedError):
         await app(scope, receive, send)
+
+
+def test_app_run():
+    app = Baguette()
+
+    running = threading.Event()
+
+    async def set_running():
+        running.set()
+
+    app_thread = threading.Thread(
+        target=app.run,
+        kwargs=dict(
+            host="127.0.0.1",
+            port=8000,
+            debug=True,
+            limit_max_requests=1,  # end after one request
+            callback_notify=set_running,
+            timeout_notify=1,  # set the running event every second
+        ),
+    )
+
+    app_thread.start()
+    if not running.wait(10.0):
+        raise TimeoutError("App hasn't started after 10s")
+
+    requests.get("http://127.0.0.1:8000")
+
+    app_thread.join(10.0)
+    if app_thread.is_alive():
+        raise TimeoutError("App hasn't stoped after 10s")
