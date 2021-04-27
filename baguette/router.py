@@ -57,7 +57,8 @@ class Route:
                 else self.handler.__name__
             )
 
-        self.converters = {}
+        self.converters = {}  # name: converter
+        self.index_converters = {}  # index: (name, converter)
         self.build_converters()
 
         self.regex = re.compile("")
@@ -96,38 +97,50 @@ class Route:
                         value = value.strip("'\"")
                     kwargs[name] = value
 
-            self.converters[index] = (groups["name"], converter(**kwargs))
+            self.converters[groups["name"]] = converter(**kwargs)
+            self.index_converters[index] = (groups["name"], converter(**kwargs))
 
     def build_regex(self):
         segments = self.path.strip("/").split("/")
-        regex = r""
+        regex = ""
+
         for index, segment in enumerate(segments):
             regex += r"\/"
-            if index in self.converters:
-                regex += self.converters[index][1].REGEX
+            if index in self.index_converters:
+                name, converter = self.index_converters[index]
+                regex += "(?P<{}>{})".format(name, converter.REGEX)
+
+                if index == len(segments) - 1 and name in self.defaults:
+                    regex += "?"
+
             else:
                 regex += re.escape(segment)
+
+        regex += r"\/?"
 
         self.regex = re.compile(regex)
 
     def match(self, path: str) -> bool:
-        return self.regex.fullmatch(path)
+        return self.regex.fullmatch(path if path.endswith("/") else path + "/")
 
     def convert(self, path: str) -> typing.Dict[str, typing.Any]:
         # BUG: path converters dont work
         kwargs = self.defaults.copy()
-        segments = path.strip("/").split("/")
+        match = self.regex.fullmatch(path if path.endswith("/") else path + "/")
 
-        for index, (name, converter) in self.converters.items():
-            if index >= len(segments):
+        if match is None:
+            raise ValueError("Path doesn't match router path")
+
+        parameters = match.groupdict()
+
+        for name, value in parameters.items():
+            if value is None:
                 if name in kwargs:
                     continue
 
-                raise ValueError(f"{name} is a required value that is missing.")
-
-            segment = segments[index]
+            converter = self.converters[name]
             try:
-                kwargs[name] = converter.convert(segment)
+                kwargs[name] = converter.convert(value)
             except ValueError as conversion_error:
                 raise ValueError(
                     f"Failed to convert {name} argument: "
