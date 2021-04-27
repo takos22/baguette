@@ -91,9 +91,9 @@ class PathConverter(Converter):
     """Converter for string URL parameters.
 
     .. note::
-        This is equivalent to a :class:`~baguette.converters.StringConverter`
-        with :attr:`~baguette.converters.StringConverter.allow_slash` set to
-        ``True``.
+        This is approximatly equivalent to a
+        :class:`~baguette.converters.StringConverter` with
+        :attr:`~baguette.converters.StringConverter.allow_slash` set to ``True``
 
     Attributes
     ----------
@@ -122,7 +122,7 @@ class PathConverter(Converter):
 
         """
 
-        return string
+        return string.strip("/")
 
 
 class IntegerConverter(Converter):
