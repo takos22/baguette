@@ -109,7 +109,7 @@ class HTTPException(Exception):
                 ``type_`` isn't one of: 'plain', 'json', 'html'.
 
         Returns
-        --------
+        -------
             :class:`Response`
                 Response that describes the error.
         """

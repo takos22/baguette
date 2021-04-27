@@ -27,18 +27,18 @@ class Headers:
 
         Parameters
         ----------
-        name: :class:`str` or :class:`bytes`
-            Name of the header to get.
-        default: Optional anything
-            Value to return if header not found.
-            Default: ``None``
+            name: :class:`str` or :class:`bytes`
+                Name of the header to get.
+            default: Optional anything
+                Value to return if header not found.
+                Default: ``None``
 
         Returns
         -------
-        :class:`str`
-            Header value if found.
-        Anything
-            ``default``'s value.
+            :class:`str`
+                Header value if found.
+            Anything
+                ``default``'s value.
         """
 
         if isinstance(name, bytes):
@@ -50,8 +50,8 @@ class Headers:
 
         Returns
         -------
-        Iterator of :class:`str`
-            Iterator over the headers names.
+            Iterator of :class:`str`
+                Iterator over the headers names.
         """
 
         return self._headers.keys()
@@ -61,8 +61,8 @@ class Headers:
 
         Returns
         -------
-        Iterator of ``(name, value)`` :class:`tuple`
-            Iterator over the headers names and values.
+            Iterator of ``(name, value)`` :class:`tuple`
+                Iterator over the headers names and values.
         """
 
         return self._headers.items()
@@ -73,9 +73,9 @@ class Headers:
 
         Returns
         -------
-        :class:`list` of ``[name, value]`` where ``name`` and ``value`` are \
-        :class:`bytes`
-            Raw headers for the ASGI response.
+            :class:`list` of ``[name, value]`` where ``name`` and ``value`` are\
+            :class:`bytes`
+                Raw headers for the ASGI response.
         """
         return [
             [name.encode("ascii"), value.encode("ascii")]

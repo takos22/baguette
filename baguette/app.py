@@ -50,7 +50,7 @@ class Baguette:
             Whether the application is running in debug mode.
 
         default_headers: :class:`Headers`
-            Default headers included in every request.
+            Default headers included in every response.
 
         error_response_type: :class:`str`
             Type of response to use in case of error.

@@ -14,6 +14,31 @@ class Converter(abc.ABC):
 
 
 class StringConverter(Converter):
+    """Converter for string URL parameters.
+
+    Parameters
+    ----------
+        length : Optional :class:`int`
+            Required length of the string.
+            Default: ``None``
+
+        allow_slash : Optional :class:`bool`
+            Allow slashes in the string.
+            Default: ``False``
+
+    Attributes
+    ----------
+        length : Optional :class:`int`
+            Required length of the string.
+
+        allow_slash : :class:`bool`
+            Allow slashes in the string.
+
+        REGEX : :class:`str`
+            Regex for the route :meth:`~baguette.router.Route.build_regex`.
+
+    """
+
     REGEX = r"[^\/]+"
 
     def __init__(
@@ -27,6 +52,30 @@ class StringConverter(Converter):
             self.REGEX = r".+"
 
     def convert(self, string: str):
+        """Converts the string of the URL parameter and validates the value.
+
+        Parameters
+        ----------
+            string : :class:`str`
+                URL parameter to convert.
+
+        Returns
+        -------
+            :class:`str`
+                Converted URL parameter.
+
+        Raises
+        ------
+            ValueError
+                :attr:`length` is specified and the URL parameter has a
+                different length than :attr:`length`.
+
+            ValueError
+                :attr:`allow_slash` is ``False`` and the URL parameter
+                contains slashes.
+
+        """
+
         if self.length is not None and len(string) != self.length:
             raise ValueError(
                 f"Expected string of length {self.length}. Got {len(string)}"
@@ -39,16 +88,76 @@ class StringConverter(Converter):
 
 
 class PathConverter(Converter):
+    """Converter for string URL parameters.
+
+    .. note::
+        This is equivalent to a :class:`~baguette.converters.StringConverter`
+        with :attr:`~baguette.converters.StringConverter.allow_slash` set to
+        ``True``.
+
+    Attributes
+    ----------
+        REGEX : :class:`str`
+            Regex for the route :meth:`~baguette.router.Route.build_regex`.
+
+    """
+
     REGEX = r".+"
 
     def __init__(self):
         pass
 
     def convert(self, string: str):
+        """Converts the string of the URL parameter and validates the value.
+
+        Parameters
+        ----------
+            string : :class:`str`
+                URL parameter to convert.
+
+        Returns
+        -------
+            :class:`str`
+                Converted URL parameter.
+
+        """
+
         return string
 
 
 class IntegerConverter(Converter):
+    """Converter for integer URL parameters.
+
+    Parameters
+    ----------
+        signed : Optional :class:`bool`
+            Whether to accept integers starting with ``+`` or ``-``.
+            Default: ``False``
+
+        min : Optional :class:`int`
+            Minimum value of the integer.
+            Default: ``None``
+
+        max : Optional :class:`int`
+            Maximum value of the integer.
+            Default: ``None``
+
+    Attributes
+    ----------
+        signed : :class:`bool`
+            Whether to accept integers starting with ``+`` or ``-``.
+
+        min : Optional :class:`int`
+            Minimum value of the integer.
+
+        max : Optional :class:`int`
+            Maximum value of the integer.
+
+        REGEX : :class:`str`
+            Regex for the route :meth:`~baguette.router.Route.build_regex`.
+
+    """
+
     REGEX = r"[\+-]?\d+"
 
     def __init__(
@@ -62,6 +171,37 @@ class IntegerConverter(Converter):
         self.max = max
 
     def convert(self, string: str):
+        """Converts the string of the URL parameter and validates the value.
+
+        Parameters
+        ----------
+            string : :class:`str`
+                URL parameter to convert.
+
+        Returns
+        -------
+            :class:`int`
+                Converted URL parameter.
+
+        Raises
+        ------
+            ValueError
+                :attr:`signed` is ``False`` and the URL parameter starts
+                with ``+`` or ``-``.
+
+            ValueError
+                Couldn't convert the URL parameter to an integer.
+
+            ValueError
+                :attr:`min` is specified and the URL parameter
+                is lower then :attr:`min`.
+
+            ValueError
+                :attr:`max` is specified and the URL parameter
+                is higher then :attr:`max`.
+
+        """
+
         if not self.signed and (string.strip()[0] in "+-"):
             raise ValueError(
                 "Expected unsigned integer. Got integer starting with "
@@ -80,6 +220,52 @@ class IntegerConverter(Converter):
 
 
 class FloatConverter(Converter):
+    """Converter for float URL parameters.
+
+    Parameters
+    ----------
+        signed : Optional :class:`bool`
+            Whether to accept floats starting with ``+`` or ``-``.
+            Default: ``False``
+
+        min : Optional :class:`float`
+            Minimum value of the float.
+            Default: ``None``
+
+        max : Optional :class:`float`
+            Maximum value of the float.
+            Default: ``None``
+
+        allow_infinity : Optional :class:`bool`
+            Whether to accept floats that are ``inf`` or ``-inf``.
+            Default: ``False``
+
+        allow_nan : Optional :class:`bool`
+            Whether to accept floats that are ``NaN``.
+            Default: ``False``
+
+    Attributes
+    ----------
+        signed : :class:`bool`
+            Whether to accept floats starting with ``+`` or ``-``.
+
+        min : Optional :class:`float`
+            Minimum value of the float.
+
+        max : Optional :class:`float`
+            Maximum value of the float.
+
+        allow_infinity : :class:`bool`
+            Whether to accept floats that are ``inf`` or ``-inf``.
+
+        allow_nan : :class:`bool`
+            Whether to accept floats that are ``NaN``.
+
+        REGEX : :class:`str`
+            Regex for the route :meth:`~baguette.router.Route.build_regex`.
+
+    """
+
     REGEX = r"[\+-]?\d*\.?\d*"
 
     def __init__(
@@ -97,6 +283,45 @@ class FloatConverter(Converter):
         self.allow_nan = allow_nan
 
     def convert(self, string: str):
+        """Converts the string of the URL parameter and validates the value.
+
+        Parameters
+        ----------
+            string : :class:`str`
+                URL parameter to convert.
+
+        Returns
+        -------
+            :class:`float`
+                Converted URL parameter.
+
+        Raises
+        ------
+            ValueError
+                :attr:`signed` is ``False`` and the URL parameter starts
+                with ``+`` or ``-``.
+
+            ValueError
+                Couldn't convert the URL parameter to an float.
+
+            ValueError
+                :attr:`min` is specified and the URL parameter
+                is lower then :attr:`min`.
+
+            ValueError
+                :attr:`max` is specified and the URL parameter
+                is higher then :attr:`max`.
+
+            ValueError
+                :attr:`allow_infinity` is ``False`` and the URL parameter
+                is ``inf`` or ``-inf``.
+
+            ValueError
+                :attr:`allow_nan` is ``False`` and the URL parameter
+                is ``nan``.
+
+        """
+
         if not self.signed and (string.strip()[0] in "+-"):
             raise ValueError(
                 "Expected unsigned float. Got float starting with "
