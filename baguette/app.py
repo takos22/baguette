@@ -4,7 +4,7 @@ import traceback
 import typing
 
 from .headers import Headers, make_headers
-from .httpexceptions import BadRequest, HTTPException
+from .httpexceptions import BadRequest, HTTPException, InternalServerError
 from .request import Request
 from .responses import Response, make_response
 from .router import Route, Router
@@ -210,6 +210,15 @@ class Baguette:
 
         except HTTPException as e:
             return e.response(
+                type_=self.error_response_type,
+                include_description=self.error_include_description,
+                traceback="".join(traceback.format_tb(e.__traceback__))
+                if self.debug and e.status_code >= 500
+                else None,
+            )
+        except Exception as e:
+            http_exception = InternalServerError()
+            return http_exception.response(
                 type_=self.error_response_type,
                 include_description=self.error_include_description,
                 traceback="".join(traceback.format_tb(e.__traceback__))
