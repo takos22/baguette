@@ -54,8 +54,6 @@ Status code               Name                       Exception class            
 
 import http
 
-from . import responses
-
 
 class HTTPException(Exception):
     """Base class for HTTP exceptions.
@@ -83,65 +81,6 @@ class HTTPException(Exception):
         self.status_code = status_code
         self.name = name
         self.description = description
-
-    def response(
-        self,
-        type_: str = "plain",
-        include_description: bool = True,
-        traceback: str = None,
-    ) -> responses.Response:
-        """Return a Response for error handling.
-
-        Arguments
-        ---------
-            type_: :class:`str`
-                Type of response. Must be one of: 'plain', 'json', 'html'.
-
-            include_description: :class:`bool`
-                Whether to include the description in the response.
-
-            traceback: Optional[:class:`str`]
-                Error traceback, usually only included in debug mode.
-
-        Raises
-        ------
-            :exc:`ValueError`
-                ``type_`` isn't one of: 'plain', 'json', 'html'.
-
-        Returns
-        -------
-            :class:`Response`
-                Response that describes the error.
-        """
-
-        if type_ == "plain":
-            text = self.name
-            if include_description and self.description:
-                text += ": " + self.description
-            if traceback is not None:
-                text += "\n" + traceback
-            return responses.PlainTextResponse(text, self.status_code)
-
-        elif type_ == "json":
-            data = {"error": {"status": self.status_code, "message": self.name}}
-            if include_description and self.description:
-                data["error"]["description"] = self.description
-            if traceback is not None:
-                data["error"]["traceback"] = traceback
-            return responses.JSONResponse(data, self.status_code)
-
-        elif type_ == "html":
-            html = f"<h1>{self.status_code} {self.name}</h1>"
-            if include_description and self.description:
-                html += f"\n<h2>{self.description}</h2>"
-            if traceback is not None:
-                html += f"\n<pre><code>{traceback}</code></pre>"
-            return responses.HTMLResponse(html, self.status_code)
-
-        else:
-            raise ValueError(
-                "Bad response type. Must be one of: 'plain', 'json', 'html'"
-            )
 
     def __repr__(self) -> str:
         return (

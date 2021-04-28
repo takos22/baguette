@@ -274,8 +274,8 @@ def test_error_response(
     type_: str, response_type: typing.Type[responses.Response]
 ):
     error = HTTPException(400)
-    response = error.response(
-        type_=type_, traceback="Traceback (most recent call last):\n..."
+    response = responses.make_error_response(
+        error, type_=type_, traceback="Traceback (most recent call last):\n..."
     )
     assert isinstance(response, response_type)
 
@@ -283,7 +283,7 @@ def test_error_response(
 def test_error_response_error():
     error = HTTPException(400)
     with pytest.raises(ValueError):
-        error.response(type_="nonexistent")
+        responses.make_error_response(error, type_="nonexistent")
 
 
 def test_error_repr():

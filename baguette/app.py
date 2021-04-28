@@ -6,7 +6,7 @@ import typing
 from .headers import Headers, make_headers
 from .httpexceptions import BadRequest, HTTPException, InternalServerError
 from .request import Request
-from .responses import Response, make_response
+from .responses import Response, make_error_response, make_response
 from .router import Route, Router
 from .types import Handler, HeadersType, Receive, Result, Scope, Send
 from .view import View
@@ -208,20 +208,24 @@ class Baguette:
 
             return await handler(**kwargs)
 
-        except HTTPException as e:
-            return e.response(
+        except HTTPException as http_exception:
+            return make_error_response(
+                http_exception,
                 type_=self.error_response_type,
                 include_description=self.error_include_description,
-                traceback="".join(traceback.format_tb(e.__traceback__))
-                if self.debug and e.status_code >= 500
+                traceback="".join(
+                    traceback.format_tb(http_exception.__traceback__)
+                )
+                if self.debug and http_exception.status_code >= 500
                 else None,
             )
-        except Exception as e:
+        except Exception as exception:
             http_exception = InternalServerError()
-            return http_exception.response(
+            return make_error_response(
+                http_exception,
                 type_=self.error_response_type,
                 include_description=self.error_include_description,
-                traceback="".join(traceback.format_tb(e.__traceback__))
+                traceback="".join(traceback.format_tb(exception.__traceback__))
                 if self.debug
                 else None,
             )
