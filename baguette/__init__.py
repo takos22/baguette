@@ -11,11 +11,11 @@ VersionInfo = NamedTuple(
     "VersionInfo", major=int, minor=int, micro=int, releaselevel=str, serial=int
 )
 
-version_info = VersionInfo(major=0, minor=1, micro=3, releaselevel="", serial=0)
+version_info = VersionInfo(major=0, minor=1, micro=4, releaselevel="", serial=0)
 
 __title__ = "baguette"
 __author__ = "takos22"
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 
 __all__ = [
     "Baguette",
