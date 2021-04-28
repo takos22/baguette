@@ -142,6 +142,7 @@ def test_app_route(setup, expected_attributes: dict):
         ["/user/-1", "GET", "", "Bad Request", 400],
         ["/user/text", "GET", "", "Not Found", 404],
         ["/notimplemented", "GET", "", "Not Implemented", 501],
+        ["/error", "GET", "", "Internal Server Error", 500],
         ["/nonexistent", "GET", "", "Not Found", 404],
     ],
 )
@@ -165,6 +166,10 @@ async def test_app_handle_request(
     @app.route("/notimplemented")
     async def notimplemented():
         raise NotImplemented()  # noqa: F901
+
+    @app.route("/error")
+    async def error():
+        raise Exception()
 
     request = create_test_request(path=path, method=method, body=body)
     response = await app.handle_request(request)

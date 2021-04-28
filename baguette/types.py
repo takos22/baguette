@@ -1,6 +1,6 @@
 import typing
 
-if typing.TYPE_CHECKING:
+if typing.TYPE_CHECKING:  # pragma: no cover
     from .headers import Headers
     from .request import Request
     from .responses import Response

@@ -499,11 +499,9 @@ class Baguette:
         """
 
         try:
-            import uvicorn  # pragma: no cover
+            import uvicorn
         except ModuleNotFoundError:  # pragma: no cover
-            raise RuntimeError(  # pragma: no cover
-                "Install uvicorn to use app.run()"
-            )
+            raise RuntimeError("Install uvicorn to use app.run()")
 
         last_debug = self.debug
         if isinstance(debug, bool):
