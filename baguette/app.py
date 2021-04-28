@@ -6,7 +6,12 @@ import typing
 from .headers import Headers, make_headers
 from .httpexceptions import BadRequest, HTTPException, InternalServerError
 from .request import Request
-from .responses import Response, make_error_response, make_response
+from .responses import (
+    FileResponse,
+    Response,
+    make_error_response,
+    make_response,
+)
 from .router import Route, Router
 from .types import Handler, HeadersType, Receive, Result, Scope, Send
 from .view import View
@@ -67,12 +72,23 @@ class Baguette:
         *,
         debug: bool = False,
         default_headers: HeadersType = None,
+        static_url_path: str = "static",
+        static_directory: str = "static",
         error_response_type: str = "plain",
         error_include_description: bool = True,
     ):
         self.router = Router()
         self.debug = debug
         self.default_headers: Headers = make_headers(default_headers)
+
+        self.static_url_path = static_url_path
+        self.static_directory = static_directory
+
+        self.add_route(
+            path=f"{self.static_url_path}/<filename:path>",
+            handler=self.handle_static_file,
+            name="static",
+        )
 
         if error_response_type not in ("plain", "json", "html"):
             raise ValueError(
@@ -330,6 +346,9 @@ class Baguette:
             return func_or_class
 
         return decorator
+
+    async def handle_static_file(self, filename: str) -> FileResponse:
+        return FileResponse(self.static_directory, filename)
 
     def run(
         self,

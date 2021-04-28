@@ -114,13 +114,11 @@ def test_app_route(setup, expected_attributes: dict):
 
     handler = setup(app)
 
-    assert len(app.router.routes) == 1
     router = app.router.routes.pop()
-
-    if router.handler_is_class:
-        assert isinstance(router.handler, handler)
-    else:
-        assert router.handler == handler
+    while (not router.handler_is_class and router.handler != handler) or (
+        router.handler_is_class and not isinstance(router.handler, handler)
+    ):
+        router = app.router.routes.pop()
 
     for name, value in expected_attributes.items():
         assert getattr(router, name) == value
