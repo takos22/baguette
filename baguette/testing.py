@@ -7,15 +7,7 @@ from .app import Baguette
 from .headers import Headers, make_headers
 from .request import Request
 from .responses import Response
-from .types import Headers as HeadersType
-
-ParamsType = typing.Union[
-    str,
-    typing.Mapping[str, typing.Union[str, typing.Sequence[str]]],
-    typing.Sequence[typing.Tuple[str, typing.Union[str, typing.Sequence[str]]]],
-]
-BodyType = typing.Union[str, typing.Iterable[str], typing.AsyncIterator[str]]
-JSONType = typing.Union[dict, list, tuple, str, int, float, bool]
+from .types import BodyType, HeadersType, JSONType, ParamsType
 
 
 class TestClient:

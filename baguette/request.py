@@ -4,11 +4,12 @@ from urllib.parse import parse_qs
 
 from .headers import Headers
 from .httpexceptions import BadRequest
+from .types import ASGIApp, JSONType, Receive, Scope
 from .utils import get_encoding_from_headers
 
 
 class Request:
-    def __init__(self, app, scope, receive):
+    def __init__(self, app: ASGIApp, scope: Scope, receive: Receive):
         self.app = app
         self._scope = scope
         self._receive = receive
@@ -29,7 +30,7 @@ class Request:
         self.server: typing.Tuple[str, int] = scope["server"]
         self.client: typing.Tuple[str, int] = scope["client"]
 
-    async def body(self):
+    async def body(self) -> str:
         # caching
         if hasattr(self, "_body"):
             return self._body
@@ -45,7 +46,7 @@ class Request:
         self._body = body.decode(self.encoding)
         return self._body
 
-    async def json(self):
+    async def json(self) -> JSONType:
         # caching
         if hasattr(self, "_json"):
             return self._json

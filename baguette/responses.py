@@ -3,6 +3,7 @@ import re
 import typing
 
 from .headers import Headers, make_headers
+from .types import Result
 
 HTML_TAG_REGEX = re.compile(r"<\s*\w+[^>]*>.*?<\s*/\s*\w+\s*>")
 
@@ -26,7 +27,7 @@ class Response:
             raise ValueError("body must be str or bytes")
 
         self.status_code = status_code
-        self.headers = Headers(**(headers or {}))
+        self.headers = make_headers(headers)
 
     async def send(self, send):
         await send(
@@ -53,7 +54,7 @@ class JSONResponse(Response):
     ):
         self.json = data
         body: str = json.dumps(data)
-        headers = headers or {}
+        headers = make_headers(headers)
         headers["content-type"] = "application/json"
         super().__init__(body, status_code, headers)
 
@@ -65,7 +66,7 @@ class PlainTextResponse(Response):
         status_code: int = 200,
         headers: typing.Union[dict, Headers] = None,
     ):
-        headers = headers or {}
+        headers = make_headers(headers)
         headers["content-type"] = "text/plain; charset=" + self.CHARSET
         super().__init__(text, status_code, headers)
 
@@ -77,7 +78,7 @@ class HTMLResponse(Response):
         status_code: int = 200,
         headers: typing.Union[dict, Headers] = None,
     ):
-        headers = headers or {}
+        headers = make_headers(headers)
         headers["content-type"] = "text/html; charset=" + self.CHARSET
         super().__init__(html, status_code, headers)
 
@@ -89,16 +90,6 @@ class EmptyResponse(PlainTextResponse):
         headers: typing.Union[dict, Headers] = None,
     ):
         super().__init__("", status_code, headers)
-
-
-Result = typing.Union[
-    Response,
-    typing.Tuple[
-        typing.Any,
-        typing.Optional[int],
-        typing.Optional[Headers],
-    ],
-]
 
 
 def make_response(result: Result) -> Response:

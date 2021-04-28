@@ -2,6 +2,8 @@ import itertools
 import typing
 from collections.abc import Mapping, Sequence
 
+from .types import HeadersType
+
 
 class Headers:
     """Headers implementation for handling :class:`str` or :class:`bytes`
@@ -128,7 +130,7 @@ class Headers:
         return self
 
 
-def make_headers(headers=None) -> Headers:
+def make_headers(headers: HeadersType = None) -> Headers:
     """Makes a :class:`Headers` object from a :class:`list` of
         ``(str, str)`` tuples, a :class:`dict`, or a :class:`Headers` instance.
 

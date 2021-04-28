@@ -8,7 +8,7 @@ from .httpexceptions import BadRequest, HTTPException
 from .request import Request
 from .responses import Response, make_response
 from .router import Route, Router
-from .types import Handler, Receive, Result, Scope, Send
+from .types import Handler, HeadersType, Receive, Result, Scope, Send
 from .view import View
 
 
@@ -66,7 +66,7 @@ class Baguette:
         self,
         *,
         debug: bool = False,
-        default_headers=None,
+        default_headers: HeadersType = None,
         error_response_type: str = "plain",
         error_include_description: bool = True,
     ):
