@@ -1,8 +1,13 @@
+import pathlib
+import re
+
 import pytest
 
 from baguette.headers import Headers
+from baguette.httpexceptions import NotFound
 from baguette.responses import (
     EmptyResponse,
+    FileResponse,
     HTMLResponse,
     JSONResponse,
     PlainTextResponse,
@@ -76,6 +81,46 @@ def test_empty_response_create():
     assert isinstance(response.headers, Headers)
 
 
+@pytest.mark.parametrize(
+    ["file_path", "mimetype", "content_length", "kwargs"],
+    [
+        [
+            "static/banner.png",
+            "image/png",
+            31021,
+            dict(as_attachment=True, attachment_filename="baguette.png"),
+        ],
+        ["static/css/style.css", "text/css", 24, dict(add_etags=False)],
+        ["static/js/script.js", "application/javascript", 42, {}],
+    ],
+)
+def test_file_response_create(file_path, mimetype, content_length, kwargs):
+    response = FileResponse(file_path, **kwargs)
+    path = pathlib.Path(file_path).resolve(strict=True)
+    assert response.file_path == path
+    assert response.mimetype == mimetype
+    assert response.headers["content-type"] == mimetype
+    assert response.file_size == content_length
+    assert int(response.headers["content-length"]) == content_length
+
+    if kwargs.get("as_attachment", False):
+        filename = kwargs.get("attachment_filename", path.name)
+        assert (
+            response.headers["content-disposition"]
+            == "attachment; filename=" + filename
+        )
+
+    if kwargs.get("add_etags", True):
+        assert re.fullmatch(r"(\d|\.)+-\d+-\d+", response.headers["etag"])
+
+
+def test_file_response_create_error():
+    with pytest.raises(NotFound):
+        FileResponse("nonexistent")
+    with pytest.raises(NotFound):
+        FileResponse("static")
+
+
 @pytest.mark.asyncio
 async def test_response_send():
     send = Send()
@@ -93,6 +138,25 @@ async def test_response_send():
     assert send.values.pop(0) == {
         "type": "http.response.body",
         "body": b"Hello, World!",
+    }
+
+
+@pytest.mark.asyncio
+async def test_file_response_send():
+    send = Send()
+    response = FileResponse("static/css/style.css", add_etags=False)
+    await response.send(send)
+    assert send.values.pop(0) == {
+        "type": "http.response.start",
+        "status": 200,
+        "headers": [
+            [b"content-length", b"24"],
+            [b"content-type", b"text/css"],
+        ],
+    }
+    assert send.values.pop(0) == {
+        "type": "http.response.body",
+        "body": b"h1 {\r\n  color: red;\r\n}\r\n",
     }
 
 

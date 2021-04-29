@@ -1,3 +1,4 @@
+import pathlib
 import threading
 
 import pytest
@@ -6,8 +7,9 @@ import requests
 from baguette.app import Baguette
 from baguette.headers import Headers
 from baguette.httpexceptions import NotImplemented
-from baguette.responses import EmptyResponse, PlainTextResponse
+from baguette.responses import EmptyResponse, FileResponse, PlainTextResponse
 from baguette.router import Router
+from baguette.testing import TestClient
 from baguette.view import View
 
 from .conftest import Receive, Send, create_http_scope, create_test_request
@@ -279,6 +281,32 @@ async def test_app_call_error():
 
     with pytest.raises(NotImplementedError):
         await app(scope, receive, send)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ["path", "file_path", "mimetype", "content_length"],
+    [
+        ["/static/banner.png", "static/banner.png", "image/png", 31021],
+        ["/static/css/style.css", "static/css/style.css", "text/css", 24],
+        [
+            "/static/js/script.js",
+            "static/js/script.js",
+            "application/javascript",
+            42,
+        ],
+    ],
+)
+async def test_app_static(path, file_path, mimetype, content_length):
+    app = TestClient(Baguette())
+
+    response: FileResponse = await app.get(path)
+    assert isinstance(response, FileResponse)
+    assert response.file_path == pathlib.Path(file_path).resolve(strict=True)
+    assert response.mimetype == mimetype
+    assert response.headers["content-type"] == mimetype
+    assert response.file_size == content_length
+    assert int(response.headers["content-length"]) == content_length
 
 
 def test_app_run():
