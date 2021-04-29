@@ -119,33 +119,30 @@ class FileResponse(Response):
             raise NotFound()
 
         self.file_size = self.file_path.stat().st_size
-        self.headers["content-length"] = self.file_size
+        self.headers["content-length"] = str(self.file_size)
 
         if self.attachment_filename is None:
             self.attachment_filename = self.file_path.name
-
-        etag = "{}-{}-{}".format(
-            self.file_path.stat().st_mtime,
-            self.file_path.stat().st_size,
-            zlib.adler32(bytes(self.file_path)),
-        )
 
         if self.mimetype is None and self.attachment_filename is not None:
             self.mimetype = (
                 mimetypes.guess_type(self.attachment_filename)[0]
                 or "application/octet-stream"
             )
-        if mimetype is None:
-            raise ValueError(
-                "The mime type can't be guessed, provide the mimetype argument."
-            )
+
+        self.headers["content-type"] = self.mimetype
 
         if as_attachment:
             self.headers[
                 "Content-Disposition"
             ] = f"attachment; filename={attachment_filename}"
 
-        if add_etags and etag is not None:
+        if add_etags:
+            etag = "{}-{}-{}".format(
+                self.file_path.stat().st_mtime,
+                self.file_path.stat().st_size,
+                zlib.adler32(bytes(self.file_path)),
+            )
             self.headers["etag"] = etag
 
     async def send(self, send):

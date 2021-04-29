@@ -236,6 +236,7 @@ class Baguette:
                 else None,
             )
         except Exception as exception:
+            traceback.print_exc()
             http_exception = InternalServerError()
             return make_error_response(
                 http_exception,

@@ -44,7 +44,7 @@ def safe_join(directory: FilePath, *paths: FilePath) -> pathlib.Path:
 
     Raises
     ------
-        NotFound
+        ~baguette.httpexceptions.NotFound
             If the full path does not share a commonprefix with the directory.
     """
     try:
