@@ -89,10 +89,10 @@ def create_static_files():
     shutil.copy("docs/_static/images/banner.png", "static")
 
     with open("static/css/style.css", "w+") as f:
-        f.write("h1 {\n  color: red;\n}\n")
+        f.write("h1 {\r\n  color: red;\r\n}\r\n")
 
     with open("static/js/script.js", "w+") as f:
-        f.write("console.log('10'+1)\nconsole.log('10'-1)\n")
+        f.write("console.log('10'+1)\r\nconsole.log('10'-1)\r\n")
 
     yield None
 

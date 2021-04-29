@@ -1,6 +1,7 @@
 import pathlib
 import re
 
+import aiofiles
 import pytest
 
 from baguette.headers import Headers
@@ -82,21 +83,24 @@ def test_empty_response_create():
 
 
 @pytest.mark.parametrize(
-    ["file_path", "mimetype", "content_length", "kwargs"],
+    ["file_path", "mimetype", "kwargs"],
     [
         [
             "static/banner.png",
             "image/png",
-            31021,
             dict(as_attachment=True, attachment_filename="baguette.png"),
         ],
-        ["static/css/style.css", "text/css", 24, dict(add_etags=False)],
-        ["static/js/script.js", "application/javascript", 42, {}],
+        ["static/css/style.css", "text/css", dict(add_etags=False)],
+        ["static/js/script.js", "application/javascript", {}],
     ],
 )
-def test_file_response_create(file_path, mimetype, content_length, kwargs):
+def test_file_response_create(file_path, mimetype, kwargs):
     response = FileResponse(file_path, **kwargs)
+
     path = pathlib.Path(file_path).resolve(strict=True)
+    with open(path, "rb") as f:
+        content_length = len(f.read())
+
     assert response.file_path == path
     assert response.mimetype == mimetype
     assert response.headers["content-type"] == mimetype
@@ -145,18 +149,21 @@ async def test_response_send():
 async def test_file_response_send():
     send = Send()
     response = FileResponse("static/css/style.css", add_etags=False)
+    async with aiofiles.open("static/css/style.css", "rb") as f:
+        content = await f.read()
+
     await response.send(send)
     assert send.values.pop(0) == {
         "type": "http.response.start",
         "status": 200,
         "headers": [
-            [b"content-length", b"24"],
+            [b"content-length", str(len(content)).encode()],
             [b"content-type", b"text/css"],
         ],
     }
     assert send.values.pop(0) == {
         "type": "http.response.body",
-        "body": b"h1 {\r\n  color: red;\r\n}\r\n",
+        "body": content,
     }
 
 

@@ -1,6 +1,7 @@
 import pathlib
 import threading
 
+import aiofiles
 import pytest
 import requests
 
@@ -285,24 +286,28 @@ async def test_app_call_error():
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    ["path", "file_path", "mimetype", "content_length"],
+    ["path", "file_path", "mimetype"],
     [
-        ["/static/banner.png", "static/banner.png", "image/png", 31021],
-        ["/static/css/style.css", "static/css/style.css", "text/css", 24],
+        ["/static/banner.png", "static/banner.png", "image/png"],
+        ["/static/css/style.css", "static/css/style.css", "text/css"],
         [
             "/static/js/script.js",
             "static/js/script.js",
             "application/javascript",
-            42,
         ],
     ],
 )
-async def test_app_static(path, file_path, mimetype, content_length):
+async def test_app_static(path, file_path, mimetype):
     app = TestClient(Baguette())
 
     response: FileResponse = await app.get(path)
+
+    path = pathlib.Path(file_path).resolve(strict=True)
+    async with aiofiles.open(path, "rb") as f:
+        content_length = len(await f.read())
+
     assert isinstance(response, FileResponse)
-    assert response.file_path == pathlib.Path(file_path).resolve(strict=True)
+    assert response.file_path == path
     assert response.mimetype == mimetype
     assert response.headers["content-type"] == mimetype
     assert response.file_size == content_length
