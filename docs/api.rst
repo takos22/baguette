@@ -85,6 +85,13 @@ Empty Response
     :members:
     :undoc-members:
 
+File Response
+**************
+
+.. autoclass:: FileResponse()
+    :members:
+    :undoc-members:
+
 Make Response
 *************
 
@@ -151,6 +158,22 @@ Testing
 -------
 
 .. autoclass:: baguette.testing.TestClient()
+    :members:
+    :undoc-members:
+    :member-order: bysource
+
+HTTP Exceptions
+---------------
+
+.. automodule:: baguette.httpexceptions
+    :members:
+    :undoc-members:
+    :member-order: bysource
+
+Utils
+-----
+
+.. automodule:: baguette.utils
     :members:
     :undoc-members:
     :member-order: bysource
