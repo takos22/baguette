@@ -59,7 +59,6 @@ extensions = [
     "sphinx.ext.todo",
     "sphinx_inline_tabs",
     "sphinx_copybutton",
-    "sphinxext.opengraph",
     "resourcelinks",
 ]
 
@@ -117,11 +116,3 @@ autosectionlabel_prefix_document = True
 # pygments styles
 pygments_style = "sphinx"
 pygments_dark_style = "monokai"
-
-# open graph data
-ogp_site_url = "https://baguette.readthedocs.io/"
-ogp_custom_meta_tags = [
-    '<meta property="og:title" content="Baguette Documentation">',
-    '<meta property="og:description" '
-    'content="Asynchronous web framework for ASGI servers.">',
-]
