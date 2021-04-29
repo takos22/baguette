@@ -97,6 +97,8 @@ Make Response
 
 .. autofunction:: make_response()
 
+.. autofunction:: make_error_response()
+
 Headers
 -------
 
