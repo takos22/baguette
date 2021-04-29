@@ -26,7 +26,9 @@ __all__ = [
     "PlainTextResponse",
     "JSONResponse",
     "EmptyResponse",
+    "FileResponse",
     "make_response",
+    "make_error_response",
     "Request",
     "View",
 ]
@@ -37,10 +39,12 @@ from .headers import Headers, make_headers
 from .request import Request
 from .responses import (
     EmptyResponse,
+    FileResponse,
     HTMLResponse,
     JSONResponse,
     PlainTextResponse,
     Response,
     make_response,
+    make_error_response,
 )
 from .view import View
