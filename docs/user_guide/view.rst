@@ -38,7 +38,7 @@ You can specify which methods your function can handle by adding the ``methods``
         if request.method == "GET":
             return "<h1>Hello from GET</h1>"
         elif request.method == "POST":
-            return "<h1>Hello from GET</h1>"
+            return "<h1>Hello from POST</h1>"
 
 If other methods are requested, the application will respond with a Method Not Allowed response
 and a 405 status code.
@@ -55,3 +55,6 @@ View classes
 a function for each method, this is useful when you have multiple METHODS
 for the same route and need to handle each method with a different logic.
 The most common use case is in an API:
+
+.. todo::
+    Complete this section
