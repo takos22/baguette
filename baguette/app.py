@@ -34,6 +34,14 @@ class Baguette:
             Default headers to include in every request.
             Default: No headers.
 
+        static_url_path: :class:`str`
+            URL path for the static file handler.
+            Default: ``"static"``.
+
+        static_directory: :class:`str`
+            Path to the folder containing static files.
+            Default: ``"static"``.
+
         error_response_type: :class:`str`
             Type of response to use in case of error.
             One of: ``"plain"``, ``"json"``, ``"html"``.
@@ -56,6 +64,12 @@ class Baguette:
 
         default_headers: :class:`Headers`
             Default headers included in every response.
+
+        static_url_path: :class:`str`
+            URL path for the static file handler.
+
+        static_directory: :class:`str`
+            Path to the folder containing static files.
 
         error_response_type: :class:`str`
             Type of response to use in case of error.
