@@ -124,7 +124,6 @@ class Route:
         return self.regex.fullmatch(path if path.endswith("/") else path + "/")
 
     def convert(self, path: str) -> typing.Dict[str, typing.Any]:
-        # BUG: path converters dont work
         kwargs = self.defaults.copy()
         match = self.regex.fullmatch(path if path.endswith("/") else path + "/")
 

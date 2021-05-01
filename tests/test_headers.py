@@ -128,6 +128,7 @@ def test_headers_iadd(headers: Headers, other):
     ["headers", "expected_headers"],
     [
         [None, Headers()],
+        ["server: baguette", Headers(server="baguette")],
         [[["server", "baguette"]], Headers(server="baguette")],
         [{"server": "baguette"}, Headers(server="baguette")],
         [Headers(server="baguette"), Headers(server="baguette")],

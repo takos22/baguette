@@ -8,6 +8,7 @@ from baguette.utils import (
     file_path_to_path,
     get_encoding_from_headers,
     safe_join,
+    split_on_first,
 )
 
 
@@ -61,3 +62,18 @@ def test_safe_join_error():
         safe_join("static", "nonexistent")
     with pytest.raises(NotFound):
         safe_join("static", "..")
+
+
+@pytest.mark.parametrize(
+    ["text", "sep", "expected"],
+    [
+        ["test", ":", ("test", "")],
+        ["test:test", ":", ("test", "test")],
+        ["test:test:test", ":", ("test", "test:test")],
+        [b"test", b":", (b"test", b"")],
+        [b"test:test", b":", (b"test", b"test")],
+        [b"test:test:test", b":", (b"test", b"test:test")],
+    ],
+)
+def test_split_on_first(text, sep, expected):
+    assert split_on_first(text, sep) == expected

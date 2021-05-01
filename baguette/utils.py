@@ -20,6 +20,7 @@ def get_encoding_from_content_type(content_type):
     if "text" in content_type:
         return "ISO-8859-1"
 
+
 def get_encoding_from_headers(headers):
     """Returns encodings from given HTTP Headers."""
 
@@ -64,6 +65,8 @@ def safe_join(directory: FilePath, *paths: FilePath) -> pathlib.Path:
     return full_path
 
 
-def split_on_first(content: str, sep: str):
-    point = content.find(sep)
-    return content[:point], content[point + len(sep) :]  # noqa: E203
+def split_on_first(text: str, sep: str):
+    point = text.find(sep)
+    if point == -1:
+        return text, text[:0]  # return bytes or str
+    return text[:point], text[point + len(sep) :]  # noqa: E203

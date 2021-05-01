@@ -110,7 +110,7 @@ class MultipartForm(Form):
                         value,
                         filename=filename,
                         content_type=parse_header(headers["content-type"])[0],
-                        encoding=encoding
+                        encoding=encoding,
                     )
                 else:
                     fields[name] = Field(
