@@ -3,8 +3,8 @@ name: Status Embeds
 on:
   workflow_run:
     workflows:
-      - lint-test
-      - publish
+      - Lint and test
+      - Publish to PyPI
     types:
       - completed
 
