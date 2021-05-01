@@ -6,10 +6,8 @@ import typing
 from .httpexceptions import NotFound
 
 
-def get_encoding_from_headers(headers):
-    """Returns encodings from given HTTP Headers."""
-
-    content_type = headers.get("content-type")
+def get_encoding_from_content_type(content_type):
+    """Returns encodings from given Content-Type Header."""
 
     if not content_type:
         return None
@@ -21,6 +19,13 @@ def get_encoding_from_headers(headers):
 
     if "text" in content_type:
         return "ISO-8859-1"
+
+def get_encoding_from_headers(headers):
+    """Returns encodings from given HTTP Headers."""
+
+    content_type = headers.get("content-type")
+
+    return get_encoding_from_content_type(content_type)
 
 
 FilePath = typing.Union[bytes, str, os.PathLike]
@@ -57,3 +62,8 @@ def safe_join(directory: FilePath, *paths: FilePath) -> pathlib.Path:
     except ValueError:
         raise NotFound()
     return full_path
+
+
+def split_on_first(content: str, sep: str):
+    point = content.find(sep)
+    return content[:point], content[point + len(sep) :]  # noqa: E203

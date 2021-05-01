@@ -22,7 +22,7 @@ class Headers:
                 name = name.decode("ascii")
             if isinstance(value, bytes):
                 value = value.decode("ascii")
-            self._headers[name.lower()] = value
+            self._headers[name.lower().strip()] = value.strip()
 
     def get(self, name, default=None):
         """Gets a header from its name. If not found, returns ``default``.
@@ -153,6 +153,10 @@ def make_headers(headers: HeadersType = None) -> Headers:
 
     if headers is None:
         headers = Headers()
+    elif isinstance(headers, str):
+        headers = Headers(
+            *[header.split(":") for header in headers.splitlines()]
+        )
     elif isinstance(headers, Sequence):
         headers = Headers(*headers)
     elif isinstance(headers, (Mapping, Headers)):
