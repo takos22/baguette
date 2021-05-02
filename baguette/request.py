@@ -86,7 +86,7 @@ class Request:
             )
 
         if self.content_type == "application/x-www-form-urlencoded":
-            form = URLEncodedForm.parse(body.decode(self.encoding))
+            form = URLEncodedForm.parse(body, encoding=self.encoding)
         elif self.content_type == "multipart/form-data":
             params = parse_header(self.headers.get("content-type", ""))[1]
             form = MultipartForm.parse(
@@ -96,7 +96,7 @@ class Request:
             )
 
         if include_querystring:
-            for name, values in self.querystring:
+            for name, values in self.querystring.items():
                 if name in form.fields:
                     form.fields[name].values.extend(values)
                 else:

@@ -12,9 +12,13 @@ class Field:
         self,
         name: str,
         values: typing.List[str],
+        encoding: str = "utf-8",
     ):
         self.name = name
-        self.values = values
+        self.values = [
+            value.decode(encoding) if isinstance(value, bytes) else value
+            for value in values
+        ]
         if len(self.values) > 0:
             self.value = self.values[0]
         else:
@@ -74,11 +78,13 @@ class Form:
 
 class URLEncodedForm(Form):
     @classmethod
-    def parse(cls, body: str) -> "URLEncodedForm":
-        raw_fields: typing.Dict[str, typing.List[str]] = parse_qs(body)
+    def parse(cls, body: bytes, encoding: str = "utf-8") -> "URLEncodedForm":
+        raw_fields: typing.Dict[str, typing.List[str]] = parse_qs(
+            body.decode(encoding), encoding=encoding
+        )
         fields: typing.Dict[str, Field] = {}
         for name, values in raw_fields.items():
-            fields[name] = Field(name, values)
+            fields[name] = Field(name, values, encoding=encoding)
         return cls(fields)
 
 
