@@ -102,6 +102,9 @@ Make Response
 Headers
 -------
 
+Headers class
+*************
+
 .. autoclass:: Headers()
     :members:
     :undoc-members:
@@ -110,6 +113,35 @@ Make Headers
 ************
 
 .. autofunction:: make_headers()
+
+Forms
+-----
+
+Form parsers
+************
+
+.. autoclass:: baguette.forms.Form()
+    :members:
+    :undoc-members:
+
+.. autoclass:: baguette.forms.URLEncodedForm()
+    :members:
+    :undoc-members:
+
+.. autoclass:: baguette.forms.MultipartForm()
+    :members:
+    :undoc-members:
+
+Fields
+******
+
+.. autoclass:: baguette.forms.Field()
+    :members:
+    :undoc-members:
+
+.. autoclass:: baguette.forms.FileField()
+    :members:
+    :undoc-members:
 
 Routing
 -------
