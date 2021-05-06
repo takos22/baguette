@@ -284,10 +284,3 @@ def test_error_response_error():
     error = HTTPException(400)
     with pytest.raises(ValueError):
         responses.make_error_response(error, type_="nonexistent")
-
-
-def test_error_repr():
-    error = HTTPException(400)
-    assert repr(error).startswith("HTTP Exception: ")
-    assert int(repr(error).split()[2]) == error.status_code
-    assert " ".join(repr(error).split()[3:]).split(": ")[0] == error.name
