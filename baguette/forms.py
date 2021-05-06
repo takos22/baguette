@@ -11,7 +11,7 @@ class Field:
     def __init__(
         self,
         name: str,
-        values: typing.List[str],
+        values: typing.List[typing.Union[str, bytes]],
         encoding: str = "utf-8",
     ):
         self.name = name
@@ -34,9 +34,9 @@ class FileField(Field):
     def __init__(
         self,
         name: str,
-        content: bytes,
-        filename: typing.Optional[str],
-        content_type: typing.Optional[str],
+        content: typing.Union[str, bytes],
+        filename: typing.Optional[str] = "",
+        content_type: typing.Optional[str] = "application/octet-stream",
         encoding: str = "utf-8",
     ):
         self.name = name
@@ -54,11 +54,14 @@ class FileField(Field):
             )
 
     @property
-    def text(self) -> str:
-        try:
-            return self.content.decode(self.encoding)
-        except UnicodeDecodeError:
-            return self.content
+    def text(self) -> typing.Union[str, bytes]:
+        if isinstance(self.content, bytes):
+            try:
+                return self.content.decode(self.encoding)
+            except UnicodeDecodeError:
+                return self.content
+
+        return self.content
 
     def __str__(self) -> str:
         return self.text
