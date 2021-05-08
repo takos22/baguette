@@ -4,6 +4,7 @@ import pathlib
 import typing
 
 from .httpexceptions import NotFound
+from .types import FilePath
 
 
 def get_encoding_from_content_type(content_type):
@@ -27,9 +28,6 @@ def get_encoding_from_headers(headers):
     content_type = headers.get("content-type")
 
     return get_encoding_from_content_type(content_type)
-
-
-FilePath = typing.Union[bytes, str, os.PathLike]
 
 
 def file_path_to_path(*paths: FilePath) -> pathlib.Path:

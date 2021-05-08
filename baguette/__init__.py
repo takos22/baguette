@@ -23,6 +23,7 @@ __all__ = [
     "Baguette",
     "Headers",
     "make_headers",
+    "render",
     "Response",
     "HTMLResponse",
     "PlainTextResponse",
@@ -40,6 +41,7 @@ __all__ = [
 from . import testing
 from .app import Baguette
 from .headers import Headers, make_headers
+from .rendering import render
 from .request import Request
 from .responses import (
     EmptyResponse,

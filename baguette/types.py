@@ -1,3 +1,4 @@
+import os
 import typing
 
 if typing.TYPE_CHECKING:
@@ -37,3 +38,5 @@ ParamsType = typing.Union[
 ]
 BodyType = typing.Union[str, typing.Iterable[str], typing.AsyncIterator[str]]
 JSONType = typing.Union[dict, list, tuple, str, int, float, bool]
+
+FilePath = typing.Union[bytes, str, os.PathLike]

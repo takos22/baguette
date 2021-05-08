@@ -3,6 +3,7 @@ import ssl
 import traceback
 import typing
 
+from . import rendering
 from .headers import Headers, make_headers
 from .httpexceptions import BadRequest, HTTPException, InternalServerError
 from .request import Request
@@ -42,6 +43,10 @@ class Baguette:
             Path to the folder containing static files.
             Default: ``"static"``.
 
+        templates_directory: :class:`str`
+            Path to the folder containing the HTML templates.
+            Default: ``"templates"``.
+
         error_response_type: :class:`str`
             Type of response to use in case of error.
             One of: ``"plain"``, ``"json"``, ``"html"``.
@@ -71,6 +76,9 @@ class Baguette:
         static_directory: :class:`str`
             Path to the folder containing static files.
 
+        renderer: :class:`~baguette.rendering.Renderer`
+            Class that renders the templates.
+
         error_response_type: :class:`str`
             Type of response to use in case of error.
             One of: ``"plain"``, ``"json"``, ``"html"``
@@ -88,6 +96,7 @@ class Baguette:
         default_headers: HeadersType = None,
         static_url_path: str = "static",
         static_directory: str = "static",
+        templates_directory: str = "static",
         error_response_type: str = "plain",
         error_include_description: bool = True,
     ):
@@ -97,6 +106,8 @@ class Baguette:
 
         self.static_url_path = static_url_path
         self.static_directory = static_directory
+
+        self.renderer = rendering.init(templates_directory)
 
         self.add_route(
             path=f"{self.static_url_path}/<filename:path>",
