@@ -11,11 +11,13 @@ VersionInfo = NamedTuple(
     "VersionInfo", major=int, minor=int, micro=int, releaselevel=str, serial=int
 )
 
-version_info = VersionInfo(major=0, minor=1, micro=6, releaselevel="", serial=0)
+version_info = VersionInfo(
+    major=0, minor=2, micro=0, releaselevel="dev", serial=0
+)
 
 __title__ = "baguette"
 __author__ = "takos22"
-__version__ = "0.1.6"
+__version__ = "0.2.0.dev"
 
 __all__ = [
     "Baguette",
@@ -26,9 +28,11 @@ __all__ = [
     "PlainTextResponse",
     "JSONResponse",
     "EmptyResponse",
+    "RedirectResponse",
     "FileResponse",
     "make_response",
     "make_error_response",
+    "redirect",
     "Request",
     "View",
 ]
@@ -43,8 +47,10 @@ from .responses import (
     HTMLResponse,
     JSONResponse,
     PlainTextResponse,
+    RedirectResponse,
     Response,
     make_error_response,
     make_response,
+    redirect,
 )
 from .view import View

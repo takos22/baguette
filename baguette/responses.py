@@ -8,7 +8,7 @@ import aiofiles
 
 from .headers import Headers, make_headers
 from .httpexceptions import HTTPException, NotFound
-from .types import Result
+from .types import HeadersType, Result
 from .utils import safe_join
 
 HTML_TAG_REGEX = re.compile(r"<\s*\w+[^>]*>.*?<\s*/\s*\w+\s*>")
@@ -21,7 +21,7 @@ class Response:
         self,
         body: typing.Union[str, bytes],
         status_code: int = 200,
-        headers: typing.Union[dict, Headers] = None,
+        headers: typing.Optional[HeadersType] = None,
     ):
         if isinstance(body, str):
             self.text: str = body
@@ -56,13 +56,12 @@ class JSONResponse(Response):
         self,
         data: typing.Any,
         status_code: int = 200,
-        headers: typing.Union[dict, Headers] = None,
+        headers: typing.Optional[HeadersType] = None,
     ):
         self.json = data
         body: str = json.dumps(data)
-        headers = make_headers(headers)
-        headers["content-type"] = "application/json"
         super().__init__(body, status_code, headers)
+        self.headers["content-type"] = "application/json"
 
 
 class PlainTextResponse(Response):
@@ -70,11 +69,10 @@ class PlainTextResponse(Response):
         self,
         text: typing.Union[str, bytes],
         status_code: int = 200,
-        headers: typing.Union[dict, Headers] = None,
+        headers: typing.Optional[HeadersType] = None,
     ):
-        headers = make_headers(headers)
-        headers["content-type"] = "text/plain; charset=" + self.CHARSET
         super().__init__(text, status_code, headers)
+        self.headers["content-type"] = "text/plain; charset=" + self.CHARSET
 
 
 class HTMLResponse(Response):
@@ -82,20 +80,30 @@ class HTMLResponse(Response):
         self,
         html: typing.Union[str, bytes],
         status_code: int = 200,
-        headers: typing.Union[dict, Headers] = None,
+        headers: typing.Optional[HeadersType] = None,
     ):
-        headers = make_headers(headers)
-        headers["content-type"] = "text/html; charset=" + self.CHARSET
         super().__init__(html, status_code, headers)
+        self.headers["content-type"] = "text/html; charset=" + self.CHARSET
 
 
 class EmptyResponse(PlainTextResponse):
     def __init__(
         self,
         status_code: int = 204,
-        headers: typing.Union[dict, Headers] = None,
+        headers: typing.Optional[HeadersType] = None,
     ):
         super().__init__("", status_code, headers)
+
+
+class RedirectResponse(Response):
+    def __init__(
+        self,
+        location: str,
+        status_code: int = 301,
+        headers: typing.Optional[HeadersType] = None,
+    ):
+        super().__init__("", status_code, headers)
+        self.headers["location"] = location
 
 
 class FileResponse(Response):
@@ -107,7 +115,7 @@ class FileResponse(Response):
         as_attachment: bool = False,
         add_etags: bool = True,
         status_code: int = 200,
-        headers: typing.Union[dict, Headers] = None,
+        headers: typing.Optional[HeadersType] = None,
     ):
         self.mimetype = mimetype
         self.attachment_filename = attachment_filename
@@ -289,3 +297,32 @@ def make_error_response(
         raise ValueError(
             "Bad response type. Must be one of: 'plain', 'json', 'html'"
         )
+
+
+def redirect(
+    location: str,
+    status_code: int = 301,
+    headers: typing.Optional[HeadersType] = None,
+) -> RedirectResponse:
+    """Redirect the request to location.
+
+    Arguments
+    ---------
+        location: :class:`str`
+            The location to redirect the request to.
+
+        status_code: :class:`int`
+            Status code of the redirect response.
+            Default: ``301``.
+
+        headers: anything accepted by :func:`make_headers`
+            Headers to include in the response.
+            Any location header will be overwritten with the location parameter.
+            Default: ``None``.
+
+    Returns
+    -------
+        :class:`RedirectResponse`
+            The created redirect response.
+    """
+    return RedirectResponse(location, status_code, headers)

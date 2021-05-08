@@ -12,8 +12,10 @@ from baguette.responses import (
     HTMLResponse,
     JSONResponse,
     PlainTextResponse,
+    RedirectResponse,
     Response,
     make_response,
+    redirect,
 )
 
 from .conftest import Send
@@ -26,6 +28,7 @@ def test_response_create():
     )
     assert isinstance(response.text, str)
     assert isinstance(response.body, bytes)
+    assert isinstance(response.status_code, int)
     assert isinstance(response.headers, Headers)
 
     response = Response(
@@ -34,6 +37,7 @@ def test_response_create():
     )
     assert isinstance(response.text, str)
     assert isinstance(response.body, bytes)
+    assert isinstance(response.status_code, int)
     assert isinstance(response.headers, Headers)
 
     with pytest.raises(ValueError):
@@ -45,6 +49,7 @@ def test_json_response_create():
     assert isinstance(response.json, dict)
     assert isinstance(response.text, str)
     assert isinstance(response.body, bytes)
+    assert isinstance(response.status_code, int)
     assert isinstance(response.headers, Headers)
     assert (
         "content-type" in response.headers
@@ -56,6 +61,7 @@ def test_plain_text_response_create():
     response = PlainTextResponse("Hello, World!")
     assert isinstance(response.text, str)
     assert isinstance(response.body, bytes)
+    assert isinstance(response.status_code, int)
     assert isinstance(response.headers, Headers)
     assert "content-type" in response.headers and response.headers[
         "content-type"
@@ -66,6 +72,7 @@ def test_html_response_create():
     response = HTMLResponse("<h1>Hello, World!</h1>")
     assert isinstance(response.text, str)
     assert isinstance(response.body, bytes)
+    assert isinstance(response.status_code, int)
     assert isinstance(response.headers, Headers)
     assert "content-type" in response.headers and response.headers[
         "content-type"
@@ -75,11 +82,44 @@ def test_html_response_create():
 def test_empty_response_create():
     response = EmptyResponse()
     assert isinstance(response.text, str)
-    assert response.text == ""
     assert isinstance(response.body, bytes)
+    assert isinstance(response.status_code, int)
+    assert isinstance(response.headers, Headers)
+    assert response.text == ""
     assert response.body == b""
     assert response.status_code == 204
+
+
+def test_redirect_response_create():
+    response = RedirectResponse("/home")
+    assert isinstance(response.text, str)
+    assert isinstance(response.body, bytes)
+    assert isinstance(response.status_code, int)
     assert isinstance(response.headers, Headers)
+    assert response.status_code == 301
+    assert (
+        "location" in response.headers
+        and response.headers["location"] == "/home"
+    )
+
+
+def test_redirect():
+    response = redirect(
+        "/home", status_code=302, headers={"server": "baguette"}
+    )
+    assert isinstance(response.text, str)
+    assert isinstance(response.body, bytes)
+    assert isinstance(response.status_code, int)
+    assert isinstance(response.headers, Headers)
+    assert response.status_code == 302
+    assert (
+        "location" in response.headers
+        and response.headers["location"] == "/home"
+    )
+    assert (
+        "server" in response.headers
+        and response.headers["server"] == "baguette"
+    )
 
 
 @pytest.mark.parametrize(

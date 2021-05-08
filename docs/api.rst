@@ -85,6 +85,17 @@ Empty Response
     :members:
     :undoc-members:
 
+Redirect Response
+*****************
+
+.. autoclass:: RedirectResponse()
+    :members:
+    :undoc-members:
+
+There's an alias to create this class, it's the :func:`redirect` function.
+
+.. autofunction:: redirect()
+
 File Response
 **************
 
