@@ -1,3 +1,4 @@
+import collections
 import mimetypes
 import typing
 from cgi import parse_header
@@ -36,7 +37,7 @@ class FileField(Field):
         name: str,
         content: typing.Union[str, bytes],
         filename: typing.Optional[str] = "",
-        content_type: typing.Optional[str] = "application/octet-stream",
+        content_type: typing.Optional[str] = None,
         encoding: str = "utf-8",
     ):
         self.name = name
@@ -47,7 +48,7 @@ class FileField(Field):
         self.content_type = content_type
         self.encoding = encoding
 
-        if self.content_type == "application/octet-stream":
+        if not self.content_type:
             self.content_type = (
                 mimetypes.guess_type(self.filename)[0]
                 or "application/octet-stream"
@@ -67,15 +68,21 @@ class FileField(Field):
         return self.text
 
 
-class Form:
+class Form(collections.abc.Mapping):
     def __init__(self, fields: typing.Optional[typing.Dict[str, Field]] = None):
         self.fields: typing.Dict[str, Field] = fields or {}
 
     def __getitem__(self, name: str) -> Field:
         return self.fields[name]
 
+    def __iter__(self) -> typing.Iterator:
+        return iter(self.fields)
+
+    def __len__(self) -> int:
+        return len(self.fields)
+
     @classmethod
-    def parse(cls, body: str) -> "Form":
+    def parse(cls, body: bytes) -> "Form":
         raise NotImplementedError()
 
 
@@ -111,7 +118,7 @@ class MultipartForm(Form):
             filename = kwargs.get("filename", None)
 
             if name in fields and not fields[name].is_file:
-                fields[name].values.append(value)
+                fields[name].values.append(value.decode(encoding))
             else:
                 if is_file:
                     fields[name] = FileField(
