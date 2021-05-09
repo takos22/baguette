@@ -154,6 +154,23 @@ Fields
     :members:
     :undoc-members:
 
+Rendering
+---------
+
+Renderer
+********
+
+.. autoclass:: baguette.rendering.Renderer()
+    :members:
+    :undoc-members:
+
+Render
+******
+
+.. autofunction:: baguette.rendering.init()
+
+.. autofunction:: render()
+
 Routing
 -------
 
