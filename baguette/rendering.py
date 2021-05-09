@@ -36,6 +36,6 @@ def init(
 
 async def render(template_name, *args, **kwargs):
     if _renderer is None:
-        init()
+        init(kwargs.pop("templates_directory", "templates"))
 
     return await _renderer.render(template_name, *args, **kwargs)
