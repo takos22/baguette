@@ -46,22 +46,22 @@ def test_file_path_to_path(paths):
 @pytest.mark.parametrize(
     ["directory", "paths"],
     [
-        ["static", ["css/style.css"]],
-        ["static", ["css", "style.css"]],
+        ["tests", ["static", "css/style.css"]],
+        ["tests/static", ["css", "style.css"]],
     ],
 )
 def test_safe_join(directory, paths):
     path = safe_join(directory, *paths)
-    assert path == pathlib.Path("static/css/style.css").resolve()
+    assert path == pathlib.Path("tests/static/css/style.css").resolve()
 
 
 def test_safe_join_error():
     with pytest.raises(NotFound):
         safe_join("nonexistent", "css/style.css")
     with pytest.raises(NotFound):
-        safe_join("static", "nonexistent")
+        safe_join("tests/static", "nonexistent")
     with pytest.raises(NotFound):
-        safe_join("static", "..")
+        safe_join("tests/static", "..")
 
 
 @pytest.mark.parametrize(

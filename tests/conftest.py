@@ -1,6 +1,3 @@
-import os
-import shutil
-
 import pytest
 
 from baguette.app import Baguette
@@ -78,25 +75,6 @@ def create_test_request(
 @pytest.fixture(name="test_request")
 def create_test_request_fixture():
     return create_test_request()
-
-
-@pytest.fixture(name="static_files", scope="session", autouse=True)
-def create_static_files():
-    os.mkdir("static")
-    os.mkdir("static/css")
-    os.mkdir("static/js")
-
-    shutil.copy("docs/_static/images/banner.png", "static")
-
-    with open("static/css/style.css", "w+") as f:
-        f.write("h1 {\r\n  color: red;\r\n}\r\n")
-
-    with open("static/js/script.js", "w+") as f:
-        f.write("console.log('10'+1)\r\nconsole.log('10'-1)\r\n")
-
-    yield None
-
-    shutil.rmtree("static", ignore_errors=True)
 
 
 # modified verison of https://stackoverflow.com/a/9759329/12815996

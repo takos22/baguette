@@ -126,12 +126,12 @@ def test_redirect():
     ["file_path", "mimetype", "kwargs"],
     [
         [
-            "static/banner.png",
+            "tests/static/banner.png",
             "image/png",
             dict(as_attachment=True, attachment_filename="baguette.png"),
         ],
-        ["static/css/style.css", "text/css", dict(add_etags=False)],
-        ["static/js/script.js", "application/javascript", {}],
+        ["tests/static/css/style.css", "text/css", dict(add_etags=False)],
+        ["tests/static/js/script.js", "application/javascript", {}],
     ],
 )
 def test_file_response_create(file_path, mimetype, kwargs):
@@ -162,7 +162,7 @@ def test_file_response_create_error():
     with pytest.raises(NotFound):
         FileResponse("nonexistent")
     with pytest.raises(NotFound):
-        FileResponse("static")
+        FileResponse("tests/static")
 
 
 @pytest.mark.asyncio
@@ -188,8 +188,8 @@ async def test_response_send():
 @pytest.mark.asyncio
 async def test_file_response_send():
     send = Send()
-    response = FileResponse("static/css/style.css", add_etags=False)
-    async with aiofiles.open("static/css/style.css", "rb") as f:
+    response = FileResponse("tests/static/css/style.css", add_etags=False)
+    async with aiofiles.open("tests/static/css/style.css", "rb") as f:
         content = await f.read()
 
     await response.send(send)

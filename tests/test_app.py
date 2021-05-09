@@ -288,17 +288,17 @@ async def test_app_call_error():
 @pytest.mark.parametrize(
     ["path", "file_path", "mimetype"],
     [
-        ["/static/banner.png", "static/banner.png", "image/png"],
-        ["/static/css/style.css", "static/css/style.css", "text/css"],
+        ["/static/banner.png", "tests/static/banner.png", "image/png"],
+        ["/static/css/style.css", "tests/static/css/style.css", "text/css"],
         [
             "/static/js/script.js",
-            "static/js/script.js",
+            "tests/static/js/script.js",
             "application/javascript",
         ],
     ],
 )
 async def test_app_static(path, file_path, mimetype):
-    app = TestClient(Baguette())
+    app = TestClient(Baguette(static_directory="tests/static"))
 
     response: FileResponse = await app.get(path)
 
