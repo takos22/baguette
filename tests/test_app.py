@@ -8,12 +8,24 @@ import requests
 from baguette.app import Baguette
 from baguette.headers import Headers
 from baguette.httpexceptions import NotImplemented
-from baguette.responses import EmptyResponse, FileResponse, PlainTextResponse
+from baguette.rendering import render
+from baguette.responses import (
+    EmptyResponse,
+    FileResponse,
+    HTMLResponse,
+    PlainTextResponse,
+)
 from baguette.router import Router
 from baguette.testing import TestClient
 from baguette.view import View
 
-from .conftest import Receive, Send, create_http_scope, create_test_request
+from .conftest import (
+    Receive,
+    Send,
+    create_http_scope,
+    create_test_request,
+    strip,
+)
 
 
 def test_create_app():
@@ -312,6 +324,49 @@ async def test_app_static(path, file_path, mimetype):
     assert response.headers["content-type"] == mimetype
     assert response.file_size == content_length
     assert int(response.headers["content-length"]) == content_length
+
+
+expected_html = """
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link rel="stylesheet" href="/static/css/style.css" />
+        <title>Index - My Webpage</title>
+        <style type="text/css">
+            .important {
+                color: #336699;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="content">
+            <h1>Index</h1>
+            <p class="important">Welcome to my awesome homepage.</p>
+            <p>1st paragraph</p>
+            <p>2nd paragraph</p>
+        </div>
+        <div id="footer">
+            &copy; Copyright 2021 by <a href="https://example.com/">me</a>.
+        </div>
+    </body>
+</html>"""
+
+
+@pytest.mark.asyncio
+async def test_app_render():
+    app = Baguette(templates_directory="tests/templates")
+
+    @app.route("/template")
+    async def template():
+        return await render(
+            "index.html",
+            paragraphs=["1st paragraph", "2nd paragraph"],
+        )
+
+    app = TestClient(app)
+
+    response: HTMLResponse = await app.get("/template")
+    assert strip(response.text) == strip(expected_html)
 
 
 def test_app_run():

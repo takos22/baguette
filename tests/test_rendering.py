@@ -3,7 +3,9 @@ import pytest
 from baguette import rendering
 from baguette.rendering import Renderer, init, render
 
-expected_html = """\
+from .conftest import strip
+
+expected_html = """
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -27,10 +29,6 @@ expected_html = """\
         </div>
     </body>
 </html>"""
-
-
-def strip(text: str) -> str:
-    return text.replace(" ", "").replace("\n", "")
 
 
 @pytest.mark.asyncio

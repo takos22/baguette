@@ -104,3 +104,7 @@ def concreter(abcls):
 
     # creates a new class, with the overriden ABCs:
     return type("dummy_concrete_" + abcls.__name__, (abcls,), new_dict)
+
+
+def strip(text: str) -> str:
+    return text.replace(" ", "").replace("\n", "")
