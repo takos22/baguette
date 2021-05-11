@@ -21,6 +21,9 @@ from .conftest import concreter
         # path converters
         [PathConverter(), "test", "test"],
         [PathConverter(), "test/test", "test/test"],
+        [PathConverter(allow_empty=True), "test", "test"],
+        [PathConverter(allow_empty=True), "test/test", "test/test"],
+        [PathConverter(allow_empty=True), "", ""],
         # integer converters
         [IntegerConverter(), "1", 1],
         [IntegerConverter(signed=True), "+1", 1],
@@ -70,6 +73,7 @@ def test_converter(converter: Converter, string: str, expected):
         [StringConverter(), "test/test"],
         [StringConverter(length=1), "test"],
         # path converters
+        [PathConverter(), ""],
         # integer converters
         [IntegerConverter(), "text"],
         [IntegerConverter(), "+1"],
