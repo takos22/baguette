@@ -126,7 +126,15 @@ class PathConverter(Converter):
             :class:`str`
                 Converted URL parameter.
 
+        Raises
+        ------
+            ValueError
+                :attr:`allow_empty` is ``True`` and the path is empty.
+
         """
+
+        if not self.allow_empty and string == "":
+            raise ValueError("Path cannot be empty")
 
         return string.strip("/")
 
