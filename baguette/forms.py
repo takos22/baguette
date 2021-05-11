@@ -69,8 +69,13 @@ class FileField(Field):
 
 
 class Form(collections.abc.Mapping):
-    def __init__(self, fields: typing.Optional[typing.Dict[str, Field]] = None):
+    def __init__(
+        self,
+        fields: typing.Optional[typing.Dict[str, Field]] = None,
+        files: typing.Optional[typing.Dict[str, FileField]] = None,
+    ):
         self.fields: typing.Dict[str, Field] = fields or {}
+        self.files: typing.Dict[str, FileField] = files or {}
 
     def __getitem__(self, name: str) -> Field:
         return self.fields[name]
@@ -104,6 +109,7 @@ class MultipartForm(Form):
         cls, body: bytes, boundary: bytes, encoding: str = "utf-8"
     ) -> "MultipartForm":
         fields: typing.Dict[str, Field] = {}
+        files: typing.Dict[str, FileField] = {}
         for part in body.strip(b"\r\n").split(b"".join((b"--", boundary))):
             part = part.strip(b"\r\n")
             if part in (b"", b"--"):  # ignore start and end parts
@@ -121,7 +127,7 @@ class MultipartForm(Form):
                 fields[name].values.append(value.decode(encoding))
             else:
                 if is_file:
-                    fields[name] = FileField(
+                    fields[name] = files[name] = FileField(
                         name,
                         value,
                         filename=filename,
@@ -133,4 +139,4 @@ class MultipartForm(Form):
                         name,
                         [value],
                     )
-        return cls(fields)
+        return cls(fields, files)
