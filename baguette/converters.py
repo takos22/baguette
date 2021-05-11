@@ -90,13 +90,17 @@ class StringConverter(Converter):
 class PathConverter(Converter):
     """Converter for string URL parameters.
 
-    .. note::
-        This is approximatly equivalent to a
-        :class:`~baguette.converters.StringConverter` with
-        :attr:`~baguette.converters.StringConverter.allow_slash` set to ``True``
+    Parameters
+    ----------
+        allow_empty : Optional :class:`bool`
+            Whether to allow empty paths.
+            Default: ``False``
 
     Attributes
     ----------
+        allow_empty : :class:`bool`
+            Whether to allow empty paths.
+
         REGEX : :class:`str`
             Regex for the route :meth:`~baguette.router.Route.build_regex`.
 
@@ -104,8 +108,10 @@ class PathConverter(Converter):
 
     REGEX = r".+"
 
-    def __init__(self):
-        pass
+    def __init__(self, allow_empty: bool = False):
+        self.allow_empty = allow_empty
+        if self.allow_empty:
+            self.REGEX = r".*"
 
     def convert(self, string: str):
         """Converts the string of the URL parameter and validates the value.
