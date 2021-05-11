@@ -43,6 +43,9 @@ class Request:
         asgi_version: :class:`str`
             The ASGI specification version used.
 
+        headers: :class:`Headers`
+            The HTTP headers included in the request.
+
         method: :class:`str`
             The HTTP method name, uppercased.
 
@@ -152,6 +155,13 @@ class Request:
         -------
             Anything that can be decoded from JSON
                 Parsed body.
+
+        Raises
+        ------
+            ~baguette.httpexceptions.BadRequest
+                If the JSON body is not JSON.
+                You can usually not handle this error as it will be handled by
+                the app and converted to a response with a ``400`` status code.
 
         """
 
