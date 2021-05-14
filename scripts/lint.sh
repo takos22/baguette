@@ -15,6 +15,5 @@ black $folders --check --line-length 80
 # check import ordering with isort
 isort $folders --check-only
 
-# check package build for README.rst
-python3 setup.py --quiet sdist
-twine check dist/*
+# lint docs and README
+./scripts/lint-docs.sh

@@ -7,3 +7,4 @@ pytest-asyncio
 pytest-cov
 requests
 twine
+git+https://github.com/PyCQA/doc8
