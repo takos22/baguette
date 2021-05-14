@@ -47,7 +47,6 @@ def get_requirements(filename: str = "requirements.txt"):
 
 extra_requires = {
     "uvicorn": ["uvicorn[standard]"],
-    "dev": get_requirements("dev-requirements.txt"),
 }
 
 setup(
