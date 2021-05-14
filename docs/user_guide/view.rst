@@ -11,7 +11,11 @@ View functions
 --------------
 
 View functions allow you to handle a request made to a specific route.
-There are multiple ways to add them to your app, most notably the :meth:`Baguette.route` decorator:
+These functions need to be coroutines (functions defined with ``async def``)
+and the ``request`` parameter is optional.
+
+There are multiple ways to add them to your app, most notably
+the :meth:`Baguette.route` decorator:
 
 .. code-block:: python
     :linenos:
@@ -24,7 +28,8 @@ There are multiple ways to add them to your app, most notably the :meth:`Baguett
     async def hello_world():
         return "<h1>Hello world</h1>"
 
-You can specify which methods your function can handle by adding the ``methods`` parameter:
+You can specify which methods your function can handle by
+adding the ``methods`` parameter:
 
 .. code-block:: python
     :linenos:
@@ -40,8 +45,8 @@ You can specify which methods your function can handle by adding the ``methods``
         elif request.method == "POST":
             return "<h1>Hello from POST</h1>"
 
-If other methods are requested, the application will respond with a Method Not Allowed response
-and a 405 status code.
+If other methods are requested, the application will respond with a
+Method Not Allowed response and a 405 status code.
 
 .. seealso::
     For easier handling of multiple methods, see :ref:`view_class`.
@@ -56,5 +61,21 @@ a function for each method, this is useful when you have multiple METHODS
 for the same route and need to handle each method with a different logic.
 The most common use case is in an API:
 
-.. todo::
-    Complete this section
+.. code-block:: python
+    :linenos:
+    :caption: From ``examples/api.py``
+
+    @app.route("/users/<user_id:int>")
+    class UserDetail(View):
+        async def get(self, user_id: int):
+            if user_id not in users:
+                raise NotFound(description=f"No user with ID {user_id}")
+
+            return users[user_id]
+
+        async def delete(self, user_id: int):
+            if user_id not in users:
+                raise NotFound(description=f"No user with ID {user_id}")
+
+            del users[user_id]
+            return EmptyResponse()

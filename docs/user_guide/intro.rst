@@ -5,7 +5,8 @@
 Introduction
 ============
 
-This is the documentation for ``baguette``, a micro web framework for ASGI servers.
+This is the documentation for ``baguette``, a micro web
+framework for ASGI servers.
 
 Prerequisites
 -------------
@@ -37,8 +38,9 @@ Install ``baguette`` with pip:
 Installing ASGI server
 ~~~~~~~~~~~~~~~~~~~~~~
 
-You also need an ASGI server to run your app like `uvicorn <https://www.uvicorn.org/>`_ or `hypercorn <https://gitlab.com/pgjones/hypercorn/>`_.
-To install `uvicorn <https://www.uvicorn.org/>`_ directly with baguette, you can add the ``uvicorn`` argument:
+You also need an ASGI server to run your app like `uvicorn <https://www.uvicorn.org/>`_
+or `hypercorn <https://gitlab.com/pgjones/hypercorn/>`_. To install `uvicorn <https://www.uvicorn.org/>`_
+directly with baguette, you can add the ``uvicorn`` argument:
 
 .. tab:: Linux or MacOS
 
@@ -71,10 +73,11 @@ You can also install it with pip:
 Virtual Environments
 ~~~~~~~~~~~~~~~~~~~~
 
-Sometimes you want to keep libraries from polluting system installs or use a different version of
-libraries than the ones installed on the system. You might also not have permissions to install libraries system-wide.
-For this purpose, the standard library as of Python 3.3 comes with a concept called "Virtual Environment"s to
-help maintain these separate versions.
+Sometimes you want to keep libraries from polluting system installs or use a
+different version of libraries than the ones installed on the system. You might
+also not have permissions to install libraries system-wide.
+For this purpose, the standard library as of Python 3.3 comes with a concept
+called "Virtual Environment"s to help maintain these separate versions.
 
 A more in-depth tutorial is found on :doc:`py:tutorial/venv`.
 
@@ -136,4 +139,5 @@ However, for the quick and dirty:
 
             pip install -U baguette
 
-Congratulations. You now have a virtual environment all set up. You can start to code, learn more in the :doc:`quickstart`.
+Congratulations. You now have a virtual environment all set up.
+You can start to code, learn more in the :doc:`quickstart`.

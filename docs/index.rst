@@ -35,7 +35,8 @@ Getting started
 Is this your first time using the framweork? This is the place to get started!
 
 - **First steps:** :ref:`intro` | :ref:`quickstart`
-- **Examples:** Many examples are available in the :resource:`repository <examples>`.
+- **Examples:** Many examples are available in the
+  :resource:`repository <examples>`.
 
 Getting help
 ------------
@@ -43,7 +44,8 @@ Getting help
 If you're having trouble with something, these resources might help.
 
 - Ask us and hang out with us in our :resource:`Discord <discord>` server.
-- If you're looking for something specific, try the :ref:`index <genindex>` or :ref:`searching <search>`.
+- If you're looking for something specific, try the :ref:`index <genindex>`
+  or :ref:`searching <search>`.
 - Report bugs in the :resource:`issue tracker <issues>`.
 
 

@@ -20,17 +20,18 @@ The :class:`Request` object has many useful attributes,
 for example :attr:`Request.method` for the HTTP method used in the request,
 :attr:`Request.headers` for the HTTP headers included in the request,
 :attr:`Request.path` for the full path requested (without the domain name),
-:attr:`Request.querystring` for a :class:`dict` of the querystrings included in the URL,
-:attr:`Request.content_type` for the request Content-Type.
+:attr:`Request.querystring` for a :class:`dict` of the querystrings included
+in the URL, :attr:`Request.content_type` for the request Content-Type.
 
-You can get the request body with :meth:`Request.body` which will return
-a :class:`str` of the full body, decoded with :attr:`Request.encoding`.
-If you want to work with a :class:`bytes` body instead of a :class:`str` body,
-you can use :meth:`Request.raw_body` which will return a :class:`bytes` of the full body.
+You can get the request body with :meth:`Request.body` which will return a
+:class:`str` of the full body, decoded with :attr:`Request.encoding`. If you
+want to work with a :class:`bytes` body instead of a :class:`str` body, you can
+use :meth:`Request.raw_body` which will return a :class:`bytes` instead of a
+:class:`str` of the full body.
 
 .. note::
-    :meth:`Request.body` and :meth:`Request.raw_body` are coroutines so you need to ``await``
-    them: ``await request.body()``
+    :meth:`Request.body` and :meth:`Request.raw_body` are coroutines so you need
+    to ``await`` them: ``await request.body()``
 
 Here's an example on how to use these:
 
@@ -45,8 +46,9 @@ Here's an example on how to use these:
         ).format(request, await request.body())
         return info
 
-This handler will be called for every path and will return information about the request:
-the method, the path, the HTTP version, the content type, the headers and the body.
+This handler will be called for every path and will return information about
+the request: the method, the path, the HTTP version, the content type, the
+headers and the body.
 
 .. _json_body:
 
@@ -54,11 +56,12 @@ JSON body
 ---------
 
 If you want to get the body decoded to JSON, you can use :meth:`Request.json`.
-It will raise a :exc:`~baguette.httpexceptions.BadRequest` if the request body can't be
-decoded as JSON, you can usually not handle this error as it will be handled by the app and
-converted to a response with a ``400`` status code.
+It will raise a :exc:`~baguette.httpexceptions.BadRequest` if the request body
+can't be decoded as JSON, you can usually not handle this error as it will be
+handled by the app and converted to a response with a ``400`` status code.
 
-Here's an example for a user creation endpoint, it gets the username and email from the JSON body:
+Here's an example for a user creation endpoint, it gets the username and email
+from the JSON body:
 
 .. code-block:: python
     :linenos:
@@ -85,11 +88,12 @@ Here's an example for a user creation endpoint, it gets the username and email f
 Form body
 ---------
 
-If you want to use forms, the easiest way to parse them from the request body is with
-:meth:`Request.form` which will give you a :class:`~baguette.forms.Form`. It will raise
-a :exc:`ValueError` if the :attr:`Request.content_type` isn't one of ``application/x-www-form-urlencoded``
-or ``multipart/form-data``. You can also include the querystring arguments as form fields if
-some of your data is in the querystring.
+If you want to use forms, the easiest way to parse them from the request body is
+with :meth:`Request.form` which will give you a :class:`~baguette.forms.Form`.
+It will raise a :exc:`ValueError` if the :attr:`Request.content_type` isn't one
+of ``application/x-www-form-urlencoded`` or ``multipart/form-data``. You can
+also include the querystring arguments as form fields if some of your data is in
+the querystring.
 
 The easiest way to use forms is with :class:`View`:
 
