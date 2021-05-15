@@ -325,7 +325,7 @@ class Baguette:
         name: str = None,
         defaults: dict = None,
     ):
-        """Adds the handler function to the router with the given path.
+        """Decorator to add a handler function to the router with the given path.
 
         Parameters
         ----------

@@ -30,6 +30,7 @@ Application
 .. autoclass:: Baguette()
     :members:
     :undoc-members:
+    :exclude-members: handle_static_file
 
 View
 ----
@@ -216,18 +217,19 @@ Path parameters converters
     :undoc-members:
     :inherited-members:
 
-Testing
--------
-
-.. autoclass:: baguette.testing.TestClient()
-    :members:
-    :undoc-members:
-    :member-order: bysource
 
 HTTP Exceptions
 ---------------
 
 .. automodule:: baguette.httpexceptions
+    :members:
+    :undoc-members:
+    :member-order: bysource
+
+Testing
+-------
+
+.. autoclass:: baguette.testing.TestClient()
     :members:
     :undoc-members:
     :member-order: bysource

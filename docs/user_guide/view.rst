@@ -5,17 +5,22 @@
 Views
 =====
 
+Views are functions or classes that handle a request made to a route.
+
+.. note::
+    Views are also called handlers or endpoints
+
+
 .. _view_func:
 
 View functions
 --------------
 
-View functions allow you to handle a request made to a specific route.
-These functions need to be coroutines (functions defined with ``async def``)
+View functions must be coroutines (functions defined with ``async def``)
 and the ``request`` parameter is optional.
 
 There are multiple ways to add them to your app, most notably
-the :meth:`Baguette.route` decorator:
+the :meth:`@app.route <Baguette.route>` decorator:
 
 .. code-block:: python
     :linenos:

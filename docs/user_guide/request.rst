@@ -16,12 +16,23 @@ parameter named ``request`` in your handler:
         # do something with the request
         return ...
 
+Common attributes
+-----------------
+
 The :class:`Request` object has many useful attributes,
 for example :attr:`Request.method` for the HTTP method used in the request,
 :attr:`Request.headers` for the HTTP headers included in the request,
 :attr:`Request.path` for the full path requested (without the domain name),
 :attr:`Request.querystring` for a :class:`dict` of the querystrings included
 in the URL, :attr:`Request.content_type` for the request Content-Type.
+
+.. note::
+    For a full list of attributes, see :class:`Request`.
+
+.. _body:
+
+Request body
+------------
 
 You can get the request body with :meth:`Request.body` which will return a
 :class:`str` of the full body, decoded with :attr:`Request.encoding`. If you
