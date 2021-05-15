@@ -6,7 +6,7 @@ from . import rendering
 from .config import Config
 from .headers import make_headers
 from .httpexceptions import BadRequest
-from .middlewares import ErrorMiddleware
+from .middlewares import DefaultHeadersMiddleware, ErrorMiddleware
 from .request import Request
 from .responses import FileResponse, Response, make_response
 from .router import Route, Router
@@ -254,7 +254,7 @@ class Baguette:
 
     def build_middlewares(self, middlewares: typing.List[Middleware] = []):
         # first in the list, first called
-        middlewares.insert(0, ErrorMiddleware)
+        middlewares = [ErrorMiddleware, *middlewares, DefaultHeadersMiddleware]
         self.middlewares: typing.List[MiddlewareCallable] = []
 
         async def last_middleware(request: Request) -> Response:

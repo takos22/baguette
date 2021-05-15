@@ -4,10 +4,11 @@ from ..config import Config
 from ..httpexceptions import HTTPException, InternalServerError
 from ..request import Request
 from ..responses import Response, make_error_response
+from ..types import MiddlewareCallable
 
 
 class ErrorMiddleware:
-    def __init__(self, app, config: Config):
+    def __init__(self, app: MiddlewareCallable, config: Config):
         self.app = app
         self.config = config
 
