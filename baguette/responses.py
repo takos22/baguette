@@ -225,7 +225,11 @@ def make_response(result: Result) -> Response:
         #     )
         # )
     else:
-        response = PlainTextResponse(str(body), status_code or 200, headers)
+        body = str(body)
+        if HTML_TAG_REGEX.search(body) is not None:
+            response = HTMLResponse(body, status_code or 200, headers)
+        else:
+            response = PlainTextResponse(body, status_code or 200, headers)
 
     return response
 
