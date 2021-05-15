@@ -1,8 +1,9 @@
 #!/bin/sh
 set -e
-set -x
 
 folders="docs"
+
+set -x
 
 # check the docs with doc8
 doc8 $folders --quiet

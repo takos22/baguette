@@ -1,6 +1,5 @@
 #!/bin/sh
 set -e
-set -x
 
 # lint code
 ./scripts/lint-code.sh
