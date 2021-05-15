@@ -215,6 +215,7 @@ async def test_file_response_send():
         [PlainTextResponse("test"), PlainTextResponse("test")],
         # only the response body is provided
         ["test", PlainTextResponse("test")],
+        [b"test", PlainTextResponse("test")],
         ["<h1>test</h1>", HTMLResponse("<h1>test</h1>")],
         [["test", "test2"], JSONResponse(["test", "test2"])],
         [

@@ -189,30 +189,35 @@ def make_response(result: Result) -> Response:
     if issubclass(type(result), Response):
         return result
 
+    body = result
+    status_code_or_headers = None
+    status_code = None
+    headers = None
+
     if isinstance(result, tuple):
         body, status_code_or_headers, headers = result + (None,) * (
             3 - len(result)
         )
-    else:
-        body = result
-        status_code_or_headers = None
-        status_code = None
-        headers = None
 
-    if status_code_or_headers is None:
-        status_code = None
-    elif isinstance(status_code_or_headers, int):
+    if isinstance(status_code_or_headers, int):
         status_code = status_code_or_headers
     elif isinstance(status_code_or_headers, (list, dict, Headers)):
         headers = status_code_or_headers
-        status_code = None
 
     headers = make_headers(headers)
 
+    if not isinstance(body, (list, dict, str, bytes)) and body is not None:
+        body = str(body)
+
     if isinstance(body, (list, dict)):
         response = JSONResponse(body, status_code or 200, headers)
-    elif isinstance(body, str):
-        if HTML_TAG_REGEX.search(body) is not None:
+    elif isinstance(body, (str, bytes)):
+        if (
+            HTML_TAG_REGEX.search(
+                body.decode() if isinstance(body, bytes) else body
+            )
+            is not None
+        ):
             response = HTMLResponse(body, status_code or 200, headers)
         else:
             response = PlainTextResponse(body, status_code or 200, headers)
@@ -224,12 +229,6 @@ def make_response(result: Result) -> Response:
         #         " but instead an empty string and a 204 status code or an EmptyResponse() instance"  # noqa: E501
         #     )
         # )
-    else:
-        body = str(body)
-        if HTML_TAG_REGEX.search(body) is not None:
-            response = HTMLResponse(body, status_code or 200, headers)
-        else:
-            response = PlainTextResponse(body, status_code or 200, headers)
 
     return response
 
