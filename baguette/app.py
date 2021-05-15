@@ -1,20 +1,25 @@
 import inspect
 import ssl
-import traceback
 import typing
 
 from . import rendering
-from .headers import Headers, make_headers
-from .httpexceptions import BadRequest, HTTPException, InternalServerError
+from .config import Config
+from .headers import make_headers
+from .httpexceptions import BadRequest
+from .middlewares import ErrorMiddleware
 from .request import Request
-from .responses import (
-    FileResponse,
-    Response,
-    make_error_response,
-    make_response,
-)
+from .responses import FileResponse, Response, make_response
 from .router import Route, Router
-from .types import Handler, HeadersType, Receive, Result, Scope, Send
+from .types import (
+    Handler,
+    HeadersType,
+    Middleware,
+    MiddlewareCallable,
+    Receive,
+    Result,
+    Scope,
+    Send,
+)
 from .view import View
 
 
@@ -99,29 +104,31 @@ class Baguette:
         templates_directory: str = "static",
         error_response_type: str = "plain",
         error_include_description: bool = True,
+        middlewares: typing.List[Middleware] = [],
     ):
         self.router = Router()
-        self.debug = debug
-        self.default_headers: Headers = make_headers(default_headers)
+        self.config = Config(
+            debug=debug,
+            default_headers=default_headers,
+            static_url_path=static_url_path,
+            static_directory=static_directory,
+            templates_directory=templates_directory,
+            error_response_type=error_response_type,
+            error_include_description=error_include_description,
+        )
 
-        self.static_url_path = static_url_path
-        self.static_directory = static_directory
-
-        self.renderer = rendering.init(templates_directory)
+        self.renderer = rendering.init(self.config.templates_directory)
 
         self.add_route(
-            path=f"{self.static_url_path}/<filename:path>",
+            path=f"{self.config.static_url_path}/<filename:path>",
             handler=self.handle_static_file,
             name="static",
         )
 
-        if error_response_type not in ("plain", "json", "html"):
-            raise ValueError(
-                "Bad response type. Must be one of: 'plain', 'json', 'html'"
-            )
+        self.build_middlewares(middlewares)
 
-        self.error_response_type = error_response_type
-        self.error_include_description = error_include_description or self.debug
+    def __getattr__(self, name):
+        return getattr(self.config, name)
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send):
         """Entry point of the ASGI application."""
@@ -214,10 +221,7 @@ class Baguette:
                 A response.
         """
 
-        result = await self.dispatch(request)
-        response = make_response(result)
-        response.headers += self.default_headers
-        return response
+        return await self.middlewares[0](request)
 
     async def dispatch(self, request: Request) -> Result:
         """Dispatches a request to the correct handler and return its result.
@@ -233,44 +237,35 @@ class Baguette:
                 The handler function return value.
         """
 
+        route: Route = self.router.get(request.path, request.method)
+        handler: Handler = route.handler
+
         try:
-            route: Route = self.router.get(request.path, request.method)
-            handler: Handler = route.handler
+            kwargs = route.convert(request.path)
+        except ValueError:
+            raise BadRequest(description="Failed to convert URL parameters")
+        kwargs["request"] = request
+        if not route.handler_is_class:
+            kwargs = {
+                k: v for k, v in kwargs.items() if k in route.handler_kwargs
+            }
 
-            try:
-                kwargs = route.convert(request.path)
-            except ValueError:
-                raise BadRequest(description="Failed to convert URL parameters")
-            kwargs["request"] = request
-            if not route.handler_is_class:
-                kwargs = {
-                    k: v for k, v in kwargs.items() if k in route.handler_kwargs
-                }
+        return await handler(**kwargs)
 
-            return await handler(**kwargs)
+    def build_middlewares(self, middlewares: typing.List[Middleware] = []):
+        # first in the list, first called
+        middlewares.insert(0, ErrorMiddleware)
+        self.middlewares: typing.List[MiddlewareCallable] = []
 
-        except HTTPException as http_exception:
-            return make_error_response(
-                http_exception,
-                type_=self.error_response_type,
-                include_description=self.error_include_description,
-                traceback="".join(
-                    traceback.format_tb(http_exception.__traceback__)
-                )
-                if self.debug and http_exception.status_code >= 500
-                else None,
-            )
-        except Exception as exception:
-            traceback.print_exc()
-            http_exception = InternalServerError()
-            return make_error_response(
-                http_exception,
-                type_=self.error_response_type,
-                include_description=self.error_include_description,
-                traceback="".join(traceback.format_tb(exception.__traceback__))
-                if self.debug
-                else None,
-            )
+        async def last_middleware(request: Request) -> Response:
+            result = await self.dispatch(request)
+            response = make_response(result)
+            return response
+
+        last = last_middleware
+        for middleware in reversed(middlewares):
+            last = middleware(last, self.config)
+            self.middlewares.insert(0, last)
 
     def add_route(
         self,
@@ -374,7 +369,7 @@ class Baguette:
         return decorator
 
     async def handle_static_file(self, filename: str) -> FileResponse:
-        return FileResponse(self.static_directory, filename)
+        return FileResponse(self.config.static_directory, filename)
 
     def run(
         self,
