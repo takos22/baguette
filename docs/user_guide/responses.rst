@@ -36,8 +36,8 @@ In these examples, ``body`` can be anything described in the table below,
     :header: "Body", "Response class"
     :widths: 10, 51
 
-    ":class:`str`", ":class:`HTMLResponse` if there are any HTML tags in the
-    string, else :class:`PlainTextResponse`"
+    ":class:`str` or :class:`bytes`", ":class:`HTMLResponse` if there are any
+    HTML tags in the string, else :class:`PlainTextResponse`"
     ":class:`list` or :class:`dict`", ":class:`JSONResponse`"
     ":obj:`None`", ":class:`EmptyResponse`"
     "Anything else", ":class:`PlainTextResponse` with ``body = str(value)``"
