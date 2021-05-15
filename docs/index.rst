@@ -62,6 +62,7 @@ User Guide
     user_guide/request
     user_guide/responses
     user_guide/testing
+    user_guide/middlewares
 
 
 API Reference
