@@ -19,12 +19,12 @@ repos:
       pass_filenames: false
       always_run: true
 
-    - id: test-code
-      name: Test python code
-      description: Use scripts/test.sh to test the python code.
-      entry: bash ./scripts/test.sh --no-lint
-      language: system
-      types: [python]
-      pass_filenames: false
-      always_run: true
-      exclude: '.coverage'
+    # - id: test-code
+    #   name: Test python code
+    #   description: Use scripts/test.sh to test the python code.
+    #   entry: bash ./scripts/test.sh --no-lint
+    #   language: system
+    #   types: [python]
+    #   pass_filenames: false
+    #   always_run: true
+    #   exclude: '.coverage'
