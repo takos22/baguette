@@ -12,12 +12,11 @@ do
 done
 
 if [ "$lint" = true ]; then
-    set -x
     # lint
     ./scripts/lint.sh
-else
-    set -x
 fi
+
+set -x
 
 # run tests
 pytest
