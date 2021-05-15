@@ -1,0 +1,30 @@
+repos:
+- repo: local
+  hooks:
+    - id: lint-code
+      name: Lint python code
+      description: Use scripts/lint-code.sh to lint the python code.
+      entry: bash ./scripts/lint-code.sh
+      language: system
+      types: [python]
+      pass_filenames: false
+      always_run: true
+
+    - id: lint-docs
+      name: Lint docs
+      description: Use scripts/lint-docs.sh to lint the docs.
+      entry: bash ./scripts/lint-docs.sh
+      language: system
+      types: [text]
+      pass_filenames: false
+      always_run: true
+
+    - id: test-code
+      name: Test python code
+      description: Use scripts/test.sh to test the python code.
+      entry: bash ./scripts/test.sh --no-lint
+      language: system
+      types: [python]
+      pass_filenames: false
+      always_run: true
+      exclude: '.coverage'
