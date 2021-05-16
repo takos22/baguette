@@ -91,11 +91,12 @@ class Baguette:
             Whether the error description is included in the response
             in case of error.
             If debug is ``True``, this will also be ``True``.
-    """
+    """  # TODO: doc config and middleware params and attrs
 
     def __init__(
         self,
         *,
+        config: Config = None,
         debug: bool = False,
         default_headers: HeadersType = None,
         static_url_path: str = "static",
@@ -106,7 +107,7 @@ class Baguette:
         middlewares: typing.List[Middleware] = [],
     ):
         self.router = Router()
-        self.config = Config(
+        self.config = config or Config(
             debug=debug,
             default_headers=default_headers,
             static_url_path=static_url_path,
@@ -438,6 +439,9 @@ class Baguette:
         middlewares = self._raw_middlewares.copy()
         middlewares.remove(middleware)
         self.build_middlewares(middlewares)
+
+    # --------------------------------------------------------------------------
+    # Other methods
 
     async def handle_static_file(self, filename: str) -> FileResponse:
         return FileResponse(self.config.static_directory, filename)

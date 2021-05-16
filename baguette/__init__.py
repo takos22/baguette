@@ -21,6 +21,7 @@ __version__ = "0.3.0a0"
 
 __all__ = [
     "Baguette",
+    "Config",
     "Headers",
     "make_headers",
     "render",
@@ -40,6 +41,7 @@ __all__ = [
 
 from . import testing
 from .app import Baguette
+from .config import Config
 from .headers import Headers, make_headers
 from .rendering import render
 from .request import Request
