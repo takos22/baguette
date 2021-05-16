@@ -14,7 +14,6 @@ from .types import (
     Handler,
     HeadersType,
     Middleware,
-    MiddlewareCallable,
     Receive,
     Result,
     Scope,
@@ -130,6 +129,9 @@ class Baguette:
     def __getattr__(self, name):
         return getattr(self.config, name)
 
+    # --------------------------------------------------------------------------
+    # ASGI stuff
+
     async def __call__(self, scope: Scope, receive: Receive, send: Send):
         """Entry point of the ASGI application."""
 
@@ -188,6 +190,9 @@ class Baguette:
 
                 return
 
+    # --------------------------------------------------------------------------
+    # Lifespan
+
     async def startup(self):
         """Runs on application startup.
 
@@ -207,6 +212,9 @@ class Baguette:
         .. versionadded:: 0.1.0
         """
 
+    # --------------------------------------------------------------------------
+    # HTTP
+
     async def handle_request(self, request: Request) -> Response:
         """Handles a request and returns a response.
 
@@ -223,7 +231,7 @@ class Baguette:
 
         return await self.middlewares[0](request)
 
-    async def dispatch(self, request: Request) -> Result:
+    async def dispatch(self, request: Request) -> Response:
         """Dispatches a request to the correct handler and return its result.
 
         Parameters
@@ -233,8 +241,12 @@ class Baguette:
 
         Returns
         -------
-            Anything described in :ref:`responses`
-                The handler function return value.
+            :class:`Response`
+                The handler response.
+
+        .. versionchanged:: 0.3.0
+            The return value isn't the handler return value anymore, but instead
+            a :class:`Response`.
         """
 
         route: Route = self.router.get(request.path, request.method)
@@ -250,22 +262,11 @@ class Baguette:
                 k: v for k, v in kwargs.items() if k in route.handler_kwargs
             }
 
-        return await handler(**kwargs)
+        result: Result = await handler(**kwargs)
+        return make_response(result)
 
-    def build_middlewares(self, middlewares: typing.List[Middleware] = []):
-        # first in the list, first called
-        middlewares = [ErrorMiddleware, *middlewares, DefaultHeadersMiddleware]
-        self.middlewares: typing.List[MiddlewareCallable] = []
-
-        async def last_middleware(request: Request) -> Response:
-            result = await self.dispatch(request)
-            response = make_response(result)
-            return response
-
-        last = last_middleware
-        for middleware in reversed(middlewares):
-            last = middleware(last, self.config)
-            self.middlewares.insert(0, last)
+    # --------------------------------------------------------------------------
+    # Routes
 
     def add_route(
         self,
@@ -367,6 +368,76 @@ class Baguette:
             return func_or_class
 
         return decorator
+
+    # --------------------------------------------------------------------------
+    # Middleware
+
+    def build_middlewares(
+        self, middlewares: typing.List[typing.Type[Middleware]] = []
+    ):
+        """Builds the middleware stack from a list of middleware classes.
+
+        .. note::
+            The first middleware in the list will be the first called on a
+            request.
+
+        .. seealso::
+            There are middlewares included by default.
+            See :ref:`default_middlewares`.
+
+        Parameters
+        ----------
+            middlewares: :class:`list` of Middleware classes
+                The middlewares to add.
+
+        .. versionadded:: 0.3.0
+        """
+
+        # first in the list, first called
+        self._raw_middlewares = middlewares
+        middlewares = [ErrorMiddleware, *middlewares, DefaultHeadersMiddleware]
+        self.middlewares: typing.List[Middleware] = []
+
+        last = self.dispatch
+        for middleware in reversed(middlewares):
+            last = middleware(last, self.config)
+            self.middlewares.insert(0, last)
+
+    def add_middleware(
+        self, middleware: typing.Type[Middleware], index: int = 0
+    ):
+        """Adds a middleware to the middleware stack.
+
+        Parameters
+        ----------
+            middleware: Middleware class
+                The middleware to add.
+
+            index: Optional :class:`int`
+                The index to add the middlware to.
+                Default: ``0`` (top of the stack, first called)
+
+        .. versionadded:: 0.3.0
+        """
+
+        middlewares = self._raw_middlewares.copy()
+        middlewares.insert(index, middleware)
+        self.build_middlewares(middlewares)
+
+    def remove_middleware(self, middleware: typing.Type[Middleware]):
+        """Removes a middleware from the middleware stack.
+
+        Parameters
+        ----------
+            middleware: Middleware class
+                The middleware to remove.
+
+        .. versionadded:: 0.3.0
+        """
+
+        middlewares = self._raw_middlewares.copy()
+        middlewares.remove(middleware)
+        self.build_middlewares(middlewares)
 
     async def handle_static_file(self, filename: str) -> FileResponse:
         return FileResponse(self.config.static_directory, filename)
