@@ -33,6 +33,14 @@ Application
     :exclude-members: handle_static_file
     :member-order: bysource
 
+Configuration
+-------------
+
+.. autoclass:: Config()
+    :members:
+    :undoc-members:
+    :member-order: bysource
+
 View
 ----
 
