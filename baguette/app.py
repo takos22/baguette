@@ -26,72 +26,90 @@ class Baguette:
     """Implements an ASGI application.
 
     This class is the main class for any application written with the baguette
-    framework
+    framework.
 
-    Parameters
-    ----------
-        debug: :class:`bool`
+    Keyword Arguments
+    -----------------
+        config : :class:`Config`
+            Config to use for the application.
+            This replaces the other keyword arguments except ``middlewares``.
+            Default: see :class:`Config` defaults.
+
+        debug : :class:`bool`
             Whether to run the application in debug mode.
             Default: ``False``.
 
-        default_headers: :class:`list` of ``(str, str)`` tuples, \
+        default_headers : :class:`list` of ``(str, str)`` tuples, \
         :class:`dict` or :class:`Headers`
             Default headers to include in every request.
             Default: No headers.
 
-        static_url_path: :class:`str`
+        static_url_path : :class:`str`
             URL path for the static file handler.
             Default: ``"static"``.
 
-        static_directory: :class:`str`
+        static_directory : :class:`str`
             Path to the folder containing static files.
             Default: ``"static"``.
 
-        templates_directory: :class:`str`
+        templates_directory : :class:`str`
             Path to the folder containing the HTML templates.
             Default: ``"templates"``.
 
-        error_response_type: :class:`str`
+        error_response_type : :class:`str`
             Type of response to use in case of error.
             One of: ``"plain"``, ``"json"``, ``"html"``.
             Default: ``"plain"``.
 
-        error_include_description: :class:`bool`
+        error_include_description : :class:`bool`
             Whether to include the error description in the response
             in case of error.
             If debug is ``True``, this will also be ``True``.
             Default: ``True``.
 
+        middlewares : :class:`list` of middleware classes
+            The middlewares to add to the application.
+            Default: ``[]``.
+
 
     Attributes
     ----------
-        router: :class:`~baguette.router.Router`
+        config : :class:`Config`
+            The configuration of the app.
+
+        router : :class:`~baguette.router.Router`
             The URL router of the app.
 
-        debug: :class:`bool`
-            Whether the application is running in debug mode.
-
-        default_headers: :class:`Headers`
-            Default headers included in every response.
-
-        static_url_path: :class:`str`
-            URL path for the static file handler.
-
-        static_directory: :class:`str`
-            Path to the folder containing static files.
-
-        renderer: :class:`~baguette.rendering.Renderer`
+        renderer : :class:`~baguette.rendering.Renderer`
             Class that renders the templates.
 
-        error_response_type: :class:`str`
+        debug : :class:`bool`
+            Whether the application is running in debug mode.
+
+        default_headers : :class:`Headers`
+            Default headers included in every response.
+
+        static_url_path : :class:`str`
+            URL path for the static file handler.
+
+        static_directory : :class:`str`
+            Path to the folder containing static files.
+
+        templates_directory : :class:`str`
+            Path to the folder containing the HTML templates.
+
+        error_response_type : :class:`str`
             Type of response to use in case of error.
             One of: ``"plain"``, ``"json"``, ``"html"``
 
-        error_include_description: :class:`bool`
+        error_include_description : :class:`bool`
             Whether the error description is included in the response
             in case of error.
             If debug is ``True``, this will also be ``True``.
-    """  # TODO: doc config and middleware params and attrs
+
+        middlewares : :class:`list` of middlewares
+            The middlewares of the application.
+    """
 
     def __init__(
         self,
@@ -104,7 +122,7 @@ class Baguette:
         templates_directory: str = "static",
         error_response_type: str = "plain",
         error_include_description: bool = True,
-        middlewares: typing.List[Middleware] = [],
+        middlewares: typing.List[typing.Type[Middleware]] = [],
     ):
         self.router = Router()
         self.config = config or Config(
