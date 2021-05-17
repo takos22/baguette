@@ -68,3 +68,10 @@ def split_on_first(text: str, sep: str):
     if point == -1:
         return text, text[:0]  # return bytes or str
     return text[:point], text[point + len(sep) :]  # noqa: E203
+
+
+def import_from_string(string: str):
+    module = __import__(string.split(".")[0])
+    for name in string.split(".")[1:]:
+        module = getattr(module, name)
+    return module
