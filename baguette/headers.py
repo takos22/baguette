@@ -111,7 +111,9 @@ class Headers:
         del self._headers[name.lower()]
 
     def __contains__(self, name):
-        return name in self._headers
+        if isinstance(name, bytes):
+            name = name.decode("ascii")
+        return name.lower() in self._headers
 
     def __add__(self, other: typing.Union["Headers", typing.Mapping[str, str]]):
         new = Headers(**self)

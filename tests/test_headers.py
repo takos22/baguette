@@ -73,6 +73,11 @@ def test_headers_delitem(headers: Headers, name: str):
     assert "server" not in headers
 
 
+@pytest.mark.parametrize("name", ["server", "SERVER", b"server"])
+def test_headers_contains(headers: Headers, name: str):
+    assert name in headers
+
+
 @pytest.mark.parametrize(
     "other",
     [

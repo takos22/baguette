@@ -1,20 +1,24 @@
 import inspect
 import ssl
-import traceback
 import typing
 
 from . import rendering
-from .headers import Headers, make_headers
-from .httpexceptions import BadRequest, HTTPException, InternalServerError
+from .config import Config
+from .headers import make_headers
+from .httpexceptions import BadRequest
+from .middlewares import DefaultHeadersMiddleware, ErrorMiddleware
 from .request import Request
-from .responses import (
-    FileResponse,
-    Response,
-    make_error_response,
-    make_response,
-)
+from .responses import FileResponse, Response, make_response
 from .router import Route, Router
-from .types import Handler, HeadersType, Receive, Result, Scope, Send
+from .types import (
+    Handler,
+    HeadersType,
+    Middleware,
+    Receive,
+    Result,
+    Scope,
+    Send,
+)
 from .view import View
 
 
@@ -22,76 +26,95 @@ class Baguette:
     """Implements an ASGI application.
 
     This class is the main class for any application written with the baguette
-    framework
+    framework.
 
-    Parameters
-    ----------
-        debug: :class:`bool`
+    Keyword Arguments
+    -----------------
+        config : :class:`Config`
+            Config to use for the application.
+            This replaces the other keyword arguments except ``middlewares``.
+            Default: see :class:`Config` defaults.
+
+        debug : :class:`bool`
             Whether to run the application in debug mode.
             Default: ``False``.
 
-        default_headers: :class:`list` of ``(str, str)`` tuples, \
+        default_headers : :class:`list` of ``(str, str)`` tuples, \
         :class:`dict` or :class:`Headers`
             Default headers to include in every request.
             Default: No headers.
 
-        static_url_path: :class:`str`
+        static_url_path : :class:`str`
             URL path for the static file handler.
             Default: ``"static"``.
 
-        static_directory: :class:`str`
+        static_directory : :class:`str`
             Path to the folder containing static files.
             Default: ``"static"``.
 
-        templates_directory: :class:`str`
+        templates_directory : :class:`str`
             Path to the folder containing the HTML templates.
             Default: ``"templates"``.
 
-        error_response_type: :class:`str`
+        error_response_type : :class:`str`
             Type of response to use in case of error.
             One of: ``"plain"``, ``"json"``, ``"html"``.
             Default: ``"plain"``.
 
-        error_include_description: :class:`bool`
+        error_include_description : :class:`bool`
             Whether to include the error description in the response
             in case of error.
             If debug is ``True``, this will also be ``True``.
             Default: ``True``.
 
+        middlewares : :class:`list` of middleware classes
+            The middlewares to add to the application.
+            Default: ``[]``.
+
 
     Attributes
     ----------
-        router: :class:`~baguette.router.Router`
+        config : :class:`Config`
+            The configuration of the app.
+
+        router : :class:`~baguette.router.Router`
             The URL router of the app.
 
-        debug: :class:`bool`
-            Whether the application is running in debug mode.
-
-        default_headers: :class:`Headers`
-            Default headers included in every response.
-
-        static_url_path: :class:`str`
-            URL path for the static file handler.
-
-        static_directory: :class:`str`
-            Path to the folder containing static files.
-
-        renderer: :class:`~baguette.rendering.Renderer`
+        renderer : :class:`~baguette.rendering.Renderer`
             Class that renders the templates.
 
-        error_response_type: :class:`str`
+        debug : :class:`bool`
+            Whether the application is running in debug mode.
+
+        default_headers : :class:`Headers`
+            Default headers included in every response.
+
+        static_url_path : :class:`str`
+            URL path for the static file handler.
+
+        static_directory : :class:`str`
+            Path to the folder containing static files.
+
+        templates_directory : :class:`str`
+            Path to the folder containing the HTML templates.
+
+        error_response_type : :class:`str`
             Type of response to use in case of error.
             One of: ``"plain"``, ``"json"``, ``"html"``
 
-        error_include_description: :class:`bool`
+        error_include_description : :class:`bool`
             Whether the error description is included in the response
             in case of error.
             If debug is ``True``, this will also be ``True``.
+
+        middlewares : :class:`list` of middlewares
+            The middlewares of the application.
     """
 
     def __init__(
         self,
         *,
+        config: Config = None,
         debug: bool = False,
         default_headers: HeadersType = None,
         static_url_path: str = "static",
@@ -99,29 +122,34 @@ class Baguette:
         templates_directory: str = "static",
         error_response_type: str = "plain",
         error_include_description: bool = True,
+        middlewares: typing.List[typing.Type[Middleware]] = [],
     ):
         self.router = Router()
-        self.debug = debug
-        self.default_headers: Headers = make_headers(default_headers)
+        self.config = config or Config(
+            debug=debug,
+            default_headers=default_headers,
+            static_url_path=static_url_path,
+            static_directory=static_directory,
+            templates_directory=templates_directory,
+            error_response_type=error_response_type,
+            error_include_description=error_include_description,
+        )
 
-        self.static_url_path = static_url_path
-        self.static_directory = static_directory
-
-        self.renderer = rendering.init(templates_directory)
+        self.renderer = rendering.init(self.config.templates_directory)
 
         self.add_route(
-            path=f"{self.static_url_path}/<filename:path>",
+            path=f"{self.config.static_url_path}/<filename:path>",
             handler=self.handle_static_file,
             name="static",
         )
 
-        if error_response_type not in ("plain", "json", "html"):
-            raise ValueError(
-                "Bad response type. Must be one of: 'plain', 'json', 'html'"
-            )
+        self.build_middlewares(middlewares)
 
-        self.error_response_type = error_response_type
-        self.error_include_description = error_include_description or self.debug
+    def __getattr__(self, name):
+        return getattr(self.config, name)
+
+    # --------------------------------------------------------------------------
+    # ASGI stuff
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send):
         """Entry point of the ASGI application."""
@@ -181,6 +209,9 @@ class Baguette:
 
                 return
 
+    # --------------------------------------------------------------------------
+    # Lifespan
+
     async def startup(self):
         """Runs on application startup.
 
@@ -200,6 +231,9 @@ class Baguette:
         .. versionadded:: 0.1.0
         """
 
+    # --------------------------------------------------------------------------
+    # HTTP
+
     async def handle_request(self, request: Request) -> Response:
         """Handles a request and returns a response.
 
@@ -214,12 +248,9 @@ class Baguette:
                 A response.
         """
 
-        result = await self.dispatch(request)
-        response = make_response(result)
-        response.headers += self.default_headers
-        return response
+        return await self.middlewares[0](request)
 
-    async def dispatch(self, request: Request) -> Result:
+    async def dispatch(self, request: Request) -> Response:
         """Dispatches a request to the correct handler and return its result.
 
         Parameters
@@ -229,48 +260,32 @@ class Baguette:
 
         Returns
         -------
-            Anything described in :ref:`responses`
-                The handler function return value.
+            :class:`Response`
+                The handler response.
+
+        .. versionchanged:: 0.3.0
+            The return value isn't the handler return value anymore, but instead
+            a :class:`Response`.
         """
 
+        route: Route = self.router.get(request.path, request.method)
+        handler: Handler = route.handler
+
         try:
-            route: Route = self.router.get(request.path, request.method)
-            handler: Handler = route.handler
+            kwargs = route.convert(request.path)
+        except ValueError:
+            raise BadRequest(description="Failed to convert URL parameters")
+        kwargs["request"] = request
+        if not route.handler_is_class:
+            kwargs = {
+                k: v for k, v in kwargs.items() if k in route.handler_kwargs
+            }
 
-            try:
-                kwargs = route.convert(request.path)
-            except ValueError:
-                raise BadRequest(description="Failed to convert URL parameters")
-            kwargs["request"] = request
-            if not route.handler_is_class:
-                kwargs = {
-                    k: v for k, v in kwargs.items() if k in route.handler_kwargs
-                }
+        result: Result = await handler(**kwargs)
+        return make_response(result)
 
-            return await handler(**kwargs)
-
-        except HTTPException as http_exception:
-            return make_error_response(
-                http_exception,
-                type_=self.error_response_type,
-                include_description=self.error_include_description,
-                traceback="".join(
-                    traceback.format_tb(http_exception.__traceback__)
-                )
-                if self.debug and http_exception.status_code >= 500
-                else None,
-            )
-        except Exception as exception:
-            traceback.print_exc()
-            http_exception = InternalServerError()
-            return make_error_response(
-                http_exception,
-                type_=self.error_response_type,
-                include_description=self.error_include_description,
-                traceback="".join(traceback.format_tb(exception.__traceback__))
-                if self.debug
-                else None,
-            )
+    # --------------------------------------------------------------------------
+    # Routes
 
     def add_route(
         self,
@@ -373,8 +388,81 @@ class Baguette:
 
         return decorator
 
+    # --------------------------------------------------------------------------
+    # Middleware
+
+    def build_middlewares(
+        self, middlewares: typing.List[typing.Type[Middleware]] = []
+    ):
+        """Builds the middleware stack from a list of middleware classes.
+
+        .. note::
+            The first middleware in the list will be the first called on a
+            request.
+
+        .. seealso::
+            There are middlewares included by default.
+            See :ref:`default_middlewares`.
+
+        Parameters
+        ----------
+            middlewares: :class:`list` of Middleware classes
+                The middlewares to add.
+
+        .. versionadded:: 0.3.0
+        """
+
+        # first in the list, first called
+        self._raw_middlewares = middlewares
+        middlewares = [ErrorMiddleware, *middlewares, DefaultHeadersMiddleware]
+        self.middlewares: typing.List[Middleware] = []
+
+        last = self.dispatch
+        for middleware in reversed(middlewares):
+            last = middleware(last, self.config)
+            self.middlewares.insert(0, last)
+
+    def add_middleware(
+        self, middleware: typing.Type[Middleware], index: int = 0
+    ):
+        """Adds a middleware to the middleware stack.
+
+        Parameters
+        ----------
+            middleware: Middleware class
+                The middleware to add.
+
+            index: Optional :class:`int`
+                The index to add the middlware to.
+                Default: ``0`` (top of the stack, first called)
+
+        .. versionadded:: 0.3.0
+        """
+
+        middlewares = self._raw_middlewares.copy()
+        middlewares.insert(index, middleware)
+        self.build_middlewares(middlewares)
+
+    def remove_middleware(self, middleware: typing.Type[Middleware]):
+        """Removes a middleware from the middleware stack.
+
+        Parameters
+        ----------
+            middleware: Middleware class
+                The middleware to remove.
+
+        .. versionadded:: 0.3.0
+        """
+
+        middlewares = self._raw_middlewares.copy()
+        middlewares.remove(middleware)
+        self.build_middlewares(middlewares)
+
+    # --------------------------------------------------------------------------
+    # Other methods
+
     async def handle_static_file(self, filename: str) -> FileResponse:
-        return FileResponse(self.static_directory, filename)
+        return FileResponse(self.config.static_directory, filename)
 
     def run(
         self,

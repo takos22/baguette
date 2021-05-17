@@ -1,3 +1,4 @@
+import asyncio
 import pathlib
 import threading
 
@@ -9,6 +10,7 @@ from baguette.app import Baguette
 from baguette.headers import Headers
 from baguette.httpexceptions import NotImplemented
 from baguette.rendering import render
+from baguette.request import Request
 from baguette.responses import (
     EmptyResponse,
     FileResponse,
@@ -367,6 +369,82 @@ async def test_app_render():
 
     response: HTMLResponse = await app.get("/template")
     assert strip(response.text) == strip(expected_html)
+
+
+import time
+
+
+class TimingMiddleware:
+    def __init__(self, app, config):
+        self.app = app
+        self.config = config
+
+    async def __call__(self, request: Request):
+        start_time = time.time()
+        response = await self.app(request)
+        process_time = time.time() - start_time
+        response.headers["X-time"] = str(process_time)
+        return response
+
+
+@pytest.mark.asyncio
+async def test_app_middleware():
+    app = Baguette(middlewares=[TimingMiddleware])
+
+    @app.route("/short")
+    async def short():
+        return ""
+
+    @app.route("/long")
+    async def long():
+        await asyncio.sleep(0.2)
+        return ""
+
+    assert len(app.middlewares) == 3
+    request = create_test_request(path="/short")
+    response = await app.handle_request(request)
+    assert "X-time" in response.headers
+    short_time = float(response.headers["X-time"])
+
+    request = create_test_request(path="/long")
+    response = await app.handle_request(request)
+    assert "X-time" in response.headers
+    long_time = float(response.headers["X-time"])
+
+    assert short_time < long_time
+
+
+@pytest.mark.asyncio
+async def test_app_add_remove_middleware():
+    app = Baguette()
+
+    @app.route("/short")
+    async def short():
+        return ""
+
+    @app.route("/long")
+    async def long():
+        await asyncio.sleep(0.2)
+        return ""
+
+    assert len(app.middlewares) == 2
+    app.add_middleware(TimingMiddleware)
+    assert len(app.middlewares) == 3
+
+    request = create_test_request(path="/short")
+    response = await app.handle_request(request)
+    assert "X-time" in response.headers
+    short_time = float(response.headers["X-time"])
+
+    request = create_test_request(path="/long")
+    response = await app.handle_request(request)
+    assert "X-time" in response.headers
+    long_time = float(response.headers["X-time"])
+
+    assert short_time < long_time
+
+    app.remove_middleware(TimingMiddleware)
+    assert len(app.middlewares) == 2
 
 
 def test_app_run():

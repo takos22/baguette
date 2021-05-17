@@ -31,6 +31,15 @@ Application
     :members:
     :undoc-members:
     :exclude-members: handle_static_file
+    :member-order: bysource
+
+Configuration
+-------------
+
+.. autoclass:: Config()
+    :members:
+    :undoc-members:
+    :member-order: bysource
 
 View
 ----
@@ -233,6 +242,13 @@ Testing
     :members:
     :undoc-members:
     :member-order: bysource
+
+Middlewares
+-----------
+
+.. automodule:: baguette.middlewares
+    :members:
+    :undoc-members:
 
 Utils
 -----
