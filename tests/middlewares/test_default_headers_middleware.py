@@ -20,7 +20,7 @@ from ..conftest import create_test_request
         ],
     ],
 )
-async def test_error_middleware(headers, expected_headers):
+async def test_default_headers_middleware(headers, expected_headers):
     app = Baguette(default_headers={"server": "baguette"})
 
     @app.route("/")
