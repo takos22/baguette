@@ -81,7 +81,7 @@ def test_split_on_first(text, sep, expected):
 
 
 @pytest.mark.parametrize(
-    ["adress", "expected"],
+    ["address", "expected"],
     [
         [("", 0), ":0"],
         [("1.2.3.4", 1234), "1.2.3.4:1234"],
