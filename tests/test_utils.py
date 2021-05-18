@@ -5,6 +5,7 @@ import pytest
 from baguette.headers import Headers
 from baguette.httpexceptions import NotFound
 from baguette.utils import (
+    address_to_str,
     file_path_to_path,
     get_encoding_from_headers,
     safe_join,
@@ -77,3 +78,14 @@ def test_safe_join_error():
 )
 def test_split_on_first(text, sep, expected):
     assert split_on_first(text, sep) == expected
+
+
+@pytest.mark.parametrize(
+    ["adress", "expected"],
+    [
+        [("", 0), ":0"],
+        [("1.2.3.4", 1234), "1.2.3.4:1234"],
+    ],
+)
+def test_address_to_str(address, expected):
+    assert address_to_str(address) == expected

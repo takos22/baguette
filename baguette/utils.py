@@ -63,7 +63,7 @@ def safe_join(directory: FilePath, *paths: FilePath) -> pathlib.Path:
     return full_path
 
 
-def split_on_first(text: str, sep: str):
+def split_on_first(text: str, sep: str) -> typing.Tuple[str, str]:
     point = text.find(sep)
     if point == -1:
         return text, text[:0]  # return bytes or str
@@ -75,3 +75,8 @@ def import_from_string(string: str):
     for name in string.split(".")[1:]:
         module = getattr(module, name)
     return module
+
+
+def address_to_str(address: typing.Tuple[str, int]) -> str:
+    """Converts a ``(host, port)`` tuple into a ``host:port`` string."""
+    return "{}:{}".format(*address)

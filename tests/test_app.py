@@ -459,14 +459,14 @@ def test_app_run():
         if not running.wait(10.0):
             raise TimeoutError("App hasn't started after 10s")
 
-        requests.get("http://127.0.0.1:8000")
+        requests.get("http://127.0.0.1:8080")
 
     request_thread = threading.Thread(target=do_request)
     request_thread.start()
 
     app.run(
         host="127.0.0.1",
-        port=8000,
+        port=8080,
         debug=True,
         limit_max_requests=1,  # end after one request
         callback_notify=set_running,
