@@ -458,6 +458,31 @@ class Baguette:
         middlewares.remove(middleware)
         self.build_middlewares(middlewares)
 
+    def middleware(
+        self,
+        index: int = 0,
+    ):
+        """Decorator to add a middleware to the app.
+
+        .. versionadded:: 0.3.0
+        """
+
+        def decorator(func_or_class):
+            if inspect.isclass(func_or_class):
+                middleware: typing.Type[Middleware] = func_or_class
+
+            else:
+
+                class middleware(Middleware):
+                    async def __call__(self, request: Request) -> Response:
+                        return await func_or_class(self.app, request)
+
+            self.add_middleware(middleware, index)
+
+            return func_or_class
+
+        return decorator
+
     # --------------------------------------------------------------------------
     # Other methods
 
