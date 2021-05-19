@@ -14,10 +14,12 @@ Create your own middleware
 Class based middleware
 **********************
 
-A middleware is a class that is initialized with the next middleware
-argument and a :class:`Config` argument.
-The class must me an asynchronous callable that takes a :class:`Request`
+To make a middleware, you can subclass the :class:`Middleware` and define the
+:meth:`__call__ <Middleware.__call__>` method.
+This method must be an asynchronous method that takes a :class:`Request`
 argument and returns a :class:`Response`.
+To call the next middleware, you can use :attr:`self.next <Middleware.next>`
+with ``await self.next(request)``.
 
 For example, a middleware that would time the request:
 
@@ -25,17 +27,17 @@ For example, a middleware that would time the request:
     :linenos:
 
     import time
+    from baguette import Middleware
 
-    class TimingMiddleware:
-        def __init__(self, next_middleware, config):
-            self.next_middleware = next_middleware
-            self.config = config
-
+    class TimingMiddleware(Middleware):
         async def __call__(self, request: Request):
-            start_time = time.time()
-            response = await self.next_middleware(request)
-            process_time = time.time() - start_time
-            print("{0.method} {0.path} took {1} seconds to be handled".format(request, process_time))
+            start_time = time.perf_counter()
+            response = await self.next(request)
+            print(
+                "{0.method} {0.path} took {1} seconds to be handled".format(
+                    request, time.perf_counter() - start_time
+                )
+            )
             return response
 
 To add that middleware to the application you have 3 ways to do it:
@@ -78,10 +80,13 @@ For example, the same timing middleware with a function would look like this:
 
     @app.middleware()
     async def timing_middleware(next_middleware, request):
-        start_time = time.time()
+        start_time = time.perf_counter()
         response = await next_middleware(request)
-        process_time = time.time() - start_time
-        print("{0.method} {0.path} took {1} seconds to be handled".format(request, process_time))
+        print(
+            "{0.method} {0.path} took {1} seconds to be handled".format(
+                request, time.perf_counter() - start_time
+            )
+        )
         return response
 
 .. _default_middlewares:

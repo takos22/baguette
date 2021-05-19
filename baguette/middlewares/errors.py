@@ -7,6 +7,13 @@ from ..responses import Response, make_error_response
 
 
 class ErrorMiddleware(Middleware):
+    """Middleware to handle errors in request handling. Can be
+    :exc:`~baguette.httpexceptions.HTTPException` or other exceptions.
+
+    If :attr:`app.config.debug <Config.default_headers>` and the HTTP status
+    code is higher than 500, then the error traceback is included.
+    """
+
     async def __call__(self, request: Request) -> Response:
         try:
             return await self.next(request)

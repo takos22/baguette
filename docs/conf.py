@@ -116,3 +116,10 @@ autosectionlabel_prefix_document = True
 # pygments styles
 pygments_style = "sphinx"
 pygments_dark_style = "monokai"
+
+# autodoc defaults
+autodoc_default_options = {
+    "members": True,
+    "member-order": "bysource",
+    "undoc-members": True,
+}

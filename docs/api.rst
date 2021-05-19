@@ -28,33 +28,23 @@ Application
 -----------
 
 .. autoclass:: Baguette()
-    :members:
-    :undoc-members:
     :exclude-members: handle_static_file
-    :member-order: bysource
 
 Configuration
 -------------
 
 .. autoclass:: Config()
-    :members:
-    :undoc-members:
-    :member-order: bysource
 
 View
 ----
 
 .. autoclass:: View()
-    :members:
     :exclude-members: METHODS
-    :undoc-members:
 
 Request
 -------
 
 .. autoclass:: Request()
-    :members:
-    :undoc-members:
 
 Responses
 ---------
@@ -63,44 +53,32 @@ Base Response
 *************
 
 .. autoclass:: Response()
-    :members:
     :exclude-members: CHARSET
-    :undoc-members:
 
 Plain Text Response
 *******************
 
 .. autoclass:: PlainTextResponse()
-    :members:
-    :undoc-members:
 
 HTML Response
 *************
 
 .. autoclass:: HTMLResponse()
-    :members:
-    :undoc-members:
 
 JSON Response
 *************
 
 .. autoclass:: JSONResponse()
-    :members:
-    :undoc-members:
 
 Empty Response
 **************
 
 .. autoclass:: EmptyResponse()
-    :members:
-    :undoc-members:
 
 Redirect Response
 *****************
 
 .. autoclass:: RedirectResponse()
-    :members:
-    :undoc-members:
 
 There's an alias to create this class, it's the :func:`redirect` function.
 
@@ -110,8 +88,6 @@ File Response
 **************
 
 .. autoclass:: FileResponse()
-    :members:
-    :undoc-members:
 
 Make Response
 *************
@@ -127,8 +103,6 @@ Headers class
 *************
 
 .. autoclass:: Headers()
-    :members:
-    :undoc-members:
 
 Make Headers
 ************
@@ -142,27 +116,17 @@ Form parsers
 ************
 
 .. autoclass:: baguette.forms.Form()
-    :members:
-    :undoc-members:
 
 .. autoclass:: baguette.forms.URLEncodedForm()
-    :members:
-    :undoc-members:
 
 .. autoclass:: baguette.forms.MultipartForm()
-    :members:
-    :undoc-members:
 
 Fields
 ******
 
 .. autoclass:: baguette.forms.Field()
-    :members:
-    :undoc-members:
 
 .. autoclass:: baguette.forms.FileField()
-    :members:
-    :undoc-members:
 
 Rendering
 ---------
@@ -171,8 +135,6 @@ Renderer
 ********
 
 .. autoclass:: baguette.rendering.Renderer()
-    :members:
-    :undoc-members:
 
 Render
 ******
@@ -188,42 +150,30 @@ Router
 ******
 
 .. autoclass:: baguette.router.Router()
-    :members:
-    :undoc-members:
 
 Route
 *****
 
 .. autoclass:: baguette.router.Route()
-    :members:
     :exclude-members: PARAM_ARGS_REGEX, PARAM_CONVERTERS, PARAM_REGEX
-    :undoc-members:
 
 Path parameters converters
 **************************
 
 .. autoclass:: baguette.converters.StringConverter()
-    :members:
     :exclude-members: REGEX
-    :undoc-members:
     :inherited-members:
 
 .. autoclass:: baguette.converters.PathConverter()
-    :members:
     :exclude-members: REGEX
-    :undoc-members:
     :inherited-members:
 
 .. autoclass:: baguette.converters.IntegerConverter()
-    :members:
     :exclude-members: REGEX
-    :undoc-members:
     :inherited-members:
 
 .. autoclass:: baguette.converters.FloatConverter()
-    :members:
     :exclude-members: REGEX
-    :undoc-members:
     :inherited-members:
 
 
@@ -231,29 +181,33 @@ HTTP Exceptions
 ---------------
 
 .. automodule:: baguette.httpexceptions
-    :members:
-    :undoc-members:
-    :member-order: bysource
+
+.. currentmodule:: baguette
 
 Testing
 -------
 
 .. autoclass:: baguette.testing.TestClient()
-    :members:
-    :undoc-members:
-    :member-order: bysource
 
 Middlewares
 -----------
 
+Base middleware
+***************
+
+.. autoclass:: Middleware()
+    :special-members: __call__
+
+Included middlewares
+********************
+
 .. automodule:: baguette.middlewares
-    :members:
-    :undoc-members:
+
+.. currentmodule:: baguette
 
 Utils
 -----
 
 .. automodule:: baguette.utils
-    :members:
-    :undoc-members:
-    :member-order: bysource
+
+.. currentmodule:: baguette

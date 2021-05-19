@@ -136,7 +136,9 @@ class Baguette:
             name="static",
         )
 
-        self.build_middlewares(middlewares)
+        self.build_middlewares(
+            [ErrorMiddleware, *middlewares, DefaultHeadersMiddleware]
+        )
 
     def __getattr__(self, name):
         return getattr(self.config, name)
@@ -399,7 +401,7 @@ class Baguette:
 
         Parameters
         ----------
-            middlewares: :class:`list` of Middleware classes
+            middlewares: :class:`list` of :class:`Middleware`
                 The middlewares to add.
 
         .. versionadded:: 0.3.0
@@ -407,7 +409,6 @@ class Baguette:
 
         # first in the list, first called
         self._raw_middlewares = middlewares
-        middlewares = [ErrorMiddleware, *middlewares, DefaultHeadersMiddleware]
         self.middlewares: typing.List[Middleware] = []
 
         last = self.dispatch
@@ -416,18 +417,19 @@ class Baguette:
             self.middlewares.insert(0, last)
 
     def add_middleware(
-        self, middleware: typing.Type[Middleware], index: int = 0
+        self, middleware: typing.Type[Middleware], index: int = 1
     ):
         """Adds a middleware to the middleware stack.
 
         Parameters
         ----------
-            middleware: Middleware class
+            middleware: :class:`Middleware`
                 The middleware to add.
 
             index: Optional :class:`int`
                 The index to add the middlware to.
-                Default: ``0`` (top of the stack, first called)
+                Default: ``1`` (second middleware, called after
+                :class:`~baguette.middlewares.ErrorMiddleware`)
 
         .. versionadded:: 0.3.0
         """
@@ -441,7 +443,7 @@ class Baguette:
 
         Parameters
         ----------
-            middleware: Middleware class
+            middleware: :class:`Middleware`
                 The middleware to remove.
 
         .. versionadded:: 0.3.0
@@ -453,9 +455,16 @@ class Baguette:
 
     def middleware(
         self,
-        index: int = 0,
+        index: int = 1,
     ):
         """Decorator to add a middleware to the app.
+
+        Parameters
+        ----------
+            index: Optional :class:`int`
+                The index to add the middlware to.
+                Default: ``1`` (second middleware, called after
+                :class:`~baguette.middlewares.ErrorMiddleware`)
 
         .. versionadded:: 0.3.0
         """
