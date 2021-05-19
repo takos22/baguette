@@ -8,13 +8,13 @@ from ..types import MiddlewareCallable
 
 
 class ErrorMiddleware:
-    def __init__(self, app: MiddlewareCallable, config: Config):
-        self.app = app
+    def __init__(self, next_middleware: MiddlewareCallable, config: Config):
+        self.next_middleware = next_middleware
         self.config = config
 
     async def __call__(self, request: Request) -> Response:
         try:
-            return await self.app(request)
+            return await self.next_middleware(request)
         except HTTPException as http_exception:
             return make_error_response(
                 http_exception,

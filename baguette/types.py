@@ -46,9 +46,9 @@ MiddlewareCallable = typing.Callable[["Request"], typing.Awaitable["Response"]]
 
 
 class Middleware:  # pragma: no cover
-    def __init__(self, app: MiddlewareCallable, config: "Config"):
-        self.app = app
+    def __init__(self, next_middleware: MiddlewareCallable, config: "Config"):
+        self.next_middleware = next_middleware
         self.config = config
 
     async def __call__(self, request: "Request") -> "Response":
-        return await self.app(request)
+        return await self.next_middleware(request)

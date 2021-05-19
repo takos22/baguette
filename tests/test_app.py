@@ -375,13 +375,13 @@ import time
 
 
 class TimingMiddleware:
-    def __init__(self, app, config):
-        self.app = app
+    def __init__(self, next_middleware, config):
+        self.next_middleware = next_middleware
         self.config = config
 
     async def __call__(self, request: Request):
         start_time = time.time()
-        response = await self.app(request)
+        response = await self.next_middleware(request)
         process_time = time.time() - start_time
         response.headers["X-time"] = str(process_time)
         return response
