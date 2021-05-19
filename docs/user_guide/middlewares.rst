@@ -5,7 +5,7 @@
 Middlewares
 ===========
 
-A middleware adds a behaviour to every request, they goes between the app and
+A middleware adds a behaviour to every request, they go between the app and
 the handler. You can use the included middlewares or create your own.
 
 Create your own middleware
@@ -40,7 +40,7 @@ For example, a middleware that would time the request:
 
 To add that middleware to the application you have 3 ways to do it:
 
-1.  With the :meth:`app.middleware <Baguette.middleware>` decorator:
+1.  With the :meth:`@app.middleware <Baguette.middleware>` decorator:
 
     .. code-block:: python
 
