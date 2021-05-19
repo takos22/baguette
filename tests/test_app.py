@@ -9,6 +9,7 @@ import requests
 from baguette.app import Baguette
 from baguette.headers import Headers
 from baguette.httpexceptions import NotImplemented
+from baguette.middleware import Middleware
 from baguette.rendering import render
 from baguette.request import Request
 from baguette.responses import (
@@ -374,16 +375,11 @@ async def test_app_render():
 import time
 
 
-class TimingMiddleware:
-    def __init__(self, next_middleware, config):
-        self.next_middleware = next_middleware
-        self.config = config
-
+class TimingMiddleware(Middleware):
     async def __call__(self, request: Request):
-        start_time = time.time()
-        response = await self.next_middleware(request)
-        process_time = time.time() - start_time
-        response.headers["X-time"] = str(process_time)
+        start_time = time.perf_counter()
+        response = await self.next(request)
+        response.headers["X-time"] = str(time.perf_counter() - start_time)
         return response
 
 
@@ -463,16 +459,11 @@ async def test_app_middleware():
     assert len(app.middlewares) == 2
 
     @app.middleware()
-    class TimingMiddleware:
-        def __init__(self, next_middleware, config):
-            self.next_middleware = next_middleware
-            self.config = config
-
+    class TimingMiddleware(Middleware):
         async def __call__(self, request: Request):
-            start_time = time.time()
-            response = await self.next_middleware(request)
-            process_time = time.time() - start_time
-            response.headers["X-time"] = str(process_time)
+            start_time = time.perf_counter()
+            response = await self.next(request)
+            response.headers["X-time"] = str(time.perf_counter() - start_time)
             return response
 
     assert len(app.middlewares) == 3
