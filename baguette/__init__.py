@@ -24,6 +24,7 @@ __all__ = [
     "Config",
     "Headers",
     "make_headers",
+    "Middleware",
     "render",
     "Response",
     "HTMLResponse",
@@ -43,6 +44,7 @@ from . import testing
 from .app import Baguette
 from .config import Config
 from .headers import Headers, make_headers
+from .middleware import Middleware
 from .rendering import render
 from .request import Request
 from .responses import (

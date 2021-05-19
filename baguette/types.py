@@ -2,7 +2,6 @@ import os
 import typing
 
 if typing.TYPE_CHECKING:
-    from .config import Config
     from .headers import Headers
     from .request import Request
     from .responses import Response
@@ -43,12 +42,3 @@ JSONType = typing.Union[dict, list, tuple, str, int, float, bool]
 FilePath = typing.Union[bytes, str, os.PathLike]
 
 MiddlewareCallable = typing.Callable[["Request"], typing.Awaitable["Response"]]
-
-
-class Middleware:  # pragma: no cover
-    def __init__(self, next_middleware: MiddlewareCallable, config: "Config"):
-        self.next_middleware = next_middleware
-        self.config = config
-
-    async def __call__(self, request: "Request") -> "Response":
-        return await self.next_middleware(request)

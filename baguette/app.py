@@ -6,19 +6,12 @@ from . import rendering
 from .config import Config
 from .headers import make_headers
 from .httpexceptions import BadRequest
+from .middleware import Middleware
 from .middlewares import DefaultHeadersMiddleware, ErrorMiddleware
 from .request import Request
 from .responses import FileResponse, Response, make_response
 from .router import Route, Router
-from .types import (
-    Handler,
-    HeadersType,
-    Middleware,
-    Receive,
-    Result,
-    Scope,
-    Send,
-)
+from .types import Handler, HeadersType, Receive, Result, Scope, Send
 from .view import View
 
 
