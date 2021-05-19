@@ -475,11 +475,13 @@ class Baguette:
 
                 class middleware(Middleware):
                     async def __call__(self, request: Request) -> Response:
-                        return await func_or_class(self.app, request)
+                        return await func_or_class(
+                            self.next_middleware, request
+                        )
 
             self.add_middleware(middleware, index)
 
-            return func_or_class
+            return middleware
 
         return decorator
 
