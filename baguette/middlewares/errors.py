@@ -1,20 +1,16 @@
 import traceback
 
-from ..config import Config
 from ..httpexceptions import HTTPException, InternalServerError
+from ..middleware import Middleware
 from ..request import Request
 from ..responses import Response, make_error_response
-from ..types import MiddlewareCallable
 
 
-class ErrorMiddleware:
-    def __init__(self, next_middleware: MiddlewareCallable, config: Config):
-        self.next_middleware = next_middleware
-        self.config = config
-
+class ErrorMiddleware(Middleware):
     async def __call__(self, request: Request) -> Response:
         try:
-            return await self.next_middleware(request)
+            return await self.next(request)
+
         except HTTPException as http_exception:
             return make_error_response(
                 http_exception,
@@ -26,6 +22,7 @@ class ErrorMiddleware:
                 if self.config.debug and http_exception.status_code >= 500
                 else None,
             )
+
         except Exception as exception:
             traceback.print_exc()
             http_exception = InternalServerError()
