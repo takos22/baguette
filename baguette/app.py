@@ -166,7 +166,7 @@ class Baguette:
 
         request = Request(self, scope, receive)
         response = await self.handle_request(request)
-        await response.send(send)
+        await response._send(send)
 
     async def _handle_lifespan(
         self, scope: Scope, receive: Receive, send: Send

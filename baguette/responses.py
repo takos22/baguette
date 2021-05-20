@@ -5,16 +5,50 @@ import typing
 import zlib
 
 import aiofiles
+import ujson
 
 from .headers import Headers, make_headers
 from .httpexceptions import HTTPException, NotFound
-from .types import HeadersType, Result
+from .types import HeadersType, Result, Send
 from .utils import safe_join
 
 HTML_TAG_REGEX = re.compile(r"<\s*\w+[^>]*>.*?<\s*/\s*\w+\s*>")
 
 
+class UJSONEncoder(json.JSONEncoder):
+    encode = ujson.encode
+
+
 class Response:
+    """Base response class.
+
+    Arguments
+    ---------
+        body : :class:`str` or :class:`bytes`
+            The response body.
+
+        status_code : :class:`int`
+            The HTTP status code of the reponse.
+
+        headers : :class:`list` of ``(str, str)`` tuples, \
+        :class:`dict` or :class:`Headers`
+            The headers of the reponse.
+
+    Attributes
+    ----------
+        body : :class:`bytes`
+            The raw response body.
+
+        text : :class:`str`
+            The response body.
+
+        status_code : :class:`int`
+            The HTTP status code of the reponse.
+
+        headers : :class:`Headers`
+            The headers of the reponse.
+    """
+
     CHARSET = "utf-8"
 
     def __init__(
@@ -35,7 +69,8 @@ class Response:
         self.status_code = status_code
         self.headers = make_headers(headers)
 
-    async def send(self, send):
+    async def _send(self, send: Send):
+        """Sends the response."""
         await send(
             {
                 "type": "http.response.start",
@@ -52,6 +87,40 @@ class Response:
 
 
 class JSONResponse(Response):
+    """JSON response class.
+
+    Arguments
+    ---------
+        data : Anything JSON serializable
+            The response body.
+
+        status_code : :class:`int`
+            The HTTP status code of the reponse.
+
+        headers : :class:`list` of ``(str, str)`` tuples, \
+        :class:`dict` or :class:`Headers`
+            The headers of the reponse.
+
+    Attributes
+    ----------
+        body : :class:`bytes`
+            The raw response body.
+
+        text : :class:`str`
+            The response body.
+
+        json : Anything JSON serializable
+            The response JSON body.
+
+        status_code : :class:`int`
+            The HTTP status code of the reponse.
+
+        headers : :class:`Headers`
+            The headers of the reponse.
+    """
+
+    JSON_ENCODER = UJSONEncoder
+
     def __init__(
         self,
         data: typing.Any,
@@ -59,7 +128,7 @@ class JSONResponse(Response):
         headers: typing.Optional[HeadersType] = None,
     ):
         self.json = data
-        body: str = json.dumps(data)
+        body: str = json.dumps(data, cls=self.JSON_ENCODER)
         super().__init__(body, status_code, headers)
         self.headers["content-type"] = "application/json"
 
@@ -153,7 +222,7 @@ class FileResponse(Response):
             )
             self.headers["etag"] = etag
 
-    async def send(self, send):
+    async def _send(self, send):
         async with aiofiles.open(self.file_path, "rb") as f:
             file_body = await f.read()
 
