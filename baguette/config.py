@@ -16,7 +16,7 @@ class Config:
 
         default_headers : :class:`list` of ``(str, str)`` tuples, \
         :class:`dict` or :class:`Headers`
-            Default headers to include in every request.
+            Default headers to include in every response.
             Default: No headers.
 
         static_url_path : :class:`str`
@@ -99,8 +99,8 @@ class Config:
     def from_json(cls, filename: str) -> "Config":
         """Loads the configuration from a JSON file.
 
-        Parameters
-        ----------
+        Arguments
+        ---------
             filename : :class:`str`
                 The file name of the JSON config file.
 
@@ -124,8 +124,8 @@ class Config:
     def from_class(cls, class_or_module_name) -> "Config":
         """Loads the configuration from a python class.
 
-        Parameters
-        ----------
+        Arguments
+        ---------
             class_or_module_name : class or :class:`str`
                 The class to load the configuration.
 

@@ -48,7 +48,7 @@ Error responses
 HTTP Exceptions
 ***************
 
-If there are :mod:`HTTP exceptions <~baguette.httpexceptions>` raised in your
+If there are :mod:`HTTP exceptions <baguette.httpexceptions>` raised in your
 handler, a :class:`Response` will be made with :func:`make_error_response` and
 will be sent like a normal response.
 

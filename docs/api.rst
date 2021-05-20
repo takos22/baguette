@@ -184,11 +184,6 @@ HTTP Exceptions
 
 .. currentmodule:: baguette
 
-Testing
--------
-
-.. autoclass:: baguette.testing.TestClient()
-
 Middlewares
 -----------
 
@@ -205,9 +200,13 @@ Included middlewares
 
 .. currentmodule:: baguette
 
+Testing
+-------
+
+.. autoclass:: TestClient()
+    :exclude-members: DEFAULT_SCOPE
+
 Utils
 -----
 
 .. automodule:: baguette.utils
-
-.. currentmodule:: baguette

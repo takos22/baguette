@@ -9,6 +9,30 @@ from .request import Request
 from .responses import Response
 from .types import BodyType, HeadersType, JSONType, ParamsType
 
+METHOD_DOCS = """Sends a {method} request to :attr:`app`.
+
+Arguments
+---------
+    path : :class:`str`
+        The path of the request.
+
+Keyword Arguments
+-----------------
+    params : :class:`str` or :class:`dict` with :class:`str` keys and \
+    :class:`str` or :class:`list` values
+        The parameters to send in the querystring.
+
+    body : :class:`str` or :class:`bytes`
+        The data to send in the request body.
+
+    json : Anything JSON serializable
+        The JSON data to send in the request body.
+
+    headers : :class:`list` of ``(str, str)`` tuples, \
+    :class:`dict` or :class:`Headers`
+        The headers to send in the request.
+"""
+
 
 class TestClient:
     """Test client for a :class:`Baguette` application.
@@ -63,6 +87,32 @@ class TestClient:
         json: typing.Optional[JSONType] = None,
         headers: typing.Optional[HeadersType] = None,
     ) -> Response:
+        """Creates and sends a request to :attr:`app`.
+
+        Arguments
+        ---------
+            method : :class:`str`
+                The HTTP method for the request.
+
+            path : :class:`str`
+                The path of the request.
+
+        Keyword Arguments
+        -----------------
+            params : :class:`str` or :class:`dict` with :class:`str` keys and \
+            :class:`str` or :class:`list` values
+                The parameters to send in the querystring.
+
+            body : :class:`str` or :class:`bytes`
+                The data to send in the request body.
+
+            json : Anything JSON serializable
+                The JSON data to send in the request body.
+
+            headers : :class:`list` of ``(str, str)`` tuples, \
+            :class:`dict` or :class:`Headers`
+                The headers to send in the request.
+        """
         request = self._prepare_request(
             method=method,
             path=path,
@@ -259,7 +309,7 @@ class TestClient:
         }
 
         request = Request(self.app, scope, None)
-        request._body = self._prepare_body(body=body, json=json)
+        request._raw_body = self._prepare_body(body=body, json=json)
 
         return request
 
@@ -321,3 +371,16 @@ class TestClient:
         if not isinstance(body, bytes):
             body = body.encode()
         return body
+
+    for method in [
+        "GET",
+        "HEAD",
+        "POST",
+        "PUT",
+        "DELETE",
+        "CONNECT",
+        "OPTIONS",
+        "TRACE",
+        "PATCH",
+    ]:
+        locals().get(method.lower()).__doc__ = METHOD_DOCS.format(method=method)

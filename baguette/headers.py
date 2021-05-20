@@ -27,8 +27,8 @@ class Headers:
     def get(self, name, default=None):
         """Gets a header from its name. If not found, returns ``default``.
 
-        Parameters
-        ----------
+        Arguments
+        ---------
             name: :class:`str` or :class:`bytes`
                 Name of the header to get.
             default: Optional anything
@@ -136,8 +136,8 @@ def make_headers(headers: HeadersType = None) -> Headers:
     """Makes a :class:`Headers` object from a :class:`list` of
         ``(str, str)`` tuples, a :class:`dict`, or a :class:`Headers` instance.
 
-        Parameters
-        ----------
+        Arguments
+        ---------
             headers: :class:`list` of ``(str, str)`` tuples, \
             :class:`dict` or :class:`Headers`
                 The raw headers to convert.

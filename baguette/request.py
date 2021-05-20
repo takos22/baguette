@@ -15,8 +15,8 @@ FORM_CONTENT_TYPE = ["application/x-www-form-urlencoded", "multipart/form-data"]
 class Request:
     """Request class that is passed to the view functions.
 
-    Parameters
-    ----------
+    Arguments
+    ---------
         app: ASGI App
             The application that handles the request.
 
@@ -179,8 +179,8 @@ class Request:
     async def form(self, include_querystring: bool = False) -> Form:
         """Parses the request body as form data.
 
-        Parameters
-        ----------
+        Arguments
+        ---------
             include_querystring : Optional :class:`bool`
                 Whether to include the querystrings in the form fields.
 

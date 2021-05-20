@@ -62,7 +62,7 @@ View classes
 ------------
 
 :class:`View` classes allow you to handle a request made to a route with
-a function for each method, this is useful when you have multiple METHODS
+a function for each method, this is useful when you have multiple methods
 for the same route and need to handle each method with a different logic.
 The most common use case is in an API:
 

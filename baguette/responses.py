@@ -175,8 +175,8 @@ class FileResponse(Response):
 def make_response(result: Result) -> Response:
     """Makes a :class:`Response` object from a handler return value.
 
-    Parameters
-    ----------
+    Arguments
+    ---------
         result: Anything described in :ref:`responses`
             The handler return value.
 

@@ -34,8 +34,8 @@ class Middleware:
     async def __call__(self, request: "Request") -> "Response":
         """Call the middleware, executed at every request.
 
-        Parameters
-        ----------
+        Arguments
+        ---------
             request: :class:`Request`
                 The request to handle.
 

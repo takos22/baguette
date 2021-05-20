@@ -35,10 +35,10 @@ __all__ = [
     "make_error_response",
     "redirect",
     "Request",
+    "TestClient",
     "View",
 ]
 
-from . import testing
 from .app import Baguette
 from .config import Config
 from .headers import Headers, make_headers
@@ -57,4 +57,5 @@ from .responses import (
     make_response,
     redirect,
 )
+from .testing import TestClient
 from .view import View

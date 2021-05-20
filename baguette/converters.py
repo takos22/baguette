@@ -16,8 +16,8 @@ class Converter(abc.ABC):
 class StringConverter(Converter):
     """Converter for string URL parameters.
 
-    Parameters
-    ----------
+    Arguments
+    ---------
         length : Optional :class:`int`
             Required length of the string.
             Default: ``None``
@@ -54,8 +54,8 @@ class StringConverter(Converter):
     def convert(self, string: str):
         """Converts the string of the URL parameter and validates the value.
 
-        Parameters
-        ----------
+        Arguments
+        ---------
             string : :class:`str`
                 URL parameter to convert.
 
@@ -90,8 +90,8 @@ class StringConverter(Converter):
 class PathConverter(Converter):
     """Converter for string URL parameters.
 
-    Parameters
-    ----------
+    Arguments
+    ---------
         allow_empty : Optional :class:`bool`
             Whether to allow empty paths.
             Default: ``False``
@@ -116,8 +116,8 @@ class PathConverter(Converter):
     def convert(self, string: str):
         """Converts the string of the URL parameter and validates the value.
 
-        Parameters
-        ----------
+        Arguments
+        ---------
             string : :class:`str`
                 URL parameter to convert.
 
@@ -142,8 +142,8 @@ class PathConverter(Converter):
 class IntegerConverter(Converter):
     """Converter for integer URL parameters.
 
-    Parameters
-    ----------
+    Arguments
+    ---------
         signed : Optional :class:`bool`
             Whether to accept integers starting with ``+`` or ``-``.
             Default: ``False``
@@ -187,8 +187,8 @@ class IntegerConverter(Converter):
     def convert(self, string: str):
         """Converts the string of the URL parameter and validates the value.
 
-        Parameters
-        ----------
+        Arguments
+        ---------
             string : :class:`str`
                 URL parameter to convert.
 
@@ -236,8 +236,8 @@ class IntegerConverter(Converter):
 class FloatConverter(Converter):
     """Converter for float URL parameters.
 
-    Parameters
-    ----------
+    Arguments
+    ---------
         signed : Optional :class:`bool`
             Whether to accept floats starting with ``+`` or ``-``.
             Default: ``False``
@@ -299,8 +299,8 @@ class FloatConverter(Converter):
     def convert(self, string: str):
         """Converts the string of the URL parameter and validates the value.
 
-        Parameters
-        ----------
+        Arguments
+        ---------
             string : :class:`str`
                 URL parameter to convert.
 

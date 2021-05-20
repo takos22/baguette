@@ -36,7 +36,7 @@ ParamsType = typing.Union[
     typing.Mapping[str, typing.Union[str, typing.Sequence[str]]],
     typing.Sequence[typing.Tuple[str, typing.Union[str, typing.Sequence[str]]]],
 ]
-BodyType = typing.Union[str, typing.Iterable[str], typing.AsyncIterator[str]]
+BodyType = typing.Union[str, bytes]
 JSONType = typing.Union[dict, list, tuple, str, int, float, bool]
 
 FilePath = typing.Union[bytes, str, os.PathLike]

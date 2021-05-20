@@ -34,7 +34,7 @@ class Baguette:
 
         default_headers : :class:`list` of ``(str, str)`` tuples, \
         :class:`dict` or :class:`Headers`
-            Default headers to include in every request.
+            Default headers to include in every response.
             Default: No headers.
 
         static_url_path : :class:`str`
@@ -63,7 +63,6 @@ class Baguette:
         middlewares : :class:`list` of middleware classes
             The middlewares to add to the application.
             Default: ``[]``.
-
 
     Attributes
     ----------
@@ -232,8 +231,8 @@ class Baguette:
     async def handle_request(self, request: Request) -> Response:
         """Handles a request and returns a response.
 
-        Parameters
-        ----------
+        Arguments
+        ---------
             request: :class:`Request`
                 The request to handle.
 
@@ -248,8 +247,8 @@ class Baguette:
     async def dispatch(self, request: Request) -> Response:
         """Dispatches a request to the correct handler and return its result.
 
-        Parameters
-        ----------
+        Arguments
+        ---------
             request: :class:`Request`
                 The request to handle.
 
@@ -292,8 +291,8 @@ class Baguette:
     ) -> Route:
         """Adds a route to the application router.
 
-        Parameters
-        ----------
+        Arguments
+        ---------
             handler: Async callable
                 An asynchronous callable (function or class)
                 that can handle a request.
@@ -337,8 +336,8 @@ class Baguette:
     ):
         """Decorator to add a handler function to the router with the given path.
 
-        Parameters
-        ----------
+        Arguments
+        ---------
             path: :class:`str`
                 The path that the handler will handle.
                 Can be dynamic, see :ref:`dynamic_routing`.
@@ -399,8 +398,8 @@ class Baguette:
             There are middlewares included by default.
             See :ref:`default_middlewares`.
 
-        Parameters
-        ----------
+        Arguments
+        ---------
             middlewares: :class:`list` of :class:`Middleware`
                 The middlewares to add.
 
@@ -421,8 +420,8 @@ class Baguette:
     ):
         """Adds a middleware to the middleware stack.
 
-        Parameters
-        ----------
+        Arguments
+        ---------
             middleware: :class:`Middleware`
                 The middleware to add.
 
@@ -441,8 +440,8 @@ class Baguette:
     def remove_middleware(self, middleware: typing.Type[Middleware]):
         """Removes a middleware from the middleware stack.
 
-        Parameters
-        ----------
+        Arguments
+        ---------
             middleware: :class:`Middleware`
                 The middleware to remove.
 
@@ -459,8 +458,8 @@ class Baguette:
     ):
         """Decorator to add a middleware to the app.
 
-        Parameters
-        ----------
+        Arguments
+        ---------
             index: Optional :class:`int`
                 The index to add the middlware to.
                 Default: ``1`` (second middleware, called after
