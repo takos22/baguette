@@ -70,10 +70,11 @@ def test_test_client_prepare_querystring_error(test_client: Client, params):
 @pytest.mark.parametrize(
     ["body", "json", "expected_body"],
     [
-        [None, None, ""],
-        [None, {"a": "b"}, '{"a": "b"}'],
-        ["test", None, "test"],
-        ["test", {"a": "b"}, "test"],
+        [None, None, b""],
+        [None, {"a": "b"}, b'{"a": "b"}'],
+        ["test", None, b"test"],
+        [b"test", None, b"test"],
+        ["test", {"a": "b"}, b"test"],
     ],
 )
 def test_test_client_prepare_body(
