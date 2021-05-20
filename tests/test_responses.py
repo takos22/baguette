@@ -173,7 +173,7 @@ async def test_response_send():
         status_code=200,
         headers={"content-type": "text/plain"},
     )
-    await response.send(send)
+    await response._send(send)
     assert send.values.pop(0) == {
         "type": "http.response.start",
         "status": 200,
@@ -192,7 +192,7 @@ async def test_file_response_send():
     async with aiofiles.open("tests/static/css/style.css", "rb") as f:
         content = await f.read()
 
-    await response.send(send)
+    await response._send(send)
     assert send.values.pop(0) == {
         "type": "http.response.start",
         "status": 200,
