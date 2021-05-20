@@ -10,5 +10,5 @@ class DefaultHeadersMiddleware(Middleware):
 
     async def __call__(self, request: Request) -> Response:
         response = await self.next(request)
-        response.headers += self.config.default_headers
+        response.headers = self.config.default_headers + response.headers
         return response
