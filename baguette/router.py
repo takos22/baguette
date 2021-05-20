@@ -88,7 +88,7 @@ class Route:
                 args = self.PARAM_ARGS_REGEX.findall(groups["args"])
                 for name, value in args:
                     if value in ["True", "False"]:
-                        value = True if value == "True" else False
+                        value = value == "True"
                     elif value.lstrip("+-").isdecimal():
                         value = int(value)
                     elif value.lstrip("+-").replace(".", "", 1).isdecimal():

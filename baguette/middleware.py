@@ -31,7 +31,7 @@ class Middleware:
         self.next_middleware = self.next = next_middleware
         self.config = config
 
-    async def __call__(self, request: "Request") -> "Response":
+    async def __call__(self, request: Request) -> Response:
         """Call the middleware, executed at every request.
 
         Arguments
