@@ -11,6 +11,40 @@ from .types import BodyType, HeadersType, JSONType, ParamsType
 
 
 class TestClient:
+    """Test client for a :class:`Baguette` application.
+
+    This class works like a :class:`req:requests.Session`.
+
+    Arguments
+    ---------
+        app : :class:`Baguette`
+            Application tho send the test requests to.
+
+        default_headers : :class:`list` of ``(str, str)`` tuples, \
+        :class:`dict` or :class:`Headers`
+            Default headers to include in every request.
+            Default: No headers.
+
+    Attributes
+    ----------
+        app : :class:`Baguette`
+            Application tho send the test requests to.
+
+        default_headers : :class:`list` of ``(str, str)`` tuples, \
+        :class:`dict` or :class:`Headers`
+            Default headers included in every request.
+    """
+
+    DEFAULT_SCOPE = {
+        "type": "http",
+        "asgi": {"version": "3.0", "spec_version": "2.1"},
+        "http_version": "1.1",
+        "server": ("127.0.0.1", 8000),
+        "client": ("127.0.0.1", 9000),
+        "scheme": "http",
+        "root_path": "",
+    }
+
     def __init__(
         self,
         app: Baguette,
@@ -18,16 +52,6 @@ class TestClient:
     ):
         self.app = app
         self.default_headers: Headers = make_headers(default_headers)
-
-        self.default_scope = {
-            "type": "http",
-            "asgi": {"version": "3.0", "spec_version": "2.1"},
-            "http_version": "1.1",
-            "server": ("127.0.0.1", 8000),
-            "client": ("127.0.0.1", 9000),
-            "scheme": "http",
-            "root_path": "",
-        }
 
     async def request(
         self,
@@ -225,7 +249,7 @@ class TestClient:
         headers: Headers = self._prepare_headers(headers)
         querystring: str = self._prepare_querystring(params)
         scope = {
-            **self.default_scope,
+            **self.DEFAULT_SCOPE,
             **{
                 "method": method.upper(),
                 "path": path,
@@ -288,10 +312,12 @@ class TestClient:
         self,
         body: typing.Optional[BodyType] = None,
         json: typing.Optional[JSONType] = None,
-    ) -> str:
+    ) -> bytes:
         if body is None:
             if json is None:
-                return ""
+                return b""
 
             body = dumps(json)
+        if not isinstance(body, bytes):
+            body = body.encode()
         return body
