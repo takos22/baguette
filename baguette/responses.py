@@ -117,6 +117,12 @@ class JSONResponse(Response):
 
         headers : :class:`Headers`
             The headers of the reponse.
+
+        JSON_ENCODER : JSON encoder
+            The JSON encoder to use in :func:`json.dumps` with the ``cls``
+            keyword argument. This is a class attribute.
+            Default: the encoder from
+            `ujson <https://github.com/ultrajson/ultrajson>`_
     """
 
     JSON_ENCODER = UJSONEncoder
