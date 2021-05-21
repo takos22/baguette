@@ -1,6 +1,5 @@
 import typing
 from collections.abc import Mapping, Sequence
-from json import dumps
 from urllib.parse import urlencode
 
 from .app import Baguette
@@ -309,7 +308,9 @@ class TestClient:
         }
 
         request = Request(self.app, scope, None)
-        request._raw_body = self._prepare_body(body=body, json=json)
+        request.set_body(body or "")
+        if json is not None:
+            request.set_json(json)
 
         return request
 
@@ -357,20 +358,6 @@ class TestClient:
         querystring = urlencode(query, doseq=True)
 
         return querystring
-
-    def _prepare_body(
-        self,
-        body: typing.Optional[BodyType] = None,
-        json: typing.Optional[JSONType] = None,
-    ) -> bytes:
-        if body is None:
-            if json is None:
-                return b""
-
-            body = dumps(json)
-        if not isinstance(body, bytes):
-            body = body.encode()
-        return body
 
     for method in [
         "GET",

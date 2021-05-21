@@ -183,7 +183,7 @@ class Request:
         body = await self.body()
         try:
             self._json = json.loads(body, cls=UJSONDecoder)
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError, ValueError):
             raise BadRequest(description="Can't decode body as JSON")
         return self._json
 
