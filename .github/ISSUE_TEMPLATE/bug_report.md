@@ -7,10 +7,10 @@ assignees: takos22
 
 ---
 
-**Describe the bug**
+## Describe the bug
 A clear and concise description of what the bug is.
 
-**To Reproduce**
+## To Reproduce
 Steps to reproduce the behavior:
 1. Go to '...'
 2. Click on '....'
@@ -22,13 +22,13 @@ Code:
 # include code here
 ```
 
-**Expected behavior**
+## Expected behavior
 A clear and concise description of what you expected to happen.
 
-**Desktop (please complete the following information):**
- - OS: [e.g. Windows]
- - Python version: [e.g. 3.7.6]
- - Baguette version [e.g. 0.1.1]
+## Desktop (please complete the following information):
+- OS: [e.g. Windows 10]
+- Python version: [e.g. 3.7.6]
+- Baguette version [e.g. 0.1.1]
 
-**Additional context**
+## Additional context
 Add any other context about the problem here.
