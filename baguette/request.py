@@ -1,3 +1,4 @@
+import copy
 import json
 import typing
 from cgi import parse_header
@@ -6,7 +7,7 @@ from urllib.parse import parse_qs
 from .forms import Field, Form, MultipartForm, URLEncodedForm
 from .headers import Headers
 from .httpexceptions import BadRequest
-from .json import UJSONEncoder, UJSONDecoder
+from .json import UJSONDecoder, UJSONEncoder
 from .types import ASGIApp, JSONType, Receive, Scope
 from .utils import get_encoding_from_headers
 
@@ -106,6 +107,15 @@ class Request:
         )[0]
         self.encoding: str = get_encoding_from_headers(self.headers) or "utf-8"
 
+        # cached
+        self._raw_body: bytes = None
+        self._body: str = None
+        self._json: JSONType = None
+        self._form: Form = None
+
+    # --------------------------------------------------------------------------
+    # Body methods
+
     async def raw_body(self) -> bytes:
         """Gets the raw request body in :class:`bytes`.
 
@@ -117,7 +127,7 @@ class Request:
         """
 
         # caching
-        if hasattr(self, "_raw_body"):
+        if self._raw_body is not None:
             return self._raw_body
 
         body = b""
@@ -142,7 +152,7 @@ class Request:
         """
 
         # caching
-        if hasattr(self, "_body"):
+        if self._body is not None:
             return self._body
 
         raw_body = await self.raw_body()
@@ -167,7 +177,7 @@ class Request:
         """
 
         # caching
-        if hasattr(self, "_json"):
+        if self._json is not None:
             return self._json
 
         body = await self.body()
@@ -192,23 +202,28 @@ class Request:
 
         """
 
-        body = await self.raw_body()
-        if self.content_type not in FORM_CONTENT_TYPE:
-            raise ValueError(
-                "Content-type '{}' isn't one of: {}".format(
-                    self.content_type, ", ".join(FORM_CONTENT_TYPE)
+        if self._form is None:
+            body = await self.raw_body()
+            if self.content_type not in FORM_CONTENT_TYPE:
+                raise ValueError(
+                    "Content-type '{}' isn't one of: {}".format(
+                        self.content_type, ", ".join(FORM_CONTENT_TYPE)
+                    )
                 )
-            )
 
-        if self.content_type == "application/x-www-form-urlencoded":
-            form = URLEncodedForm.parse(body, encoding=self.encoding)
-        elif self.content_type == "multipart/form-data":
-            params = parse_header(self.headers.get("content-type", ""))[1]
-            form = MultipartForm.parse(
-                body,
-                boundary=params["boundary"].encode(self.encoding),
-                encoding=self.encoding,
-            )
+            if self.content_type == "application/x-www-form-urlencoded":
+                form = URLEncodedForm.parse(body, encoding=self.encoding)
+            elif self.content_type == "multipart/form-data":
+                params = parse_header(self.headers.get("content-type", ""))[1]
+                form = MultipartForm.parse(
+                    body,
+                    boundary=params["boundary"].encode(self.encoding),
+                    encoding=self.encoding,
+                )
+
+            self._form = form
+        else:
+            form = self._form.copy()
 
         if include_querystring:
             for name, values in self.querystring.items():
@@ -218,3 +233,32 @@ class Request:
                     form.fields[name] = Field(name, values)
 
         return form
+
+    # --------------------------------------------------------------------------
+    # Setters
+
+    def set_raw_body(self, raw_body: bytes):
+        if not isinstance(raw_body, bytes):
+            raise ValueError(
+                f"Argument raw_body most be of type bytes. Got {type(raw_body)}"
+            )
+        self._raw_body = raw_body
+
+    def set_body(self, body: typing.Union[str, bytes]):
+        if isinstance(body, str):
+            self._body = body
+            self.set_raw_body(body.encode(self.encoding))
+        elif isinstance(body, bytes):
+            self._body = body.decode(self.encoding)
+            self.set_raw_body(body)
+        else:
+            raise ValueError(
+                f"Argument body most be of type str or bytes. Got {type(body)}"
+            )
+
+    def set_json(self, data: JSONType):
+        self._json = copy.deepcopy(data)
+        self.set_body(json.dumps(self._json, cls=UJSONEncoder))
+
+    def set_form(self, form: Form):
+        self._form = form.copy()
