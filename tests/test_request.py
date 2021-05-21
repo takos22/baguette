@@ -152,6 +152,10 @@ multipart_body = (
     b'Content-Disposition: form-data; name="test"\r\n\r\n'
     b"test test\r\n"
     b"--abcd1234\r\n"
+    b'Content-Disposition: form-data; name="file"; filename="script.js"\r\n'
+    b"Content-Type: application/javascript\r\n\r\n"
+    b'console.log("Hello, World!")\r\n'
+    b"--abcd1234\r\n"
     b'Content-Disposition: form-data; name="another test"\r\n\r\n'
     b"another test test\r\n"
     b"--abcd1234--\r\n"
@@ -173,24 +177,34 @@ async def test_request_form_multipart():
         ]
     )
     request = Request(Baguette(), http_scope, receive)
+    form = await request.form()
     assert {
         field.name: field.value
-        for field in (await request.form()).fields.values()
+        for field in form.fields.values()
+        if not field.is_file
     } == {"test": "test test", "another test": "another test test"}
+    assert {file.name: file.content for file in form.files.values()} == {
+        "file": b'console.log("Hello, World!")'
+    }
     assert len(receive.values) == 0
     # caching
     assert hasattr(request, "_raw_body")
+    form = await request.form()
     assert {
         field.name: field.value
-        for field in (await request.form()).fields.values()
+        for field in form.fields.values()
+        if not field.is_file
     } == {"test": "test test", "another test": "another test test"}
+    assert {file.name: file.content for file in form.files.values()} == {
+        "file": b'console.log("Hello, World!")'
+    }
 
     # include querystring
+    form = await request.form(include_querystring=True)
     assert {
         field.name: field.values
-        for field in (
-            await request.form(include_querystring=True)
-        ).fields.values()
+        for field in form.fields.values()
+        if not field.is_file
     } == {
         "test": ["test test", "test test test"],
         "another test": ["another test test"],
@@ -213,3 +227,6 @@ async def test_request_form_error():
     request = Request(Baguette(), http_scope, receive)
     with pytest.raises(ValueError):
         await request.form()
+
+
+# TODO: test setters

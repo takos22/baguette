@@ -67,29 +67,13 @@ def test_test_client_prepare_querystring_error(test_client: Client, params):
         test_client._prepare_querystring(params)
 
 
-@pytest.mark.parametrize(
-    ["body", "json", "expected_body"],
-    [
-        [None, None, b""],
-        [None, {"a": "b"}, b'{"a": "b"}'],
-        ["test", None, b"test"],
-        [b"test", None, b"test"],
-        ["test", {"a": "b"}, b"test"],
-    ],
-)
-def test_test_client_prepare_body(
-    test_client: Client, body, json, expected_body
-):
-    body = test_client._prepare_body(body, json)
-    assert body == expected_body
-
-
-def test_test_client_prepare_request(test_client: Client):
+@pytest.mark.asyncio
+async def test_test_client_prepare_request(test_client: Client):
     request = test_client._prepare_request(
         method="GET",
         path="/",
         params={"a": "b"},
-        body="Hello, World!",
+        json={"b": "c"},
         headers={"content-type": "text/plain; charset=utf-8"},
     )
     expected_request = create_test_request(body="Hello, World!")
@@ -107,6 +91,8 @@ def test_test_client_prepare_request(test_client: Client):
         "client",
     ]:
         assert getattr(request, attr) == getattr(expected_request, attr)
+
+    assert (await request.json()) == {"b": "c"}
 
     assert len(request.headers) == len(expected_request.headers)
     for name, value in request.headers:
