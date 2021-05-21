@@ -5,18 +5,14 @@ import typing
 import zlib
 
 import aiofiles
-import ujson
 
 from .headers import Headers, make_headers
 from .httpexceptions import HTTPException, NotFound
+from .json import UJSONEncoder
 from .types import HeadersType, Result, Send
 from .utils import safe_join
 
 HTML_TAG_REGEX = re.compile(r"<\s*\w+[^>]*>.*?<\s*/\s*\w+\s*>")
-
-
-class UJSONEncoder(json.JSONEncoder):
-    encode = ujson.encode
 
 
 class Response:

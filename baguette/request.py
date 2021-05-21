@@ -6,6 +6,7 @@ from urllib.parse import parse_qs
 from .forms import Field, Form, MultipartForm, URLEncodedForm
 from .headers import Headers
 from .httpexceptions import BadRequest
+from .json import UJSONEncoder, UJSONDecoder
 from .types import ASGIApp, JSONType, Receive, Scope
 from .utils import get_encoding_from_headers
 
@@ -171,7 +172,7 @@ class Request:
 
         body = await self.body()
         try:
-            self._json = json.loads(body)
+            self._json = json.loads(body, cls=UJSONDecoder)
         except json.JSONDecodeError:
             raise BadRequest(description="Can't decode body as JSON")
         return self._json
