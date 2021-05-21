@@ -30,6 +30,9 @@ class Field:
     def __str__(self) -> str:
         return self.value
 
+    def copy(self) -> "Field":
+        return Field(name=self.name, values=self.values.copy())
+
 
 class FileField(Field):
     def __init__(
@@ -67,6 +70,15 @@ class FileField(Field):
     def __str__(self) -> str:
         return self.text
 
+    def copy(self) -> "FileField":
+        return FileField(
+            name=self.name,
+            content=self.content,
+            filename=self.filename,
+            content_type=self.content_type,
+            encoding=self.encoding,
+        )
+
 
 class Form(collections.abc.Mapping):
     def __init__(
@@ -87,8 +99,14 @@ class Form(collections.abc.Mapping):
         return len(self.fields)
 
     @classmethod
-    def parse(cls, body: bytes) -> "Form":
+    def parse(cls, body: bytes, encoding: str = "utf-8") -> "Form":
         raise NotImplementedError()
+
+    def copy(self) -> "Form":
+        return self.__class__(
+            fields={name: field.copy() for name, field in self.fields.items()},
+            files={name: file.copy() for name, file in self.files.items()},
+        )
 
 
 class URLEncodedForm(Form):
