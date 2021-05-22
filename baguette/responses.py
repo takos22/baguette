@@ -46,12 +46,37 @@ class Response:
         """:class:`Headers`: The headers of the reponse."""
 
     @property
-    def body(self) -> bytes:
-        """The reponse body.
+    def raw_body(self) -> bytes:
+        """The reponse raw body.
 
         .. note::
             Setting the request body also accepts a :class:`str` but accessing
-            the request body will always return a :class:`bytes`.
+            the request raw body will always return a :class:`bytes`.
+        """
+
+        return self._raw_body
+
+    @raw_body.setter
+    def raw_body(self, body: typing.Union[bytes, str]):
+        if isinstance(body, str):
+            self._raw_body: bytes = body.encode(self.CHARSET)
+            self._body: str = body
+        elif isinstance(body, bytes):
+            self._raw_body: bytes = body
+            self._body: str = body.decode(self.CHARSET)
+        else:
+            raise TypeError(
+                "raw_body must be of type str or bytes. Got "
+                + body.__class__.__name__
+            )
+
+    @property
+    def body(self) -> str:
+        """The reponse body.
+
+        .. note::
+            Setting the request body also accepts a :class:`bytes` but accessing
+            the request body will always return a :class:`str`.
         """
 
         return self._body
@@ -59,9 +84,11 @@ class Response:
     @body.setter
     def body(self, body: typing.Union[bytes, str]):
         if isinstance(body, str):
-            self._body: bytes = body.encode(self.CHARSET)
+            self._raw_body: bytes = body.encode(self.CHARSET)
+            self._body: str = body
         elif isinstance(body, bytes):
-            self._body: bytes = body
+            self._raw_body: bytes = body
+            self._body: str = body.decode(self.CHARSET)
         else:
             raise TypeError(
                 "body must be of type str or bytes. Got "
@@ -81,7 +108,7 @@ class Response:
         await send(
             {
                 "type": "http.response.body",
-                "body": self.body,
+                "body": self.raw_body,
             }
         )
 
@@ -211,6 +238,24 @@ class EmptyResponse(PlainTextResponse):
 
 
 class RedirectResponse(Response):
+    """Redirect response class.
+
+    Arguments
+    ---------
+        location: :class:`str` or :class:`bytes`
+            The location to redirect the request to.
+
+        status_code: :class:`int`
+            Status code of the redirect response.
+            Default: ``301``.
+
+        headers: :class:`list` of ``(str, str)`` tuples, \
+        :class:`dict` or :class:`Headers`
+            Headers to include in the response.
+            Any location header will be overwritten with the location parameter.
+            Default: ``None``.
+    """
+
     def __init__(
         self,
         location: str,
@@ -426,14 +471,15 @@ def redirect(
 
     Arguments
     ---------
-        location: :class:`str`
+        location: :class:`str` or :class:`bytes`
             The location to redirect the request to.
 
         status_code: :class:`int`
             Status code of the redirect response.
             Default: ``301``.
 
-        headers: anything accepted by :func:`make_headers`
+        headers: :class:`list` of ``(str, str)`` tuples, \
+        :class:`dict` or :class:`Headers`
             Headers to include in the response.
             Any location header will be overwritten with the location parameter.
             Default: ``None``.
