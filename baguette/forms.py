@@ -33,6 +33,12 @@ class Field:
     def copy(self) -> "Field":
         return Field(name=self.name, values=self.values.copy())
 
+    def __eq__(self, other: "Field") -> bool:
+        return all(
+            getattr(self, name) == getattr(other, name)
+            for name in ("name", "values")
+        )
+
 
 class FileField(Field):
     def __init__(
@@ -79,6 +85,18 @@ class FileField(Field):
             encoding=self.encoding,
         )
 
+    def __eq__(self, other: "FileField") -> bool:
+        return all(
+            getattr(self, name) == getattr(other, name)
+            for name in (
+                "name",
+                "content",
+                "filename",
+                "content_type",
+                "encoding",
+            )
+        )
+
 
 class Form(collections.abc.Mapping):
     def __init__(
@@ -87,7 +105,9 @@ class Form(collections.abc.Mapping):
         files: typing.Optional[typing.Dict[str, FileField]] = None,
     ):
         self.fields: typing.Dict[str, Field] = fields or {}
-        self.files: typing.Dict[str, FileField] = files or {}
+        self.files: typing.Dict[str, FileField] = files or {
+            name: field for name, field in self.fields.items() if field.is_file
+        }
 
     def __getitem__(self, name: str) -> Field:
         return self.fields[name]
@@ -107,6 +127,9 @@ class Form(collections.abc.Mapping):
             fields={name: field.copy() for name, field in self.fields.items()},
             files={name: file.copy() for name, file in self.files.items()},
         )
+
+    def __eq__(self, other: "Form") -> bool:
+        return self.fields == other.fields
 
 
 class URLEncodedForm(Form):
