@@ -51,5 +51,5 @@ async def test_error_middleware(
 
     request = create_test_request(path=path, method=method, body=body)
     response = await app.handle_request(request)
-    assert response.text == expected_response_body
+    assert response.body == expected_response_body
     assert response.status_code == expected_response_status_code

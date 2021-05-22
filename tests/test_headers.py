@@ -23,8 +23,8 @@ def test_headers_get(headers: Headers):
         == headers.get(b"server")
         == "baguette"
     )
-    assert headers.get("baguette") is None
-    assert headers.get("baguette", default="baguette") == "baguette"
+    assert headers.get("nonexistent") is None
+    assert headers.get("nonexistent", default="baguette") == "baguette"
 
 
 def test_headers_raw(headers: Headers):
@@ -54,7 +54,7 @@ def test_headers_getitem(headers: Headers):
     )
 
     with pytest.raises(KeyError):
-        headers["baguette"]
+        headers["nonexistent"]
 
 
 @pytest.mark.parametrize("name", ["connection", "CONNECTION", b"connection"])
@@ -130,21 +130,35 @@ def test_headers_iadd(headers: Headers, other):
 
 
 @pytest.mark.parametrize(
+    ["other", "eq"],
+    [
+        [{"content-type": "text/html", "server": "baguette"}, True],
+        [{"content-type": "text/html"}, False],
+        [{"content-type": "text/plain", "server": "baguette"}, False],
+    ],
+)
+def test_headers_eq(headers: Headers, other, eq):
+    assert (headers == other) == eq
+
+
+@pytest.mark.parametrize(
     ["headers", "expected_headers"],
     [
         [None, Headers()],
         ["server: baguette", Headers(server="baguette")],
+        [b"server: baguette", Headers(server="baguette")],
         [[["server", "baguette"]], Headers(server="baguette")],
+        [[[b"server", b"baguette"]], Headers(server="baguette")],
         [{"server": "baguette"}, Headers(server="baguette")],
+        [{b"server": b"baguette"}, Headers(server="baguette")],
         [Headers(server="baguette"), Headers(server="baguette")],
     ],
 )
 def test_make_headers(headers, expected_headers):
     headers = make_headers(headers)
-    for name, value in expected_headers:
-        assert headers[name] == value
+    assert headers == expected_headers
 
 
 def test_make_headers_error():
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         make_headers(1)

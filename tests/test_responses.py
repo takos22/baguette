@@ -1,3 +1,4 @@
+import json
 import pathlib
 import re
 
@@ -21,81 +22,122 @@ from baguette.responses import (
 from .conftest import Send
 
 
-def test_response_create():
+@pytest.mark.parametrize("body", ["Hello, World!", b"Hello, World!"])
+def test_response_create(body):
+    response = Response(
+        body,
+        headers={"content_type": "text/plain"},
+    )
+    assert isinstance(response.body, str)
+    assert isinstance(response.raw_body, bytes)
+    assert isinstance(response.status_code, int)
+    assert isinstance(response.headers, Headers)
+
+    assert response.body == "Hello, World!"
+    assert response.raw_body == b"Hello, World!"
+    assert response.headers == {"content_type": "text/plain"}
+
+
+def test_response_create_error():
+    with pytest.raises(TypeError):
+        Response(1)
+
+
+def test_response_body():
     response = Response(
         "Hello, World!",
         headers={"content_type": "text/plain"},
     )
-    assert isinstance(response.text, str)
-    assert isinstance(response.body, bytes)
-    assert isinstance(response.status_code, int)
-    assert isinstance(response.headers, Headers)
 
+    assert response.body == "Hello, World!"
+    assert response.raw_body == b"Hello, World!"
+    assert response.headers == {"content_type": "text/plain"}
+
+    response.body = "Bye, World!"
+    assert response.body == "Bye, World!"
+    assert response.raw_body == b"Bye, World!"
+
+    response.body = b"Hello again, World!"
+    assert response.body == "Hello again, World!"
+    assert response.raw_body == b"Hello again, World!"
+
+    response.raw_body = "Bye, World!"
+    assert response.body == "Bye, World!"
+    assert response.raw_body == b"Bye, World!"
+
+    response.raw_body = b"Hello again, World!"
+    assert response.body == "Hello again, World!"
+    assert response.raw_body == b"Hello again, World!"
+
+
+def test_response_body_error():
     response = Response(
-        b"Hello, World!",
+        "Hello, World!",
         headers={"content_type": "text/plain"},
     )
-    assert isinstance(response.text, str)
-    assert isinstance(response.body, bytes)
-    assert isinstance(response.status_code, int)
-    assert isinstance(response.headers, Headers)
-
     with pytest.raises(TypeError):
-        response = Response({"message": "This won't work"})
+        response.body = 1
+    with pytest.raises(TypeError):
+        response.raw_body = 1
 
 
 def test_json_response_create():
     response = JSONResponse({"message": "Hello, World!"})
     assert isinstance(response.json, dict)
-    assert isinstance(response.text, str)
-    assert isinstance(response.body, bytes)
+    assert isinstance(response.body, str)
+    assert isinstance(response.raw_body, bytes)
     assert isinstance(response.status_code, int)
     assert isinstance(response.headers, Headers)
-    assert (
-        "content-type" in response.headers
-        and response.headers["content-type"] == "application/json"
-    )
+
+    assert response.headers["content-type"] == "application/json"
+    assert json.loads(response.body) == {"message": "Hello, World!"}
 
 
 def test_plain_text_response_create():
     response = PlainTextResponse("Hello, World!")
-    assert isinstance(response.text, str)
-    assert isinstance(response.body, bytes)
+    assert isinstance(response.body, str)
+    assert isinstance(response.raw_body, bytes)
     assert isinstance(response.status_code, int)
     assert isinstance(response.headers, Headers)
-    assert "content-type" in response.headers and response.headers[
-        "content-type"
-    ].startswith("text/plain")
+
+    assert response.body == "Hello, World!"
+    assert response.raw_body == b"Hello, World!"
+    assert response.headers["content-type"].startswith("text/plain")
 
 
 def test_html_response_create():
     response = HTMLResponse("<h1>Hello, World!</h1>")
-    assert isinstance(response.text, str)
-    assert isinstance(response.body, bytes)
+    assert isinstance(response.body, str)
+    assert isinstance(response.raw_body, bytes)
     assert isinstance(response.status_code, int)
     assert isinstance(response.headers, Headers)
-    assert "content-type" in response.headers and response.headers[
-        "content-type"
-    ].startswith("text/html")
+
+    assert response.body == "<h1>Hello, World!</h1>"
+    assert response.raw_body == b"<h1>Hello, World!</h1>"
+    assert response.headers["content-type"].startswith("text/html")
 
 
 def test_empty_response_create():
     response = EmptyResponse()
-    assert isinstance(response.text, str)
-    assert isinstance(response.body, bytes)
+    assert isinstance(response.body, str)
+    assert isinstance(response.raw_body, bytes)
     assert isinstance(response.status_code, int)
     assert isinstance(response.headers, Headers)
-    assert response.text == ""
-    assert response.body == b""
+
+    assert response.body == ""
+    assert response.raw_body == b""
     assert response.status_code == 204
 
 
 def test_redirect_response_create():
     response = RedirectResponse("/home")
-    assert isinstance(response.text, str)
-    assert isinstance(response.body, bytes)
+    assert isinstance(response.body, str)
+    assert isinstance(response.raw_body, bytes)
     assert isinstance(response.status_code, int)
     assert isinstance(response.headers, Headers)
+
+    assert response.body == ""
+    assert response.raw_body == b""
     assert response.status_code == 301
     assert (
         "location" in response.headers
@@ -107,8 +149,8 @@ def test_redirect():
     response = redirect(
         "/home", status_code=302, headers={"server": "baguette"}
     )
-    assert isinstance(response.text, str)
-    assert isinstance(response.body, bytes)
+    assert isinstance(response.body, str)
+    assert isinstance(response.raw_body, bytes)
     assert isinstance(response.status_code, int)
     assert isinstance(response.headers, Headers)
     assert response.status_code == 302
@@ -244,6 +286,7 @@ def test_make_response(result, expected_response: Response):
     response = make_response(result)
     assert type(response) == type(expected_response)
     assert response.body == expected_response.body
+    assert response.raw_body == expected_response.raw_body
     assert response.status_code == expected_response.status_code
     assert set(response.headers.keys()) == set(expected_response.headers.keys())
     for name, value in expected_response.headers:

@@ -56,7 +56,7 @@ async def test_view_call(view, test_request):
     result = await view(test_request)
     response = make_response(result)
     assert response.status_code == 200
-    assert response.text == "GET"
+    assert response.body == "GET"
 
 
 @pytest.mark.asyncio
@@ -79,7 +79,7 @@ async def test_view_dispatch(view, test_request, method, method_allowed):
         response = make_response(result)
 
         assert response.status_code == 200
-        assert response.text == method
+        assert response.body == method
     else:
         with pytest.raises(MethodNotAllowed):
             await view.dispatch(test_request)

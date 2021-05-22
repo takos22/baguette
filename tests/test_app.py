@@ -189,7 +189,7 @@ async def test_app_handle_request(
 
     request = create_test_request(path=path, method=method, body=body)
     response = await app.handle_request(request)
-    assert response.text == expected_response_body
+    assert response.body == expected_response_body
     assert response.status_code == expected_response_status_code
 
 
@@ -369,7 +369,7 @@ async def test_app_render():
     app = TestClient(app)
 
     response: HTMLResponse = await app.get("/template")
-    assert strip(response.text) == strip(expected_html)
+    assert strip(response.body) == strip(expected_html)
 
 
 import time

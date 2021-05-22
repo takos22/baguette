@@ -117,7 +117,7 @@ async def test_test_client_prepare_request(test_client: Client):
 async def test_test_client_request(test_client: Client, method: str):
     response = await test_client.request(method, "/any/method")
     assert isinstance(response, PlainTextResponse)
-    assert response.text == method
+    assert response.body == method
 
 
 @pytest.mark.asyncio
@@ -138,4 +138,4 @@ async def test_test_client_request(test_client: Client, method: str):
 async def test_test_client_request_method(test_client: Client, method: str):
     response = await getattr(test_client, method.lower())("/any/method")
     assert isinstance(response, PlainTextResponse)
-    assert response.text == method
+    assert response.body == method
