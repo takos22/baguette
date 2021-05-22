@@ -116,21 +116,25 @@ class Headers:
             name = name.decode("ascii")
         return name.lower() in self._headers
 
-    def __add__(self, other: typing.Union["Headers", typing.Mapping[str, str]]):
+    def __add__(self, other: HeadersType):
         new = Headers(**self)
         new += other
         return new
 
-    def __iadd__(
-        self, other: typing.Union["Headers", typing.Mapping[str, str]]
-    ):
-        for name, value in other.items():
-            if isinstance(name, bytes):
-                name = name.decode("ascii")
-            if isinstance(value, bytes):
-                value = value.decode("ascii")
-            self._headers[name.lower()] = value
+    def __iadd__(self, other: HeadersType):
+        other = make_headers(other)
+        for name, value in other:
+            self._headers[name] = value
         return self
+
+    def __eq__(self, other: HeadersType) -> bool:
+        other = make_headers(other)
+        if len(self) != len(other):
+            return False
+        for name, value in self:
+            if other[name] != value:
+                return False
+        return True
 
 
 def make_headers(headers: HeadersType = None) -> Headers:
@@ -145,8 +149,9 @@ def make_headers(headers: HeadersType = None) -> Headers:
 
     Raises
     ------
-        :exc:`ValueError`
-            ``type_`` isn't one of: 'plain', 'json', 'html'.
+        :exc:`TypeError`
+            ``headers`` isn't of type :class:`str`, :class:`list`,
+            :class:`dict`, :class:`Headers` or :obj:`None`
 
     Returns
     -------
@@ -156,17 +161,22 @@ def make_headers(headers: HeadersType = None) -> Headers:
 
     if headers is None:
         headers = Headers()
-    elif isinstance(headers, str):
+    elif isinstance(headers, (str, bytes)):
+        headers = headers.decode() if isinstance(headers, bytes) else headers
         headers = Headers(
             *[header.split(":") for header in headers.splitlines()]
         )
     elif isinstance(headers, Sequence):
         headers = Headers(*headers)
     elif isinstance(headers, (Mapping, Headers)):
+        headers = {
+            name.decode() if isinstance(name, bytes) else name: value
+            for name, value in headers.items()
+        }
         headers = Headers(**headers)
     else:
-        raise ValueError(
-            "headers must be a list, a dict, a Headers instance or None"
+        raise TypeError(
+            "headers must be a str, a list, a dict, a Headers instance or None"
         )
 
     return headers
