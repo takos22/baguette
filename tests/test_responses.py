@@ -40,7 +40,7 @@ def test_response_create():
     assert isinstance(response.status_code, int)
     assert isinstance(response.headers, Headers)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         response = Response({"message": "This won't work"})
 
 
