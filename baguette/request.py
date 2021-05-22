@@ -239,8 +239,9 @@ class Request:
 
     def set_raw_body(self, raw_body: bytes):
         if not isinstance(raw_body, bytes):
-            raise ValueError(
-                f"Argument raw_body most be of type bytes. Got {type(raw_body)}"
+            raise TypeError(
+                "Argument raw_body most be of type bytes. Got "
+                + raw_body.__class__.__name__
             )
         self._raw_body = raw_body
 
@@ -252,8 +253,9 @@ class Request:
             self._body = body.decode(self.encoding)
             self.set_raw_body(body)
         else:
-            raise ValueError(
-                f"Argument body most be of type str or bytes. Got {type(body)}"
+            raise TypeError(
+                "Argument body most be of type str or bytes. Got "
+                + body.__class__.__name__
             )
 
     def set_json(self, data: JSONType):
@@ -261,4 +263,9 @@ class Request:
         self.set_body(json.dumps(self._json, cls=UJSONEncoder))
 
     def set_form(self, form: Form):
+        if not isinstance(form, Form):
+            raise TypeError(
+                "Argument form most be of type Form. Got "
+                + form.__class__.__name__
+            )
         self._form = form.copy()
