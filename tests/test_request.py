@@ -4,6 +4,7 @@ from urllib.parse import urlencode
 import pytest
 
 from baguette.app import Baguette
+from baguette.forms import Field, FileField, Form
 from baguette.httpexceptions import BadRequest
 from baguette.request import Request
 
@@ -229,4 +230,93 @@ async def test_request_form_error():
         await request.form()
 
 
-# TODO: test setters
+@pytest.mark.asyncio
+async def test_request_set_raw_body(test_request: Request):
+    test_request.set_raw_body(b"Hello, World!")
+    assert test_request._raw_body == b"Hello, World!"
+    assert (await test_request.raw_body()) == b"Hello, World!"
+
+
+def test_request_set_raw_body_error(test_request: Request):
+    with pytest.raises(TypeError):
+        test_request.set_raw_body("Hello, World!")
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ["body", "expected_body", "expected_raw_body"],
+    [
+        ["Hello, World!", "Hello, World!", b"Hello, World!"],
+        [b"Hello, World!", "Hello, World!", b"Hello, World!"],
+    ],
+)
+async def test_request_set_body(
+    test_request: Request, body, expected_body, expected_raw_body
+):
+    test_request.set_body(body)
+    assert test_request._raw_body == expected_raw_body
+    assert (await test_request.raw_body()) == expected_raw_body
+    assert test_request._body == expected_body
+    assert (await test_request.body()) == expected_body
+
+
+def test_request_set_body_error(test_request: Request):
+    with pytest.raises(TypeError):
+        test_request.set_body(1)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ["json", "expected_json", "expected_body", "expected_raw_body"],
+    [
+        [
+            "Hello, World!",
+            "Hello, World!",
+            '"Hello, World!"',
+            b'"Hello, World!"',
+        ],
+        [
+            {"Hello": "World!"},
+            {"Hello": "World!"},
+            '{"Hello":"World!"}',
+            b'{"Hello":"World!"}',
+        ],
+    ],
+)
+async def test_request_set_json(
+    test_request: Request, json, expected_json, expected_body, expected_raw_body
+):
+    test_request.set_json(json)
+    assert test_request._raw_body == expected_raw_body
+    assert (await test_request.raw_body()) == expected_raw_body
+    assert test_request._body == expected_body
+    assert (await test_request.body()) == expected_body
+    assert test_request._json == expected_json
+    assert (await test_request.json()) == expected_json
+
+
+def test_request_set_json_error(test_request: Request):
+    with pytest.raises(TypeError):
+        test_request.set_json(set())
+
+
+@pytest.mark.asyncio
+async def test_request_set_form(test_request: Request):
+    form = Form(
+        fields={
+            "test": Field(name="test", values=["test", b"test2"]),
+            "file": FileField(
+                name="file",
+                content=b'console.log("Hello, World!")',
+                filename="script.js",
+            ),
+        }
+    )
+    test_request.set_form(form)
+    assert test_request._form == form
+    assert (await test_request.form()) == form
+
+
+def test_request_set_form_error(test_request: Request):
+    with pytest.raises(TypeError):
+        test_request.set_form("Hello, World!")

@@ -65,6 +65,8 @@ def test_form():
         assert name == "test"
         assert form[name].values == ["test"]
 
+    assert form == Form({"test": Field("test", ["test"])})
+
 
 def test_urlencoded_form_parse():
     form = URLEncodedForm.parse(b"a=b&b=test%20test&a=c")
@@ -112,4 +114,6 @@ def test_multipart_form_parse_file():
     assert len(form) == 1
     assert "file" in form
     assert form["file"].filename == "script.js"
+    assert form["file"].content == b'console.log("Hello, World!")'
+    assert form["file"].text == 'console.log("Hello, World!")'
     assert form["file"].content_type == "application/javascript"
