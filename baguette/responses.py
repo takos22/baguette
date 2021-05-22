@@ -53,17 +53,27 @@ class Response:
         status_code: int = 200,
         headers: typing.Optional[HeadersType] = None,
     ):
-        if isinstance(body, str):
-            self.text: str = body
-            self.body: bytes = body.encode(self.CHARSET)
-        elif isinstance(body, bytes):
-            self.text: str = body.decode(self.CHARSET)
-            self.body: bytes = body
-        else:
-            raise ValueError("body must be str or bytes")
-
+        self.body = body
         self.status_code = status_code
         self.headers = make_headers(headers)
+
+    @property
+    def body(self) -> bytes:
+        return self._body
+
+    @body.setter
+    def body(self, body: typing.Union[bytes, str]):
+        if isinstance(body, str):
+            self.text: str = body
+            self._body: bytes = body.encode(self.CHARSET)
+        elif isinstance(body, bytes):
+            self.text: str = body.decode(self.CHARSET)
+            self._body: bytes = body
+        else:
+            raise TypeError(
+                "body must be of type str or bytes. Got "
+                + body.__class__.__name__
+            )
 
     async def _send(self, send: Send):
         """Sends the response."""
@@ -130,9 +140,17 @@ class JSONResponse(Response):
         headers: typing.Optional[HeadersType] = None,
     ):
         self.json = data
-        body: str = json.dumps(data, cls=self.JSON_ENCODER)
-        super().__init__(body, status_code, headers)
+        super().__init__(self.body, status_code, headers)
         self.headers["content-type"] = "application/json"
+
+    @property
+    def json(self) -> typing.Any:
+        return self._json
+
+    @json.setter
+    def json(self, data: typing.Any):
+        self.body = json.dumps(data, cls=self.JSON_ENCODER)
+        self._json = data
 
 
 class PlainTextResponse(Response):
