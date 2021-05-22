@@ -6,8 +6,8 @@ from .types import HeadersType
 
 
 class Headers:
-    """Headers implementation for handling :class:`str` or :class:`bytes`
-    names and values.
+    """Headers implementation for handling :class:`str` or :class:`bytes` names
+    and values.
 
     .. tip::
         Use :func:`make_headers` to easily make a header from a :class:`list` or
@@ -79,6 +79,7 @@ class Headers:
             :class:`bytes`
                 Raw headers for the ASGI response.
         """
+
         return [
             [name.encode("ascii"), value.encode("ascii")]
             for name, value in self
@@ -133,25 +134,25 @@ class Headers:
 
 
 def make_headers(headers: HeadersType = None) -> Headers:
-    """Makes a :class:`Headers` object from a :class:`list` of
-        ``(str, str)`` tuples, a :class:`dict`, or a :class:`Headers` instance.
+    """Makes a :class:`Headers` object from a :class:`list` of ``(str, str)``
+    tuples, a :class:`dict`, or a :class:`Headers` instance.
 
-        Arguments
-        ---------
-            headers: :class:`list` of ``(str, str)`` tuples, \
-            :class:`dict` or :class:`Headers`
-                The raw headers to convert.
+    Arguments
+    ---------
+        headers: :class:`list` of ``(str, str)`` tuples, \
+        :class:`dict` or :class:`Headers`
+            The raw headers to convert.
 
-        Raises
-        ------
-            :exc:`ValueError`
-                ``type_`` isn't one of: 'plain', 'json', 'html'.
+    Raises
+    ------
+        :exc:`ValueError`
+            ``type_`` isn't one of: 'plain', 'json', 'html'.
 
-        Returns
-        -------
-            :class:`Headers`
-                The converted headers.
-        """
+    Returns
+    -------
+        :class:`Headers`
+            The converted headers.
+    """
 
     if headers is None:
         headers = Headers()

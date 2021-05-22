@@ -1,5 +1,5 @@
-"""
-Exceptions for HTTP status code over 400 (4xx client errors and 5xx server errors) from the `http module <https://docs.python.org/3/library/http.html>`_.
+"""Exceptions for HTTP status code over 400 (4xx client errors and 5xx server
+errors) from the `http module <https://docs.python.org/3/library/http.html>`_.
 
 =========== =============================== ====================================== ====================================================================================================================================================== ==================
 Status code               Name                         Exception class                                                                                  Description                                                                            RFC Link
@@ -54,7 +54,6 @@ import http
 
 class HTTPException(Exception):
     """Base class for HTTP exceptions.
-
 
     Attributes
     ----------

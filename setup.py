@@ -6,6 +6,7 @@ from setuptools import setup
 
 def get_version(package):
     """Return package version as listed in `__version__` in `init.py`."""
+
     path = os.path.join(package, "__init__.py")
     version = ""
     with open(path, "r", encoding="utf8") as init_py:
@@ -23,6 +24,7 @@ def get_version(package):
 
 def get_packages(package):
     """Return root package and all sub-packages."""
+
     return [
         dirpath
         for dirpath, *_ in os.walk(package)
@@ -32,6 +34,7 @@ def get_packages(package):
 
 def get_long_description(filename: str = "README.rst"):
     """Return the README."""
+
     with open(filename, "r", encoding="utf8") as readme:
         long_description = readme.read()
     return long_description
@@ -39,6 +42,7 @@ def get_long_description(filename: str = "README.rst"):
 
 def get_requirements(filename: str = "requirements.txt"):
     """Return the requirements."""
+
     requirements = []
     with open(filename, "r", encoding="utf8") as requirements_txt:
         requirements = requirements_txt.read().splitlines()

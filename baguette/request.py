@@ -78,7 +78,6 @@ class Request:
 
         encoding: :class:`str`
             Encoding of the response body.
-
     """
 
     def __init__(self, app: ASGIApp, scope: Scope, receive: Receive):
@@ -123,7 +122,6 @@ class Request:
         -------
             :class:`bytes`
                 Raw request body.
-
         """
 
         # caching
@@ -148,7 +146,6 @@ class Request:
         -------
             :class:`str`
                 Request body.
-
         """
 
         # caching
@@ -173,7 +170,6 @@ class Request:
                 If the JSON body is not JSON.
                 You can usually not handle this error as it will be handled by
                 the app and converted to a response with a ``400`` status code.
-
         """
 
         # caching
@@ -199,7 +195,6 @@ class Request:
         -------
             :class:`~baguette.forms.Form`
                 Parsed form.
-
         """
 
         if self._form is None:
@@ -238,6 +233,19 @@ class Request:
     # Setters
 
     def set_raw_body(self, raw_body: bytes):
+        """Sets the raw body of the request.
+
+        Arguments
+        ---------
+            raw_body : :class:`bytes`
+                The new request raw body
+
+        Raises
+        ------
+            TypeError
+                The raw body isn't of type :class:`bytes`
+        """
+
         if not isinstance(raw_body, bytes):
             raise TypeError(
                 "Argument raw_body most be of type bytes. Got "
@@ -246,6 +254,19 @@ class Request:
         self._raw_body = raw_body
 
     def set_body(self, body: typing.Union[str, bytes]):
+        """Sets the request body.
+
+        Parameters
+        ----------
+            body : :class:`str` or :class:`bytes`
+                The new request body
+
+        Raises
+        ------
+            TypeError
+                The body isn't of type :class:`str` or :class:`bytes`
+        """
+
         if isinstance(body, str):
             self._body = body
             self.set_raw_body(body.encode(self.encoding))

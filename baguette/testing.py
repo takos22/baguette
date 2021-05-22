@@ -112,6 +112,7 @@ class TestClient:
             :class:`dict` or :class:`Headers`
                 The headers to send in the request.
         """
+
         request = self._prepare_request(
             method=method,
             path=path,

@@ -60,7 +60,8 @@ class View:
         return await self.dispatch(request, **kwargs)
 
     async def dispatch(self, request: Request, **kwargs) -> Response:
-        """Dispatch the request to the right method handler"""
+        """Dispatch the request to the right method handler."""
+
         if request.method not in self.methods:
             raise MethodNotAllowed()
         handler: Handler = getattr(self, request.method.lower())

@@ -91,6 +91,7 @@ def concreter(abcls):
     'dummy_concrete_Abstract'
     >>> c().bar()
     """
+
     if not hasattr(abcls, "__abstractmethods__"):
         return abcls
 

@@ -1,5 +1,5 @@
 # requirements for building the docs
-sphinx==3
+sphinx==3.1
 furo
 sphinx-inline-tabs
 sphinx-copybutton

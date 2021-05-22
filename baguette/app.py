@@ -334,7 +334,8 @@ class Baguette:
         name: str = None,
         defaults: dict = None,
     ):
-        """Decorator to add a handler function to the router with the given path.
+        """Decorator to add a handler function to the router with the given
+        path.
 
         Arguments
         ---------
@@ -356,7 +357,6 @@ class Baguette:
 
         .. versionchanged:: 0.0.3
             Renamed from ``Baguette.endpoint`` to :meth:`Baguette.route`
-
         """
 
         def decorator(func_or_class):
@@ -660,7 +660,6 @@ class Baguette:
             and add the ``--reload`` flag.
 
         .. versionadded:: 0.1.2
-
         """
 
         try:

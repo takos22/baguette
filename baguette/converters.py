@@ -36,7 +36,6 @@ class StringConverter(Converter):
 
         REGEX : :class:`str`
             Regex for the route :meth:`~baguette.router.Route.build_regex`.
-
     """
 
     REGEX = r"[^\/]+"
@@ -73,7 +72,6 @@ class StringConverter(Converter):
             ValueError
                 :attr:`allow_slash` is ``False`` and the URL parameter
                 contains slashes.
-
         """
 
         if self.length is not None and len(string) != self.length:
@@ -103,7 +101,6 @@ class PathConverter(Converter):
 
         REGEX : :class:`str`
             Regex for the route :meth:`~baguette.router.Route.build_regex`.
-
     """
 
     REGEX = r".+"
@@ -130,7 +127,6 @@ class PathConverter(Converter):
         ------
             ValueError
                 :attr:`allow_empty` is ``True`` and the path is empty.
-
         """
 
         if not self.allow_empty and string == "":
@@ -169,7 +165,6 @@ class IntegerConverter(Converter):
 
         REGEX : :class:`str`
             Regex for the route :meth:`~baguette.router.Route.build_regex`.
-
     """
 
     REGEX = r"[\+-]?\d+"
@@ -213,7 +208,6 @@ class IntegerConverter(Converter):
             ValueError
                 :attr:`max` is specified and the URL parameter
                 is higher then :attr:`max`.
-
         """
 
         if not self.signed and (string.strip()[0] in "+-"):
@@ -277,7 +271,6 @@ class FloatConverter(Converter):
 
         REGEX : :class:`str`
             Regex for the route :meth:`~baguette.router.Route.build_regex`.
-
     """
 
     REGEX = r"[\+-]?\d*\.?\d*"
@@ -333,7 +326,6 @@ class FloatConverter(Converter):
             ValueError
                 :attr:`allow_nan` is ``False`` and the URL parameter
                 is ``nan``.
-
         """
 
         if not self.signed and (string.strip()[0] in "+-"):

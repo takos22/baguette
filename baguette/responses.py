@@ -29,20 +29,6 @@ class Response:
         headers : :class:`list` of ``(str, str)`` tuples, \
         :class:`dict` or :class:`Headers`
             The headers of the reponse.
-
-    Attributes
-    ----------
-        body : :class:`bytes`
-            The raw response body.
-
-        text : :class:`str`
-            The response body.
-
-        status_code : :class:`int`
-            The HTTP status code of the reponse.
-
-        headers : :class:`Headers`
-            The headers of the reponse.
     """
 
     CHARSET = "utf-8"
@@ -55,19 +41,26 @@ class Response:
     ):
         self.body = body
         self.status_code = status_code
+        """:class:`int`: The HTTP status code of the reponse."""
         self.headers = make_headers(headers)
+        """:class:`Headers`: The headers of the reponse."""
 
     @property
     def body(self) -> bytes:
+        """The reponse body.
+
+        .. note::
+            Setting the request body also accepts a :class:`str` but accessing
+            the request body will always return a :class:`bytes`.
+        """
+
         return self._body
 
     @body.setter
     def body(self, body: typing.Union[bytes, str]):
         if isinstance(body, str):
-            self.text: str = body
             self._body: bytes = body.encode(self.CHARSET)
         elif isinstance(body, bytes):
-            self.text: str = body.decode(self.CHARSET)
             self._body: bytes = body
         else:
             raise TypeError(
@@ -77,6 +70,7 @@ class Response:
 
     async def _send(self, send: Send):
         """Sends the response."""
+
         await send(
             {
                 "type": "http.response.start",
@@ -109,21 +103,6 @@ class JSONResponse(Response):
 
     Attributes
     ----------
-        body : :class:`bytes`
-            The raw response body.
-
-        text : :class:`str`
-            The response body.
-
-        json : Anything JSON serializable
-            The response JSON body.
-
-        status_code : :class:`int`
-            The HTTP status code of the reponse.
-
-        headers : :class:`Headers`
-            The headers of the reponse.
-
         JSON_ENCODER : JSON encoder
             The JSON encoder to use in :func:`json.dumps` with the ``cls``
             keyword argument. This is a class attribute.
@@ -145,6 +124,8 @@ class JSONResponse(Response):
 
     @property
     def json(self) -> typing.Any:
+        """The request JSON data."""
+
         return self._json
 
     @json.setter
@@ -154,6 +135,21 @@ class JSONResponse(Response):
 
 
 class PlainTextResponse(Response):
+    """Plain text response class.
+
+    Arguments
+    ---------
+        body : :class:`str` or :class:`bytes`
+            The response body.
+
+        status_code : :class:`int`
+            The HTTP status code of the reponse.
+
+        headers : :class:`list` of ``(str, str)`` tuples, \
+        :class:`dict` or :class:`Headers`
+            The headers of the reponse.
+    """
+
     def __init__(
         self,
         text: typing.Union[str, bytes],
@@ -165,6 +161,21 @@ class PlainTextResponse(Response):
 
 
 class HTMLResponse(Response):
+    """HTML response class.
+
+    Arguments
+    ---------
+        body : :class:`str` or :class:`bytes`
+            The response body.
+
+        status_code : :class:`int`
+            The HTTP status code of the reponse.
+
+        headers : :class:`list` of ``(str, str)`` tuples, \
+        :class:`dict` or :class:`Headers`
+            The headers of the reponse.
+    """
+
     def __init__(
         self,
         html: typing.Union[str, bytes],
@@ -176,6 +187,21 @@ class HTMLResponse(Response):
 
 
 class EmptyResponse(PlainTextResponse):
+    """Empty response class.
+
+    Arguments
+    ---------
+        body : :class:`str` or :class:`bytes`
+            The response body.
+
+        status_code : :class:`int`
+            The HTTP status code of the reponse.
+
+        headers : :class:`list` of ``(str, str)`` tuples, \
+        :class:`dict` or :class:`Headers`
+            The headers of the reponse.
+    """
+
     def __init__(
         self,
         status_code: int = 204,
@@ -417,4 +443,5 @@ def redirect(
         :class:`RedirectResponse`
             The created redirect response.
     """
+
     return RedirectResponse(location, status_code, headers)

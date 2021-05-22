@@ -54,6 +54,7 @@ Base Response
 
 .. autoclass:: Response()
     :exclude-members: CHARSET
+    :member-order: groupwise
 
 Plain Text Response
 *******************

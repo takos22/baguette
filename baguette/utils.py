@@ -51,6 +51,7 @@ def safe_join(directory: FilePath, *paths: FilePath) -> pathlib.Path:
         ~baguette.httpexceptions.NotFound
             If the full path does not share a commonprefix with the directory.
     """
+
     try:
         safe_path = file_path_to_path(directory).resolve(strict=True)
         full_path = file_path_to_path(directory, *paths).resolve(strict=True)
@@ -79,4 +80,5 @@ def import_from_string(string: str):
 
 def address_to_str(address: typing.Tuple[str, int]) -> str:
     """Converts a ``(host, port)`` tuple into a ``host:port`` string."""
+
     return "{}:{}".format(*address)
