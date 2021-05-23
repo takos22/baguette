@@ -1,6 +1,7 @@
 import typing
+
 from .headers import Headers, make_headers
-from .types import HeadersType, Scope, Receive, Send
+from .types import HeadersType, Receive, Scope, Send
 
 
 class Message:
