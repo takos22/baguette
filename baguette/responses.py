@@ -292,7 +292,7 @@ class RedirectResponse(Response):
         status_code: int = 301,
         headers: typing.Optional[HeadersType] = None,
     ):
-        super().__init__(body, status_code, headers)
+        super().__init__(body=body, status_code=status_code, headers=headers)
         self.location = location
 
     @property
@@ -525,4 +525,6 @@ def redirect(
             The created redirect response.
     """
 
-    return RedirectResponse(location, status_code, headers)
+    return RedirectResponse(
+        location=location, status_code=status_code, headers=headers
+    )

@@ -41,7 +41,7 @@ class Headers:
         """
 
         name = to_str(name, encoding="ascii")
-        return self._headers.get(name.lower(), default)
+        return self._headers.get(name.lower().strip(), default)
 
     def keys(self):
         """Returns an iterator over the headers names.
@@ -92,20 +92,20 @@ class Headers:
 
     def __getitem__(self, name):
         name = to_str(name, encoding="ascii")
-        return self._headers[name.lower()]
+        return self._headers[name.lower().strip()]
 
     def __setitem__(self, name, value):
         name = to_str(name, encoding="ascii")
         value = to_str(value, encoding="ascii")
-        self._headers[name.lower()] = value
+        self._headers[name.lower().strip()] = value.strip()
 
     def __delitem__(self, name):
         name = to_str(name, encoding="ascii")
-        del self._headers[name.lower()]
+        del self._headers[name.lower().strip()]
 
     def __contains__(self, name):
         name = to_str(name, encoding="ascii")
-        return name.lower() in self._headers
+        return name.lower().strip() in self._headers
 
     def __add__(self, other: HeadersType):
         new = Headers(**self)
