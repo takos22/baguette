@@ -14,18 +14,13 @@ Send = typing.Callable[[Message], typing.Awaitable[None]]
 
 ASGIApp = typing.Callable[[Scope, Receive, Send], typing.Awaitable[None]]
 
+StrOrBytes = typing.Union[str, bytes]
+
 HeadersType = typing.Union[
     "Headers",
-    str,
-    bytes,
-    typing.Mapping[str, str],
-    typing.Mapping[bytes, str],
-    typing.Mapping[str, bytes],
-    typing.Mapping[bytes, bytes],
-    typing.Sequence[typing.Tuple[str, str]],
-    typing.Sequence[typing.Tuple[bytes, str]],
-    typing.Sequence[typing.Tuple[str, bytes]],
-    typing.Sequence[typing.Tuple[bytes, bytes]],
+    StrOrBytes,
+    typing.Mapping[StrOrBytes, StrOrBytes],
+    typing.Sequence[typing.Tuple[StrOrBytes, StrOrBytes]],
 ]
 
 Result = typing.Union[

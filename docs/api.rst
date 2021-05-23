@@ -54,7 +54,7 @@ Base Response
 
 .. autoclass:: Response()
     :exclude-members: CHARSET
-    :member-order: groupwise
+    
 
 Plain Text Response
 *******************
@@ -100,7 +100,7 @@ File Response
 
 .. autoclass:: FileResponse()
     :inherited-members:
-    :exclude-members: CHARSET
+    :exclude-members: CHARSET, body, raw_body
 
 Make Response
 *************

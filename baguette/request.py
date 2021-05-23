@@ -8,7 +8,7 @@ from .forms import Field, Form, MultipartForm, URLEncodedForm
 from .headers import Headers
 from .httpexceptions import BadRequest
 from .json import UJSONDecoder, UJSONEncoder
-from .types import ASGIApp, JSONType, Receive, Scope
+from .types import ASGIApp, JSONType, Receive, Scope, StrOrBytes
 from .utils import get_encoding_from_headers
 
 FORM_CONTENT_TYPE = ["application/x-www-form-urlencoded", "multipart/form-data"]
@@ -253,7 +253,7 @@ class Request:
             )
         self._raw_body = raw_body
 
-    def set_body(self, body: typing.Union[str, bytes]):
+    def set_body(self, body: StrOrBytes):
         """Sets the request body.
 
         Parameters
@@ -280,10 +280,36 @@ class Request:
             )
 
     def set_json(self, data: JSONType):
+        """Sets the request JSON data.
+
+        Parameters
+        ----------
+            data : Anything JSON serializable
+                The data to put in the request body.
+
+        Raises
+        ------
+            TypeError
+                The data isn't JSON serializable.
+        """
+
+        self.set_body(json.dumps(data, cls=UJSONEncoder))
         self._json = copy.deepcopy(data)
-        self.set_body(json.dumps(self._json, cls=UJSONEncoder))
 
     def set_form(self, form: Form):
+        """Sets the request form.
+
+        Parameters
+        ----------
+            form : :class:`~baguette.forms.Form`
+                The form to add to the request.
+
+        Raises
+        ------
+            TypeError
+                The form isn't a :class:`~baguette.forms.Form`.
+        """
+
         if not isinstance(form, Form):
             raise TypeError(
                 "Argument form most be of type Form. Got "

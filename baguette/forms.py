@@ -5,6 +5,7 @@ from cgi import parse_header
 from urllib.parse import parse_qs
 
 from .headers import make_headers
+from .types import StrOrBytes
 from .utils import split_on_first
 
 
@@ -12,7 +13,7 @@ class Field:
     def __init__(
         self,
         name: str,
-        values: typing.List[typing.Union[str, bytes]],
+        values: typing.List[StrOrBytes],
         encoding: str = "utf-8",
     ):
         self.name = name
@@ -44,7 +45,7 @@ class FileField(Field):
     def __init__(
         self,
         name: str,
-        content: typing.Union[str, bytes],
+        content: StrOrBytes,
         filename: typing.Optional[str] = "",
         content_type: typing.Optional[str] = None,
         encoding: str = "utf-8",
@@ -64,7 +65,7 @@ class FileField(Field):
             )
 
     @property
-    def text(self) -> typing.Union[str, bytes]:
+    def text(self) -> StrOrBytes:
         if isinstance(self.content, bytes):
             try:
                 return self.content.decode(self.encoding)

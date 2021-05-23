@@ -9,7 +9,7 @@ import aiofiles
 from .headers import Headers, make_headers
 from .httpexceptions import HTTPException, NotFound
 from .json import UJSONEncoder
-from .types import HeadersType, Result, Send
+from .types import HeadersType, Result, Send, StrOrBytes
 from .utils import safe_join
 
 HTML_TAG_REGEX = re.compile(r"<\s*\w+[^>]*>.*?<\s*/\s*\w+\s*>")
@@ -29,46 +29,27 @@ class Response:
         headers : :class:`list` of ``(str, str)`` tuples, \
         :class:`dict` or :class:`Headers`
             The headers of the reponse.
+
+    Attributes
+    ----------
+        status_code : :class:`int`
+            The HTTP status code of the reponse.
+
+        headers : :class:`Headers`
+            The headers of the reponse.
     """
 
     CHARSET = "utf-8"
 
     def __init__(
         self,
-        body: typing.Union[str, bytes],
+        body: StrOrBytes,
         status_code: int = 200,
         headers: typing.Optional[HeadersType] = None,
     ):
         self.body = body
         self.status_code = status_code
-        """:class:`int`: The HTTP status code of the reponse."""
         self.headers = make_headers(headers)
-        """:class:`Headers`: The headers of the reponse."""
-
-    @property
-    def raw_body(self) -> bytes:
-        """The reponse raw body.
-
-        .. note::
-            Setting the request body also accepts a :class:`str` but accessing
-            the request raw body will always return a :class:`bytes`.
-        """
-
-        return self._raw_body
-
-    @raw_body.setter
-    def raw_body(self, body: typing.Union[bytes, str]):
-        if isinstance(body, str):
-            self._raw_body: bytes = body.encode(self.CHARSET)
-            self._body: str = body
-        elif isinstance(body, bytes):
-            self._raw_body: bytes = body
-            self._body: str = body.decode(self.CHARSET)
-        else:
-            raise TypeError(
-                "raw_body must be of type str or bytes. Got "
-                + body.__class__.__name__
-            )
 
     @property
     def body(self) -> str:
@@ -82,7 +63,7 @@ class Response:
         return self._body
 
     @body.setter
-    def body(self, body: typing.Union[bytes, str]):
+    def body(self, body: StrOrBytes):
         if isinstance(body, str):
             self._raw_body: bytes = body.encode(self.CHARSET)
             self._body: str = body
@@ -92,6 +73,31 @@ class Response:
         else:
             raise TypeError(
                 "body must be of type str or bytes. Got "
+                + body.__class__.__name__
+            )
+
+    @property
+    def raw_body(self) -> bytes:
+        """The reponse raw body.
+
+        .. note::
+            Setting the request body also accepts a :class:`str` but accessing
+            the request raw body will always return a :class:`bytes`.
+        """
+
+        return self._raw_body
+
+    @raw_body.setter
+    def raw_body(self, body: StrOrBytes):
+        if isinstance(body, str):
+            self._raw_body: bytes = body.encode(self.CHARSET)
+            self._body: str = body
+        elif isinstance(body, bytes):
+            self._raw_body: bytes = body
+            self._body: str = body.decode(self.CHARSET)
+        else:
+            raise TypeError(
+                "raw_body must be of type str or bytes. Got "
                 + body.__class__.__name__
             )
 
@@ -135,6 +141,12 @@ class JSONResponse(Response):
             keyword argument. This is a class attribute.
             Default: the encoder from
             `ujson <https://github.com/ultrajson/ultrajson>`_
+
+        status_code : :class:`int`
+            The HTTP status code of the reponse.
+
+        headers : :class:`Headers`
+            The headers of the reponse.
     """
 
     JSON_ENCODER = UJSONEncoder
@@ -175,11 +187,19 @@ class PlainTextResponse(Response):
         headers : :class:`list` of ``(str, str)`` tuples, \
         :class:`dict` or :class:`Headers`
             The headers of the reponse.
+
+    Attributes
+    ----------
+        status_code : :class:`int`
+            The HTTP status code of the reponse.
+
+        headers : :class:`Headers`
+            The headers of the reponse.
     """
 
     def __init__(
         self,
-        text: typing.Union[str, bytes],
+        text: StrOrBytes,
         status_code: int = 200,
         headers: typing.Optional[HeadersType] = None,
     ):
@@ -201,11 +221,19 @@ class HTMLResponse(Response):
         headers : :class:`list` of ``(str, str)`` tuples, \
         :class:`dict` or :class:`Headers`
             The headers of the reponse.
+
+    Attributes
+    ----------
+        status_code : :class:`int`
+            The HTTP status code of the reponse.
+
+        headers : :class:`Headers`
+            The headers of the reponse.
     """
 
     def __init__(
         self,
-        html: typing.Union[str, bytes],
+        html: StrOrBytes,
         status_code: int = 200,
         headers: typing.Optional[HeadersType] = None,
     ):
@@ -227,6 +255,14 @@ class EmptyResponse(PlainTextResponse):
         headers : :class:`list` of ``(str, str)`` tuples, \
         :class:`dict` or :class:`Headers`
             The headers of the reponse.
+
+    Attributes
+    ----------
+        status_code : :class:`int`
+            The HTTP status code of the reponse.
+
+        headers : :class:`Headers`
+            The headers of the reponse.
     """
 
     def __init__(
@@ -245,6 +281,9 @@ class RedirectResponse(Response):
         location: :class:`str` or :class:`bytes`
             The location to redirect the request to.
 
+        body : :class:`str` or :class:`bytes`
+            The response body.
+
         status_code: :class:`int`
             Status code of the redirect response.
             Default: ``301``.
@@ -254,15 +293,34 @@ class RedirectResponse(Response):
             Headers to include in the response.
             Any location header will be overwritten with the location parameter.
             Default: ``None``.
+
+    Attributes
+    ----------
+        status_code : :class:`int`
+            The HTTP status code of the reponse.
+
+        headers : :class:`Headers`
+            The headers of the reponse.
     """
 
     def __init__(
         self,
         location: str,
+        body: StrOrBytes = "",
         status_code: int = 301,
         headers: typing.Optional[HeadersType] = None,
     ):
-        super().__init__("", status_code, headers)
+        super().__init__(body, status_code, headers)
+        self.location = location
+
+    @property
+    def location(self):
+        """The location to redirect the request to."""
+
+        return self.headers["location"]
+
+    @location.setter
+    def location(self, location):
         self.headers["location"] = location
 
 

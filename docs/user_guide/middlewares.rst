@@ -101,3 +101,19 @@ The middleware stack will be like this:
 - Your custom middlewares
 - :class:`~baguette.middlewares.DefaultHeadersMiddleware`
 - :meth:`app.dispatch(request) <Baguette.dispatch>`
+
+Editing requests and reponses
+-----------------------------
+
+Middlewares usually edit the request and reponse.
+
+In the :class:`Request`, you can't edit the :meth:`Request.body` method and the
+other methods of the request body because they are methods and not attributes.
+However there are some methods to remedy to this issue:
+:meth:`Request.set_raw_body`, :meth:`Request.set_body`, :meth:`Request.set_json`
+and :meth:`Request.set_form`.
+
+For :class:`Response`, it is easier: you can just set the :attr:`Response.body`
+to the new response body, or for a :class:`JSONResponse` you can edit the
+:attr:`JSONResponse.json`. The only exception is for :class:`FileResponse`, if
+you want to change the file, you need to create a new :class:`FileResponse`.
