@@ -150,15 +150,11 @@ def test_redirect():
     assert isinstance(response.raw_body, bytes)
     assert isinstance(response.status_code, int)
     assert isinstance(response.headers, Headers)
+
+    assert response.body == ""
+    assert response.raw_body == b""
     assert response.status_code == 302
-    assert (
-        "location" in response.headers
-        and response.headers["location"] == "/home"
-    )
-    assert (
-        "server" in response.headers
-        and response.headers["server"] == "baguette"
-    )
+    assert response.location == "/home"
 
 
 @pytest.mark.parametrize(
@@ -285,6 +281,4 @@ def test_make_response(result, expected_response: Response):
     assert response.body == expected_response.body
     assert response.raw_body == expected_response.raw_body
     assert response.status_code == expected_response.status_code
-    assert set(response.headers.keys()) == set(expected_response.headers.keys())
-    for name, value in expected_response.headers:
-        assert response.headers[name] == value
+    assert response.headers == expected_response.headers

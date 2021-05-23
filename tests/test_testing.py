@@ -94,9 +94,7 @@ async def test_test_client_prepare_request(test_client: Client):
 
     assert (await request.json()) == {"b": "c"}
 
-    assert len(request.headers) == len(expected_request.headers)
-    for name, value in request.headers:
-        assert expected_request.headers[name] == value
+    assert request.headers == expected_request.headers
 
 
 @pytest.mark.asyncio

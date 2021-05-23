@@ -29,6 +29,4 @@ async def test_default_headers_middleware(headers, expected_headers):
 
     request = create_test_request(headers=headers)
     response = await app.handle_request(request)
-    assert len(response.headers) == len(expected_headers)
-    for name, value in expected_headers.items():
-        assert response.headers[name] == value
+    assert response.headers == expected_headers
