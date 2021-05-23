@@ -139,10 +139,7 @@ def test_redirect_response_create():
     assert response.body == ""
     assert response.raw_body == b""
     assert response.status_code == 301
-    assert (
-        "location" in response.headers
-        and response.headers["location"] == "/home"
-    )
+    assert response.location == "/home"
 
 
 def test_redirect():
