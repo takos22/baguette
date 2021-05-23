@@ -3,6 +3,7 @@ import typing
 from collections.abc import Mapping, Sequence
 
 from .types import HeadersType
+from .utils import to_str
 
 
 class Headers:
@@ -18,11 +19,7 @@ class Headers:
         self._headers: typing.Dict[str, str] = {}
 
         for name, value in itertools.chain(args, kwargs.items()):
-            if isinstance(name, bytes):
-                name = name.decode("ascii")
-            if isinstance(value, bytes):
-                value = value.decode("ascii")
-            self._headers[name.lower().strip()] = value.strip()
+            self[name] = value
 
     def get(self, name, default=None):
         """Gets a header from its name. If not found, returns ``default``.
@@ -43,8 +40,7 @@ class Headers:
                 ``default``'s value.
         """
 
-        if isinstance(name, bytes):
-            name = name.decode("ascii")
+        name = to_str(name, encoding="ascii")
         return self._headers.get(name.lower(), default)
 
     def keys(self):
@@ -95,25 +91,20 @@ class Headers:
         return len(self._headers)
 
     def __getitem__(self, name):
-        if isinstance(name, bytes):
-            name = name.decode("ascii")
+        name = to_str(name, encoding="ascii")
         return self._headers[name.lower()]
 
     def __setitem__(self, name, value):
-        if isinstance(name, bytes):
-            name = name.decode("ascii")
-        if isinstance(value, bytes):
-            value = value.decode("ascii")
+        name = to_str(name, encoding="ascii")
+        value = to_str(value, encoding="ascii")
         self._headers[name.lower()] = value
 
     def __delitem__(self, name):
-        if isinstance(name, bytes):
-            name = name.decode("ascii")
+        name = to_str(name, encoding="ascii")
         del self._headers[name.lower()]
 
     def __contains__(self, name):
-        if isinstance(name, bytes):
-            name = name.decode("ascii")
+        name = to_str(name, encoding="ascii")
         return name.lower() in self._headers
 
     def __add__(self, other: HeadersType):
@@ -162,18 +153,17 @@ def make_headers(headers: HeadersType = None) -> Headers:
     if headers is None:
         headers = Headers()
     elif isinstance(headers, (str, bytes)):
-        headers = headers.decode() if isinstance(headers, bytes) else headers
+        headers = to_str(headers, encoding="ascii")
         headers = Headers(
             *[header.split(":") for header in headers.splitlines()]
         )
     elif isinstance(headers, Sequence):
         headers = Headers(*headers)
     elif isinstance(headers, (Mapping, Headers)):
-        headers = {
-            name.decode() if isinstance(name, bytes) else name: value
-            for name, value in headers.items()
-        }
-        headers = Headers(**headers)
+        new_headers = Headers()
+        for name, value in headers.items():
+            new_headers[name] = value
+        headers = new_headers
     else:
         raise TypeError(
             "headers must be a str, a list, a dict, a Headers instance or None"

@@ -9,7 +9,7 @@ from .headers import Headers
 from .httpexceptions import BadRequest
 from .json import UJSONDecoder, UJSONEncoder
 from .types import ASGIApp, JSONType, Receive, Scope, StrOrBytes
-from .utils import get_encoding_from_headers
+from .utils import get_encoding_from_headers, to_bytes, to_str
 
 FORM_CONTENT_TYPE = ["application/x-www-form-urlencoded", "multipart/form-data"]
 
@@ -267,17 +267,8 @@ class Request:
                 The body isn't of type :class:`str` or :class:`bytes`
         """
 
-        if isinstance(body, str):
-            self._body = body
-            self.set_raw_body(body.encode(self.encoding))
-        elif isinstance(body, bytes):
-            self._body = body.decode(self.encoding)
-            self.set_raw_body(body)
-        else:
-            raise TypeError(
-                "Argument body most be of type str or bytes. Got "
-                + body.__class__.__name__
-            )
+        self._body = to_str(body)
+        self.set_raw_body(to_bytes(body))
 
     def set_json(self, data: JSONType):
         """Sets the request JSON data.

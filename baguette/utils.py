@@ -4,7 +4,7 @@ import pathlib
 import typing
 
 from .httpexceptions import NotFound
-from .types import FilePath
+from .types import FilePath, StrOrBytes
 
 
 def get_encoding_from_content_type(content_type):
@@ -82,3 +82,73 @@ def address_to_str(address: typing.Tuple[str, int]) -> str:
     """Converts a ``(host, port)`` tuple into a ``host:port`` string."""
 
     return "{}:{}".format(*address)
+
+
+def to_bytes(str_or_bytes: StrOrBytes, encoding="utf-8") -> bytes:
+    """Makes sure that the argument is a :class:`bytes`.
+
+    Arguments
+    ---------
+        str_or_bytes : :class:`str` or :class:`bytes`
+            The argument to convert to a :class:`bytes`.
+
+        encoding : Optional :class:`str`
+            The string encoding.
+            Default: ``"utf-8"``
+
+    Returns
+    -------
+        :class:`bytes`
+            The converted argument.
+
+    Raises
+    ------
+        TypeError
+            The argument isn't a :class:`str` or a :class:`bytes`.
+    """
+
+    if not isinstance(str_or_bytes, (str, bytes)):
+        raise TypeError(
+            "str_or_bytes must be of type str or bytes. Got: "
+            + str_or_bytes.__class__.__name__
+        )
+    return (
+        str_or_bytes.encode(encoding=encoding)
+        if isinstance(str_or_bytes, str)
+        else str_or_bytes
+    )
+
+
+def to_str(str_or_bytes: StrOrBytes, encoding="utf-8") -> str:
+    """Makes sure that the argument is a :class:`str`.
+
+    Arguments
+    ---------
+        str_or_bytes : :class:`str` or :class:`bytes`
+            The argument to convert to a :class:`bytes`.
+
+        encoding : Optional :class:`str`
+            The bytes encoding.
+            Default: ``"utf-8"``
+
+    Returns
+    -------
+        :class:`str`
+            The converted argument.
+
+    Raises
+    ------
+        TypeError
+            The argument isn't a :class:`str` or a :class:`bytes`.
+    """
+
+    if not isinstance(str_or_bytes, (str, bytes)):
+        raise TypeError(
+            "str_or_bytes must be of type str or bytes. Got: "
+            + str_or_bytes.__class__.__name__
+        )
+    return (
+        str_or_bytes.decode(encoding=encoding)
+        if isinstance(str_or_bytes, bytes)
+        else str_or_bytes
+    )

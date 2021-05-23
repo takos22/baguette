@@ -10,7 +10,7 @@ from .headers import Headers, make_headers
 from .httpexceptions import HTTPException, NotFound
 from .json import UJSONEncoder
 from .types import HeadersType, Result, Send, StrOrBytes
-from .utils import safe_join
+from .utils import safe_join, to_bytes, to_str
 
 HTML_TAG_REGEX = re.compile(r"<\s*\w+[^>]*>.*?<\s*/\s*\w+\s*>")
 
@@ -64,17 +64,8 @@ class Response:
 
     @body.setter
     def body(self, body: StrOrBytes):
-        if isinstance(body, str):
-            self._raw_body: bytes = body.encode(self.CHARSET)
-            self._body: str = body
-        elif isinstance(body, bytes):
-            self._raw_body: bytes = body
-            self._body: str = body.decode(self.CHARSET)
-        else:
-            raise TypeError(
-                "body must be of type str or bytes. Got "
-                + body.__class__.__name__
-            )
+        self._raw_body: bytes = to_bytes(body, encoding=self.CHARSET)
+        self._body: str = to_str(body, encoding=self.CHARSET)
 
     @property
     def raw_body(self) -> bytes:
@@ -89,17 +80,8 @@ class Response:
 
     @raw_body.setter
     def raw_body(self, body: StrOrBytes):
-        if isinstance(body, str):
-            self._raw_body: bytes = body.encode(self.CHARSET)
-            self._body: str = body
-        elif isinstance(body, bytes):
-            self._raw_body: bytes = body
-            self._body: str = body.decode(self.CHARSET)
-        else:
-            raise TypeError(
-                "raw_body must be of type str or bytes. Got "
-                + body.__class__.__name__
-            )
+        self._raw_body: bytes = to_bytes(body, encoding=self.CHARSET)
+        self._body: str = to_str(body, encoding=self.CHARSET)
 
     async def _send(self, send: Send):
         """Sends the response."""
@@ -430,12 +412,7 @@ def make_response(result: Result) -> Response:
     if isinstance(body, (list, dict)):
         response = JSONResponse(body, status_code or 200, headers)
     elif isinstance(body, (str, bytes)):
-        if (
-            HTML_TAG_REGEX.search(
-                body.decode() if isinstance(body, bytes) else body
-            )
-            is not None
-        ):
+        if HTML_TAG_REGEX.search(to_str(body, encoding="ascii")) is not None:
             response = HTMLResponse(body, status_code or 200, headers)
         else:
             response = PlainTextResponse(body, status_code or 200, headers)

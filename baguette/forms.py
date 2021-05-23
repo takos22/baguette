@@ -6,7 +6,7 @@ from urllib.parse import parse_qs
 
 from .headers import make_headers
 from .types import StrOrBytes
-from .utils import split_on_first
+from .utils import split_on_first, to_str
 
 
 class Field:
@@ -17,10 +17,7 @@ class Field:
         encoding: str = "utf-8",
     ):
         self.name = name
-        self.values = [
-            value.decode(encoding) if isinstance(value, bytes) else value
-            for value in values
-        ]
+        self.values = [to_str(value) for value in values]
         if len(self.values) > 0:
             self.value = self.values[0]
         else:
@@ -158,7 +155,7 @@ class MultipartForm(Form):
                 continue
 
             headers, value = split_on_first(part, b"\r\n\r\n")
-            headers = make_headers(headers.decode(encoding))
+            headers = make_headers(headers)
             kwargs = parse_header(headers["content-disposition"])[1]
 
             name = kwargs["name"]
