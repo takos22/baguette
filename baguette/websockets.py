@@ -1,3 +1,6 @@
+import typing
+from urllib.parse import parse_qs
+
 from .headers import Headers, make_headers
 from .types import HeadersType, Receive, Scope, Send, StrOrBytes
 
@@ -9,6 +12,21 @@ class Websocket:
         self._send = send
 
         self.connected = False
+
+        self.http_version: str = scope["http_version"]
+        self.asgi_version: str = scope["asgi"]["version"]
+
+        self.headers: Headers = Headers(*scope["headers"])
+        self.scheme: str = scope["scheme"]
+        self.root_path: str = scope["root_path"]
+        self.path: str = scope["path"].rstrip("/") or "/"
+        self.querystring: typing.Dict[str, typing.List[str]] = parse_qs(
+            scope["query_string"].decode("ascii")
+        )
+
+        self.server: typing.Tuple[str, int] = scope["server"]
+        self.client: typing.Tuple[str, int] = scope["client"]
+        self.subprotocols: typing.List[str] = scope["subprotocols"]
 
     # --------------------------------------------------------------------------
     # Websocket methods
