@@ -90,8 +90,8 @@ class Request:
 
         self.headers: Headers = Headers(*scope["headers"])
         self.method: str = scope["method"].upper()
-        self.scheme: str = scope.get("scheme", "http")
-        self.root_path: str = scope.get("root_path", "")
+        self.scheme: str = scope["scheme"]
+        self.root_path: str = scope["root_path"]
         self.path: str = scope["path"].rstrip("/") or "/"
         self.querystring: typing.Dict[str, typing.List[str]] = parse_qs(
             scope["query_string"].decode("ascii")
