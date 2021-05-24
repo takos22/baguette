@@ -13,6 +13,7 @@ from .responses import FileResponse, Response, make_response
 from .router import Route, Router
 from .types import Handler, HeadersType, Receive, Result, Scope, Send
 from .view import View
+from .websocket import Websocket
 
 
 class Baguette:
@@ -150,6 +151,7 @@ class Baguette:
 
         asgi_handlers = {
             "http": self._handle_http,
+            "websocket": self._handle_websocket,
             "lifespan": self._handle_lifespan,
         }
 
@@ -167,6 +169,17 @@ class Baguette:
         request = Request(self, scope, receive)
         response = await self.handle_request(request)
         await response._send(send)
+
+    async def _handle_websocket(
+        self, scope: Scope, receive: Receive, send: Send
+    ):
+        """Handles rquests where ``scope["type"] == "websocket"``."""
+
+        websocket = Websocket(self, scope, receive, send)
+        connected = await websocket.connect()
+        if not connected:
+            return
+        await websocket.handle_messages()
 
     async def _handle_lifespan(
         self, scope: Scope, receive: Receive, send: Send
