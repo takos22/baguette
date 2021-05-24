@@ -1,19 +1,5 @@
-import typing
-
 from .headers import Headers, make_headers
-from .types import HeadersType, Receive, Scope, Send
-
-
-class Message:
-    def __init__(self, text: str = None, bytes_: bytes = None):
-        if text is None and bytes_ is None:
-            raise ValueError("Both text and bytes_ can't be None.")
-
-        self.text = text
-        self.bytes = bytes_
-
-    def to_dict(self) -> dict:
-        return dict(text=self.text, bytes=self.bytes)
+from .types import HeadersType, Receive, Scope, Send, StrOrBytes
 
 
 class Websocket:
@@ -23,6 +9,9 @@ class Websocket:
         self._send = send
 
         self.connected = False
+
+    # --------------------------------------------------------------------------
+    # Websocket methods
 
     async def connect(self):
         message = await self._receive()
@@ -47,11 +36,7 @@ class Websocket:
         )
         self.connected = True
 
-    async def close(self, code: int = 1000):
-        await self._send({"type": "websocket.close", "code": code})
-        self.connected = False
-
-    async def receive(self) -> Message:
+    async def receive(self) -> StrOrBytes:
         message = await self._receive()
 
         type_ = message.pop("type")
@@ -60,27 +45,37 @@ class Websocket:
         elif type_ == "websocket.disconnect":
             return await self.on_disconnect(message["code"])
 
-        message = Message(**message)
+        message = message.get("bytes") or message["text"]
         await self.on_message(message)
         return message
 
-    async def send(self, message: typing.Union[dict, Message]):
-        if isinstance(message, Message):
-            message = message.to_dict()
+    async def send(self, message: StrOrBytes):
+        if isinstance(message, str):
+            message = dict(text=message)
 
-        if not isinstance(message, dict):
+        elif isinstance(message, bytes):
+            message = dict(bytes=message)
+
+        else:
             raise TypeError(
-                "message must be of type Message. Got: "
+                "message must be of type str, bytes or dict. Got: "
                 + message.__class__.__name__
             )
 
         message["type"] = "websocket.send"
         await self._send(message)
 
+    async def close(self, code: int = 1000):
+        await self._send({"type": "websocket.close", "code": code})
+        self.connected = False
+
+    # --------------------------------------------------------------------------
+    # Websocket events
+
     async def on_connect(self):
         pass
 
-    async def on_message(self, message: Message):
+    async def on_message(self, message: StrOrBytes):
         pass
 
     async def on_disconnect(self, code: int):
