@@ -8,8 +8,11 @@ from .forms import Field, Form, MultipartForm, URLEncodedForm
 from .headers import Headers
 from .httpexceptions import BadRequest
 from .json import UJSONDecoder, UJSONEncoder
-from .types import ASGIApp, JSONType, Receive, Scope, StrOrBytes
+from .types import JSONType, Receive, Scope, StrOrBytes
 from .utils import get_encoding_from_headers, to_bytes, to_str
+
+if typing.TYPE_CHECKING:
+    from .app import Baguette
 
 FORM_CONTENT_TYPE = ["application/x-www-form-urlencoded", "multipart/form-data"]
 
@@ -35,7 +38,7 @@ class Request:
 
     Attributes
     ----------
-        app: ASGI App
+        app: :class:`Baguette`
             The application that handles the request.
 
         http_version: :class:`str`
@@ -80,8 +83,8 @@ class Request:
             Encoding of the response body.
     """
 
-    def __init__(self, app: ASGIApp, scope: Scope, receive: Receive):
-        self.app = app
+    def __init__(self, app: "Baguette", scope: Scope, receive: Receive):
+        self.app: "Baguette" = app
         self._scope = scope
         self._receive = receive
 
