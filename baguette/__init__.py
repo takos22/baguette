@@ -59,3 +59,4 @@ from .responses import (
 )
 from .testing import TestClient
 from .view import View
+from .websocket import Websocket
