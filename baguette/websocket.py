@@ -5,6 +5,7 @@ from urllib.parse import parse_qs
 from .headers import Headers, make_headers
 from .types import HeadersType, Receive, Scope, Send, StrOrBytes
 from .utils import to_str
+from .websocketexceptions import CloseServerError, WebsocketClose
 
 if typing.TYPE_CHECKING:
     from .app import Baguette
@@ -69,6 +70,7 @@ class Websocket:
             await self.on_connect()
         except Exception:
             await self.close(403, "Error in connection")
+            raise
         else:
             await self.accept()
         finally:
@@ -170,6 +172,7 @@ class Websocket:
                 {"type": "websocket.close", "code": code, "reason": reason}
             )
             self.closed.set()
+            await self.on_disconnect(code)
         else:
             raise RuntimeError("Websocket already closed.")
 
@@ -183,7 +186,21 @@ class Websocket:
             if message["type"] == "websocket.receive":
                 message = message.get("bytes") or message.get("text")
                 await self._message_queue.put(message)
-                await self.on_message(message)
+                try:
+                    await self.on_message(message)
+                except WebsocketClose as close:
+                    await self.close(
+                        close.close_code, close.name + ": " + close.description
+                    )
+                except Exception as e:
+                    close = CloseServerError(
+                        description=str(e)
+                        if self.app.debug
+                        else "Internal server error while operating."
+                    )
+                    await self.close(
+                        close.close_code, close.name + ": " + close.description
+                    )
 
             elif message["type"] == "websocket.disconnect":
                 self.closed.set()
