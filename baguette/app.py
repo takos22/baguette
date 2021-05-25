@@ -10,7 +10,7 @@ from .middleware import Middleware
 from .middlewares import DefaultHeadersMiddleware, ErrorMiddleware
 from .request import Request
 from .responses import FileResponse, Response, make_response
-from .router import Route, Router
+from .router import Route, Router, WebsocketRoute, WebsocketRouter
 from .types import Handler, HeadersType, Receive, Result, Scope, Send
 from .view import View
 from .websocket import Websocket
@@ -118,6 +118,7 @@ class Baguette:
         middlewares: typing.List[typing.Type[Middleware]] = [],
     ):
         self.router = Router()
+        self.websocket_router = WebsocketRouter()
         self.config = config or Config(
             debug=debug,
             default_headers=default_headers,
@@ -175,11 +176,9 @@ class Baguette:
     ):
         """Handles rquests where ``scope["type"] == "websocket"``."""
 
-        websocket = Websocket(self, scope, receive, send)
-        connected = await websocket.connect()
-        if not connected:
-            return
-        await websocket.handle_messages()
+        route: WebsocketRoute = await self.route_websocket(scope)
+        websocket: Websocket = route.websocket(self, scope, receive, send)
+        await self.handle_websocket(websocket)
 
     async def _handle_lifespan(
         self, scope: Scope, receive: Receive, send: Send
@@ -306,13 +305,13 @@ class Baguette:
 
         Arguments
         ---------
-            handler: Async callable
-                An asynchronous callable (function or class)
-                that can handle a request.
-
             path: :class:`str`
                 The path that the handler will handle.
                 Can be dynamic, see :ref:`dynamic_routing`.
+
+            handler: Async callable
+                An asynchronous callable (function or class)
+                that can handle a request.
 
             methods: :class:`list` of :class:`str`
                 Allowed methods for this path.
@@ -496,6 +495,108 @@ class Baguette:
             self.add_middleware(middleware, index)
 
             return middleware
+
+        return decorator
+
+    # --------------------------------------------------------------------------
+    # Websockets
+
+    async def handle_websocket(self, websocket: Websocket):
+        """Handles a webhook.
+
+        Arguments
+        ---------
+            webhook: :class:`Webhook`
+                The webhook to handle.
+        """
+
+        connected = await websocket.connect()
+        if not connected:
+            return
+        await websocket.handle_messages()
+
+    async def route_websocket(self, scope: Scope) -> WebsocketRoute:
+        """Returns the correct route for the websocket.
+
+        Arguments
+        ---------
+            scope: ASGI scope
+                The ASGI scope of the websocket connection.
+
+        Returns
+        -------
+            :class:`~baguette.router.WebsocketRoute`
+                The websocket route.
+
+        Raises
+        ------
+            :exc:`~baguette.httpexceptions.NotFound`
+                The websocket route.
+        """
+
+        path = scope["path"]
+        return self.websocket_router.get(path)
+
+    # --------------------------------------------------------------------------
+    # WebRoutes
+
+    def add_websocket_route(
+        self,
+        path: str,
+        websocket: typing.Type[Websocket],
+        name: str = None,
+    ) -> Route:
+        """Adds a websocket route to the application websocket router.
+
+        Arguments
+        ---------
+            path: :class:`str`
+                The path that the websocket will handle.
+
+            websocket: :class:`Websocket` class
+                Websocket class that handles this path.
+
+            name: :class:`str`
+                Name of the route.
+                Default: websocket class name.
+
+        Returns
+        -------
+            :class:`~baguette.router.WebsocketRoute`
+                The created route.
+        """
+
+        return self.websocket_router.add_route(
+            websocket=websocket,
+            path=path,
+            name=name,
+        )
+
+    def websocket(
+        self,
+        path: str,
+        name: str = None,
+    ):
+        """Decorator to add a websocket to the router with the given path.
+
+        Arguments
+        ---------
+            path: :class:`str`
+                The path that the websocket will handle.
+
+            name: Optional :class:`str`
+                Name of the route.
+                Default: websocket class name.
+        """
+
+        def decorator(websocket: typing.Type[Websocket]):
+            self.add_websocket_route(
+                websocket=websocket,
+                path=path,
+                name=name,
+            )
+
+            return websocket
 
         return decorator
 

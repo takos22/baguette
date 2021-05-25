@@ -14,6 +14,7 @@ from .converters import (
 from .httpexceptions import MethodNotAllowed, NotFound
 from .types import Handler
 from .view import View
+from .websocket import Websocket
 
 
 class Route:
@@ -121,7 +122,7 @@ class Route:
         self.regex = re.compile(regex)
 
     def match(self, path: str) -> bool:
-        return self.regex.fullmatch(path if path.endswith("/") else path + "/")
+        return self.regex.fullmatch(path)
 
     def convert(self, path: str) -> typing.Dict[str, typing.Any]:
         kwargs = self.defaults.copy()
@@ -191,3 +192,38 @@ class Router:
         self._cache[method + " " + path] = route
 
         return route
+
+
+class WebsocketRoute:
+    def __init__(
+        self,
+        path: str,
+        name: str,
+        websocket: typing.Type[Websocket],
+    ):
+        self.path = path
+        self.name = name or websocket.__name__
+        self.websocket = websocket
+
+
+class WebsocketRouter:
+    def __init__(
+        self, routes: typing.Optional[typing.Dict[str, WebsocketRoute]] = None
+    ):
+        self.routes: typing.Dict[str, WebsocketRoute] = routes or {}
+
+    def add_route(
+        self,
+        websocket: typing.Type[Websocket],
+        path: str,
+        name: str = None,
+    ):
+        route = WebsocketRoute(path, name, websocket)
+        self.routes[path] = route
+        return route
+
+    def get(self, path: str) -> WebsocketRoute:
+        if path not in self.routes:
+            raise NotFound()
+
+        return self.routes[path]
