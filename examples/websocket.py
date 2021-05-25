@@ -14,20 +14,18 @@ MAX_CONCURRENT_CONNECTIONS = 5
 
 @app.websocket("/")
 class IndexWebsocket(Websocket):
-    connections = 0
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     async def on_connect(self):
         global connections
-        if self.connections >= MAX_CONCURRENT_CONNECTIONS:
+        if connections >= MAX_CONCURRENT_CONNECTIONS:
             raise RuntimeError("Too many connections")
 
-        self.connections += 1
+        connections += 1
         logger.info(
             "{} connected (connections: {})".format(
-                address_to_str(self.client), self.connections
+                address_to_str(self.client), connections
             )
         )
 
@@ -42,7 +40,7 @@ class IndexWebsocket(Websocket):
 
     async def on_disconnect(self, code: int):
         global connections
-        self.connections -= 1
+        connections -= 1
         logger.info(
             "{} disconnected with code {}".format(
                 address_to_str(self.client), code
