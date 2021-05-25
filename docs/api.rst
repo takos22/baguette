@@ -54,7 +54,7 @@ Base Response
 
 .. autoclass:: Response()
     :exclude-members: CHARSET
-    
+
 
 Plain Text Response
 *******************
@@ -196,6 +196,11 @@ HTTP Exceptions
 .. automodule:: baguette.httpexceptions
 
 .. currentmodule:: baguette
+
+Websocket
+---------
+
+.. autoclass:: Websocket()
 
 Middlewares
 -----------
