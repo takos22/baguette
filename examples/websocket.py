@@ -2,30 +2,30 @@ import logging
 
 from baguette import Baguette, Websocket
 from baguette.utils import address_to_str
+from baguette.websocketexceptions import CloseTryAgainLater
 
 app = Baguette()
 
 
 logger = logging.getLogger("uvicorn.websocket")
 
-connections = 0
-MAX_CONCURRENT_CONNECTIONS = 5
-
 
 @app.websocket("/")
 class IndexWebsocket(Websocket):
+    MAX_CONCURRENT_CONNECTIONS = 5
+    connections = 0
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     async def on_connect(self):
-        global connections
-        if connections >= MAX_CONCURRENT_CONNECTIONS:
-            raise RuntimeError("Too many connections")
+        if self.connections >= self.MAX_CONCURRENT_CONNECTIONS:
+            raise CloseTryAgainLater(description="Too many connections")
 
-        connections += 1
+        self.__class__.connections += 1
         logger.info(
             "{} connected (connections: {})".format(
-                address_to_str(self.client), connections
+                address_to_str(self.client), self.connections
             )
         )
 
@@ -39,11 +39,17 @@ class IndexWebsocket(Websocket):
         )
 
     async def on_disconnect(self, code: int):
-        global connections
-        connections -= 1
+        self.__class__.connections -= 1
         logger.info(
             "{} disconnected with code {}".format(
                 address_to_str(self.client), code
+            )
+        )
+
+    async def on_close(self, code: int, reason: str):
+        logger.info(
+            "{} was closed with code {} because: {}".format(
+                address_to_str(self.client), code, reason
             )
         )
 
