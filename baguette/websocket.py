@@ -1,4 +1,5 @@
 import asyncio
+import traceback
 import typing
 from urllib.parse import parse_qs
 
@@ -68,9 +69,14 @@ class Websocket:
 
         try:
             await self.on_connect()
-        except Exception:
-            await self.close(403, "Error in connection")
-            raise
+        except WebsocketClose as close:
+            await self.close(403, str(close))
+        except Exception as exception:
+            traceback.print_exc()
+            reason = "Error in connection"
+            if self.app.debug:
+                reason += "".join(traceback.format_tb(exception.__traceback__))
+            await self.close(403, reason)
         else:
             await self.accept()
         finally:
@@ -172,7 +178,7 @@ class Websocket:
                 {"type": "websocket.close", "code": code, "reason": reason}
             )
             self.closed.set()
-            await self.on_disconnect(code)
+            await self.on_close(code, reason)
         else:
             raise RuntimeError("Websocket already closed.")
 
@@ -189,18 +195,14 @@ class Websocket:
                 try:
                     await self.on_message(message)
                 except WebsocketClose as close:
-                    await self.close(
-                        close.close_code, close.name + ": " + close.description
-                    )
+                    await self.close(close.close_code, str(close))
                 except Exception as e:
                     close = CloseServerError(
                         description=str(e)
                         if self.app.debug
                         else "Internal server error while operating."
                     )
-                    await self.close(
-                        close.close_code, close.name + ": " + close.description
-                    )
+                    await self.close(close.close_code, str(close))
 
             elif message["type"] == "websocket.disconnect":
                 self.closed.set()
@@ -232,4 +234,16 @@ class Websocket:
         ----------
             code : :class:`int`
                 The websocket close status code.
+        """
+
+    async def on_close(self, code: int, reason: str):
+        """Called when the websocket is closed by the server.
+
+        Parameters
+        ----------
+            code : :class:`int`
+                The websocket close status code.
+
+            reason : :class:`str`
+                The reason why the websocket is closed.
         """

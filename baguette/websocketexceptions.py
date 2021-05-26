@@ -6,6 +6,9 @@ class WebsocketClose(Exception):
         self.name = name
         self.description = description
 
+    def __str__(self):
+        return "{0.name}: {0.description}".format(self)
+
 
 # Using https://github.com/Luka967/websocket-close-codes
 
