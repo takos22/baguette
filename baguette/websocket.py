@@ -4,6 +4,7 @@ import typing
 from urllib.parse import parse_qs
 
 from .headers import Headers, make_headers
+from .json import dumps
 from .types import HeadersType, Receive, Scope, Send, StrOrBytes
 from .utils import to_str
 from .websocketexceptions import CloseServerError, WebsocketClose
@@ -165,6 +166,9 @@ class Websocket:
 
         message["type"] = "websocket.send"
         await self._send(message)
+
+    async def send_json(self, data):
+        await self.send(dumps(data))
 
     async def close(self, code: int = 1000, reason: str = ""):
         """Closes the websocket connection.
