@@ -16,7 +16,8 @@ class Websocket:
     """Base websocket class.
 
     You usually only need to overwrite the :meth:`on_connect`,
-    :meth:`on_message` and :meth:`on_disconnect` when subclassing.
+    :meth:`on_message`, :meth:`on_disconnect` and :meth:`on_close` when
+    subclassing.
     """
 
     def __init__(
@@ -69,16 +70,26 @@ class Websocket:
 
         try:
             await self.on_connect()
+
         except WebsocketClose as close:
             await self.close(403, str(close))
+
         except Exception as exception:
             traceback.print_exc()
-            reason = "Error in connection"
+            reason = "Error in connection."
             if self.app.debug:
-                reason += "".join(traceback.format_tb(exception.__traceback__))
+                reason = (
+                    reason[:-1]
+                    + ": "
+                    + str(exception)
+                    + "\nTraceback (most recent call last):\n"
+                    + "".join(traceback.format_tb(exception.__traceback__))
+                )
             await self.close(403, reason)
+
         else:
             await self.accept()
+
         finally:
             return self.accepted.is_set()
 
@@ -184,14 +195,24 @@ class Websocket:
 
     async def handle_messages(self):
         """Handles the received messages, calls :meth:`on_message` and puts them
-        in queue."""
+        in queue.
+
+        Raises
+        ------
+            :exc:`RuntimeError`
+                The websocket isn't connected.
+        """
 
         while not self.closed.is_set():
+            if not self.accepted.is_set():
+                raise RuntimeError("Websocket not connected.")
+
             message = await self._receive()
 
             if message["type"] == "websocket.receive":
                 message = message.get("bytes") or message.get("text")
                 await self._message_queue.put(message)
+
                 try:
                     await self.on_message(message)
                 except WebsocketClose as close:
