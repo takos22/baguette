@@ -75,16 +75,17 @@ class Websocket:
         except WebsocketClose as close:
             await self.close(403, str(close))
 
-        except Exception as exception:
-            traceback.print_exc()
+        except Exception as error:
+            await self.on_error("on_connect", error)
+
             reason = "Error in connection."
             if self.app.debug:
                 reason = (
                     reason[:-1]
                     + ": "
-                    + str(exception)
+                    + str(error)
                     + "\nTraceback (most recent call last):\n"
-                    + "".join(traceback.format_tb(exception.__traceback__))
+                    + "".join(traceback.format_tb(error.__traceback__))
                 )
             await self.close(403, reason)
 
@@ -193,7 +194,7 @@ class Websocket:
                 {"type": "websocket.close", "code": code, "reason": reason}
             )
             self.closed.set()
-            await self.on_close(code, reason)
+            self.dispatch("close", code, reason)
         else:
             raise RuntimeError("Websocket already closed.")
 
@@ -216,22 +217,43 @@ class Websocket:
             if message["type"] == "websocket.receive":
                 message = message.get("bytes") or message.get("text")
                 await self._message_queue.put(message)
-
-                try:
-                    await self.on_message(message)
-                except WebsocketClose as close:
-                    await self.close(close.close_code, str(close))
-                except Exception as e:
-                    close = CloseServerError(
-                        description=str(e)
-                        if self.app.debug
-                        else "Internal server error while operating."
-                    )
-                    await self.close(close.close_code, str(close))
+                self.dispatch("message", message)
 
             elif message["type"] == "websocket.disconnect":
                 self.closed.set()
-                await self.on_disconnect(message["code"])
+                self.dispatch("disconnect", message["code"])
+
+    async def _run_event(
+        self, coro: typing.Coroutine, event_name: str, *args, **kwargs
+    ):
+        """Run an event and catch errors."""
+
+        try:
+            await coro(*args, **kwargs)
+        except WebsocketClose as close:
+            await self.close(close.close_code, str(close))
+        except Exception as error:
+            await self.on_error(event_name, error, *args, **kwargs)
+
+    def _schedule_event(
+        self, coro: typing.Coroutine, event_name: str, *args, **kwargs
+    ) -> asyncio.Task:
+        """Schedule an event in an :class:`asyncio task <asyncio.Task>`."""
+
+        wrapped = self._run_event(coro, event_name, *args, **kwargs)
+        return asyncio.create_task(wrapped)
+
+    def dispatch(self, event: str, *args, **kwargs):
+        """Dispatch an event to the correct handler."""
+
+        method = "on_" + event
+
+        try:
+            coro = getattr(self, method)
+        except AttributeError:
+            pass
+        else:
+            self._schedule_event(coro, method, *args, **kwargs)
 
     # --------------------------------------------------------------------------
     # Websocket events
@@ -272,3 +294,35 @@ class Websocket:
             reason : :class:`str`
                 The reason why the websocket is closed.
         """
+
+    async def on_error(
+        self, event_name: str, error: Exception, *args, **kwargs
+    ):
+        """Called when an event errors.
+
+        Parameters
+        ----------
+            event_name : :class:`str`
+                The event that raised the error.
+
+            error : :class:`str`
+                The error that was raised.
+
+            *args : :class:`tuple`
+                The arguments of the event.
+
+            **kwargs : :class:`dict`
+                The keyword arguments of the event.
+        """
+
+        if event_name not in ["on_connect", "on_disconnect", "on_close"]:
+            close = CloseServerError(
+                description=(
+                    (f"Exception in {event_name}: " + str(error))
+                    if self.app.debug
+                    else "Internal server error while operating."
+                )
+            )
+            await self.close(close.close_code, str(close))
+
+        traceback.print_exc()
