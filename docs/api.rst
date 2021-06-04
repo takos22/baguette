@@ -159,16 +159,20 @@ Render
 Routing
 -------
 
-Router
-******
+Routers
+*******
 
 .. autoclass:: baguette.router.Router()
 
-Route
-*****
+.. autoclass:: baguette.router.WebsocketRouter()
+
+Routes
+******
 
 .. autoclass:: baguette.router.Route()
     :exclude-members: PARAM_ARGS_REGEX, PARAM_CONVERTERS, PARAM_REGEX
+
+.. autoclass:: baguette.router.WebsocketRoute()
 
 Path parameters converters
 **************************

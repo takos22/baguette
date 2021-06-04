@@ -65,7 +65,7 @@ extensions = [
 # Links used for cross-referencing stuff in other documentation
 intersphinx_mapping = {
     "py": ("https://docs.python.org/3", None),
-    "req": ("https://requests.readthedocs.io/en/latest/", None)
+    "req": ("https://requests.readthedocs.io/en/latest/", None),
 }
 
 # Add any paths that contain templates here, relative to this directory.
@@ -127,3 +127,4 @@ autodoc_default_options = {
     "undoc-members": True,
 }
 autodoc_member_order = "bysource"
+autoclass_content = "both"
