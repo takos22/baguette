@@ -2,8 +2,6 @@ import inspect
 import re
 import typing
 
-import cachetools
-
 from .converters import (
     Converter,
     FloatConverter,
@@ -18,6 +16,8 @@ from .websocket import Websocket
 
 
 class Route:
+    """Class for storing info about a route and setting up converters."""
+
     PARAM_REGEX = re.compile(
         r"<(?P<name>\w+)(?::(?P<type>\w+)(?:\((?P<args>(?:\w+=(?:\w|\+|-|\.)+,?\s*)*)\))?)?>"  # noqa: E501
     )
@@ -37,6 +37,26 @@ class Route:
         methods: typing.List[str],
         defaults: typing.Dict[str, typing.Any] = None,
     ):
+        """
+        Parameters
+        ----------
+            path : :class:`str`
+                The path that the route will be at.
+
+            name : Optional :class:`str`
+                The name of the route.
+
+            handler : Async callable
+                The function/class that handles requests.
+
+            methods : :class:`list` of :class:`str`
+                The methods that the route can handle.
+
+            defaults : Optional :class:`dict`
+                Default URL parameters to provide to the handler,
+                if none in the URL.
+        """
+
         self.path = path
         self.name = name
         self.handler = handler
@@ -66,6 +86,14 @@ class Route:
         self.build_regex()
 
     def build_converters(self):
+        """Sets up converters for the route URL parameters.
+
+        Raises
+        ------
+            :exc:`ValueError`
+                The converter type isn't one of :attr:`PARAM_CONVERTERS`.
+        """
+
         segments = self.path.strip("/").split("/")
         for index, segment in enumerate(segments):
             param = self.PARAM_REGEX.fullmatch(segment)
@@ -102,6 +130,8 @@ class Route:
             self.index_converters[index] = (groups["name"], converter(**kwargs))
 
     def build_regex(self):
+        """Sets up the regex for route matching."""
+
         segments = self.path.strip("/").split("/")
         regex = ""
 
@@ -111,7 +141,7 @@ class Route:
                 name, converter = self.index_converters[index]
                 regex += "(?P<{}>{})".format(name, converter.REGEX)
 
-                if index == len(segments) - 1 and name in self.defaults:
+                if name in self.defaults:
                     regex += "?"
 
             else:
@@ -121,12 +151,46 @@ class Route:
 
         self.regex = re.compile(regex)
 
-    def match(self, path: str) -> bool:
+    def match(self, path: str) -> typing.Optional[re.Match]:
+        """Returns whether the path matches the route regex.
+
+        Parameters
+        ----------
+            path : :class:`str`
+                The path to test.
+
+        Returns
+        -------
+            Optional :class:`re.Match`
+                The match, or None if no match was found.
+        """
+
         return self.regex.fullmatch(path)
 
     def convert(self, path: str) -> typing.Dict[str, typing.Any]:
+        """Converts the URL parameters from the path.
+
+        Parameters
+        ----------
+            path : :class:`str`
+                The path that has the parameters.
+
+        Returns
+        -------
+            :class:`dict`
+                The converted parameters.
+
+        Raises
+        ------
+            :exc:`ValueError`
+                The path doesn't match the route regex.
+
+            :exc:`ValueError`
+                Failed a conversion
+        """
+
         kwargs = self.defaults.copy()
-        match = self.regex.fullmatch(path if path.endswith("/") else path + "/")
+        match = self.match(path if path.endswith("/") else path + "/")
 
         if match is None:
             raise ValueError("Path doesn't match router path")
@@ -151,9 +215,18 @@ class Route:
 
 
 class Router:
+    """Class for routing a :class:`~baguette.Request` to the correct
+    :class:`Route`."""
+
     def __init__(self, routes: typing.Optional[typing.List[Route]] = None):
+        """
+        Parameters
+        ----------
+            routes : Optional :class:`list` of :class:`Route`
+                The routes to include directly.
+        """
+
         self.routes: typing.List[Route] = routes or []
-        self._cache: typing.Mapping[str, Route] = cachetools.LFUCache(256)
 
     def add_route(
         self,
@@ -163,6 +236,32 @@ class Router:
         name: str = None,
         defaults: dict = None,
     ) -> Route:
+        """Adds a route to the router.
+
+        Parameters
+        ----------
+            handler : Async callable
+                The function/class that handles requests.
+
+            path : :class:`str`
+                The path that the route will be at.
+
+            methods : :class:`list` of :class:`str`
+                The methods that the route can handle.
+
+            name : Optional :class:`str`
+                The name of the route.
+
+            defaults : Optional :class:`dict`
+                Default URL parameters to provide to the handler,
+                if none in the URL.
+
+        Returns
+        -------
+            :class:`Route`
+                The added route.
+        """
+
         route = Route(
             path=path,
             name=name,
@@ -174,27 +273,49 @@ class Router:
         return route
 
     def get(self, path: str, method: str) -> Route:
-        route = self._cache.get(method + " " + path)
-        if route is None:
-            for possible_route in self.routes:
-                if possible_route.match(path):
-                    route = possible_route
-                    if method not in route.methods:
-                        continue
-                    break
+        """Gets the route for a path and a method.
 
-            if route is None:
-                raise NotFound()
+        Parameters
+        ----------
+            path : :class:`str`
+                The path of the request.
+
+            method :  :class:`str`
+                The method of the request.
+
+        Returns
+        -------
+            :class:`Route`
+                The correct route.
+
+        Raises
+        ------
+            :exc:`NotFound`
+                No route was found with that path.
+            :exc:`MethodNotAllowed`
+                Method isn't allowed for that path.
+        """
+
+        route = None
+        for possible_route in self.routes:
+            if possible_route.match(path):
+                route = possible_route
+                if method not in route.methods:
+                    continue
+                break
+
+        if route is None:
+            raise NotFound()
 
         if method not in route.methods:
             raise MethodNotAllowed()
-
-        self._cache[method + " " + path] = route
 
         return route
 
 
 class WebsocketRoute:
+    """Class for storing info about a websocket route."""
+
     def __init__(
         self,
         path: str,
@@ -207,6 +328,9 @@ class WebsocketRoute:
 
 
 class WebsocketRouter:
+    """Class for routing a websocket connection to the correct
+    :class:`Websocket`."""
+
     def __init__(
         self, routes: typing.Optional[typing.Dict[str, WebsocketRoute]] = None
     ):

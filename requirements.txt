@@ -1,4 +1,3 @@
 aiofiles
-cachetools
 jinja2
 ujson
