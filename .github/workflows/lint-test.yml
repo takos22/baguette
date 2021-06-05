@@ -31,11 +31,11 @@ jobs:
 
     - name: Run linting script
       run: |
-        ./scripts/lint.sh
+        bash ./scripts/lint.sh
 
     - name: Run testing script
       run: |
-        ./scripts/test.sh --no-lint
+        bash ./scripts/test.sh --no-lint
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
