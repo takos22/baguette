@@ -1,5 +1,6 @@
 import inspect
 import re
+import sys
 import typing
 
 from .converters import (
@@ -13,6 +14,10 @@ from .httpexceptions import MethodNotAllowed, NotFound
 from .types import Handler
 from .view import View
 from .websocket import Websocket
+
+if sys.version_info == (3, 6):
+    # python 3.6 doesn't include re.Match
+    re.Match = type(re.compile("", 0).match(""))
 
 
 class Route:
