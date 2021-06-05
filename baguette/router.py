@@ -15,7 +15,7 @@ from .types import Handler
 from .view import View
 from .websocket import Websocket
 
-if sys.version_info == (3, 6):
+if sys.version_info.major == 3 and sys.version_info.minor == 7:
     # python 3.6 doesn't include re.Match
     re.Match = type(re.compile("", 0).match(""))
 
