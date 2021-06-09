@@ -93,7 +93,14 @@ class Websocket:
             await self.accept()
 
         finally:
-            return self.accepted.is_set()
+            self.accepted.is_set()
+
+            # run the main loop
+            async def wrapped_main():
+                while not self.closed.is_set():
+                    await self.main()
+
+            self._schedule_coro(wrapped_main, "main")
 
     async def accept(
         self, headers: HeadersType = None, subprotocol: str = None
@@ -223,10 +230,10 @@ class Websocket:
                 self.closed.set()
                 self.dispatch("disconnect", message["code"])
 
-    async def _run_event(
+    async def _run_coro(
         self, coro: typing.Coroutine, event_name: str, *args, **kwargs
     ):
-        """Run an event and catch errors."""
+        """Runs a coroutine and catches errors."""
 
         try:
             await coro(*args, **kwargs)
@@ -235,16 +242,16 @@ class Websocket:
         except Exception as error:
             await self.on_error(event_name, error, *args, **kwargs)
 
-    def _schedule_event(
+    def _schedule_coro(
         self, coro: typing.Coroutine, event_name: str, *args, **kwargs
     ) -> asyncio.Task:
-        """Schedule an event in an :class:`asyncio task <asyncio.Task>`."""
+        """Schedules a coroutine in an :class:`asyncio task <asyncio.Task>`."""
 
-        wrapped = self._run_event(coro, event_name, *args, **kwargs)
+        wrapped = self._run_coro(coro, event_name, *args, **kwargs)
         return asyncio.create_task(wrapped)
 
     def dispatch(self, event: str, *args, **kwargs):
-        """Dispatch an event to the correct handler."""
+        """Dispatches an event to the correct handler."""
 
         method = "on_" + event
 
@@ -253,10 +260,13 @@ class Websocket:
         except AttributeError:
             pass
         else:
-            self._schedule_event(coro, method, *args, **kwargs)
+            self._schedule_coro(coro, method, *args, **kwargs)
 
     # --------------------------------------------------------------------------
     # Websocket events
+
+    async def main(self):
+        """Runs in a loop until the websocket is closed."""
 
     async def on_connect(self):
         """Called on websocket connection.
