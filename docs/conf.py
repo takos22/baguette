@@ -14,14 +14,20 @@ import os
 #
 import re
 import sys
+from typing import NamedTuple
+
+VersionInfo = NamedTuple(
+    "VersionInfo", major=int, minor=int, micro=int, releaselevel=str, serial=int
+)
 
 sys.path.insert(0, os.path.abspath(".."))
 sys.path.append(os.path.abspath("extensions"))
 
+
 # -- Project information -----------------------------------------------------
 
 project = "baguette"
-copyright = "2021, takos22"
+copyright = "2020 - now, takos22"
 author = "takos22"
 
 # The version info for the project you're documenting, acts as replacement for
@@ -30,16 +36,36 @@ author = "takos22"
 #
 # The short X.Y version.
 
-version = ""
 with open("../baguette/__init__.py") as f:
-    version = re.search(
-        r"^__version__\s*=\s*['\"]([^'\"]*)['\"]", f.read(), re.MULTILINE
+    # getting version info without importing the whole module
+    version_info_code = re.search(
+        r"^version_info\s*=\s*(VersionInfo\(\s*major=\d+,\s*minor=\d+,\s*"
+        r'micro=\d+,\s*releaselevel=[\'"]\w*[\'"],\s*serial=\d+\s*\))',
+        f.read(),
+        re.MULTILINE,
     ).group(1)
 
-# The full version, including alpha/beta/rc tags
-release = version
+version_info: VersionInfo = eval(
+    version_info_code, globals(), {"VersionInfo": VersionInfo}
+)
+version = "{0.major}.{0.minor}.{0.micro}".format(version_info)
 
-branch = "master" if version.endswith("a") else "v" + version
+
+# The full version, including alpha/beta/rc tags
+releaselevels = {
+    "alpha": "a",
+    "beta": "b",
+    "releasecandidate": "rc",
+}
+release = version + (
+    releaselevels.get(version_info.releaselevel, version_info.releaselevel)
+    + str(version_info.serial)
+    if version_info.releaselevel
+    else ""
+)
+
+branch = "master" if version_info.releaselevel else "v" + version
+
 
 # -- General configuration ---------------------------------------------------
 
@@ -50,16 +76,22 @@ needs_sphinx = "3.0"
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "sphinx_toolbox.more_autodoc",
     "sphinx.ext.autodoc",
-    "sphinx.ext.autosectionlabel",
+    # "sphinx.ext.autosectionlabel",
     "sphinx.ext.coverage",
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
     "sphinx.ext.todo",
+    "sphinx.ext.viewcode",
     "sphinx_inline_tabs",
     "sphinx_copybutton",
+    "notfound.extension",
+    "hoverxref.extension",
+    "sphinx_search.extension",
     "resourcelinks",
+    "og_tags",
 ]
 
 # Links used for cross-referencing stuff in other documentation
@@ -103,12 +135,13 @@ html_static_path = ["_static"]
 
 resource_links = {
     "discord": "https://discord.gg/PGC3eAznJ6",
+    "repo": "https://github.com/takos22/baguette",
     "issues": "https://github.com/takos22/baguette/issues",
     "examples": f"https://github.com/takos22/baguette/tree/{branch}/examples",
     "uvicorn": "https://www.uvicorn.org/",
 }
 
-# remove type hints in docs
+# remove type hints in signatures
 autodoc_typehints = "none"
 
 # display TODOs in docs
@@ -128,3 +161,57 @@ autodoc_default_options = {
 }
 autodoc_member_order = "bysource"
 autoclass_content = "both"
+
+rtd_lang = os.environ.get("READTHEDOCS_LANGUAGE", "en")
+rtd_version = os.environ.get("READTHEDOCS_VERSION", "latest")
+
+if os.environ.get("READTHEDOCS", False):
+    notfound_urls_prefix = f"/{rtd_lang}/{rtd_version}/"
+else:
+    notfound_urls_prefix = "/"
+
+notfound_context = {
+    "title": "Page not found",
+    "body": (
+        "<h1>Page not found</h1>\n\n"
+        "<p>Unfortunately we couldn't find the page you were looking for.</p>"
+        "<p>Try using the search box or go to the "
+        f'<a href="{notfound_urls_prefix}">homepage</a></p>'
+    ),
+}
+
+hoverxref_project = "baguette"
+hoverxref_version = rtd_version
+hoverxref_auto_ref = True
+hoverxref_domains = ["py"]
+hoverxref_roles = [
+    "ref",
+    "doc",
+    "numref",
+    "mod",
+    "func",
+    "data",
+    "const",
+    "class",
+    "meth",
+    "attr",
+    "exc",
+    "obj",
+]
+
+
+github_username = "takos22"
+github_repository = "baguette"
+hide_none_rtype = True
+
+og_site_name = "Baguette documentation"
+og_desc = (
+    "The baguette module is a modern, feature-rich, asynchronous web framework "
+    "for high-performance Python backends."
+)
+og_image = (
+    "https://baguette.readthedocs.io/"
+    f"{rtd_lang}/{rtd_version}/_static/small_logo.png"
+)
+if not os.environ.get("READTHEDOCS", False):
+    og_site_url = f"https://baguette.readthedocs.io/{rtd_lang}/{rtd_version}/"
