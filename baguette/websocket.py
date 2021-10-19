@@ -74,6 +74,7 @@ class Websocket:
 
         except WebsocketClose as close:
             await self.close(403, str(close))
+            return False
 
         except Exception as error:
             await self.on_error("on_connect", error)
@@ -88,19 +89,22 @@ class Websocket:
                     + "".join(traceback.format_tb(error.__traceback__))
                 )
             await self.close(403, reason)
+            return False
 
         else:
             await self.accept()
 
         finally:
-            self.accepted.is_set()
+            if self.accepted.is_set():
+                # run the main loop
+                async def wrapped_main():
+                    while not self.closed.is_set():
+                        await self.main()
+                        await asyncio.sleep(0)  # release pool
 
-            # run the main loop
-            async def wrapped_main():
-                while not self.closed.is_set():
-                    await self.main()
-
-            self._schedule_coro(wrapped_main, "main")
+                self._schedule_coro(wrapped_main, "main")
+                return True
+            return False
 
     async def accept(
         self, headers: HeadersType = None, subprotocol: str = None
@@ -168,7 +172,7 @@ class Websocket:
 
         else:
             raise TypeError(
-                "message must be of type str, bytes or dict. Got: "
+                "message must be of type str or bytes. Got: "
                 + message.__class__.__name__
             )
 
@@ -193,7 +197,7 @@ class Websocket:
         Raises
         ------
             :exc:`RuntimeError`
-                The connection was already closed.
+                The connection is already closed.
         """
 
         if not self.closed.is_set():
@@ -286,6 +290,9 @@ class Websocket:
 
     async def on_disconnect(self, code: int):
         """Called on websocket disconnection.
+
+        If the server closed the connection, this is called before
+        :meth:`on_close`.
 
         Parameters
         ----------
