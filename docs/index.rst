@@ -64,6 +64,7 @@ User Guide
     user_guide/routing
     user_guide/request
     user_guide/responses
+    user_guide/websocket
     user_guide/middlewares
     user_guide/testing
 
