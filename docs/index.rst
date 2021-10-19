@@ -78,6 +78,15 @@ API Reference
     api
 
 
+Changelog
+---------
+
+.. toctree::
+    :maxdepth: 2
+
+    changelog
+
+
 Indices and tables
 ==================
 
