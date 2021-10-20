@@ -1,4 +1,4 @@
-.. currentmodule:: codingame
+.. currentmodule:: baguette
 
 Changelog
 =========
@@ -95,7 +95,8 @@ Version 0.1.2 (2021-04-26)
 Added
 *****
 
-- :meth:`app.run <Baguette.run>`.
+- :meth:`app.run <Baguette.run>` that uses :resource:`uvicorn`.
+- Docs.
 
 Version 0.1.1 (2021-04-24)
 --------------------------
@@ -108,17 +109,63 @@ Fixed
 Version 0.1.0 (2021-04-23)
 --------------------------
 
-.. todo:: Complete this
+Added
+*****
+
+- Dynamic routing, see :ref:`dynamic_routing`.
+- Path parameters converters, see :ref:`converters`.
+- Implement ASGI lifespan protocol: :meth:`Baguette.startup` and
+  :meth:`Baguette.shutdown`.
+- Add methods for every HTTP verb on :class:`TestClient`.
+- :func:`make_headers` and :func:`make_response`.
+- Tests for most of the module.
+- Docstrings on most classes and methods.
+
+Changed
+*******
+
+- Renamed :mod:`baguette.response` to :mod:`baguette.responses`.
 
 Version 0.0.3 (2021-04-18)
 --------------------------
 
-.. todo:: Complete this
+Added
+*****
+
+- Keyword arguments to :class:`Baguette`: ``debug``, ``default_headers``,
+  ``error_response_type`` and ``error_include_description``.
+- :class:`Router` and :class:`Route`.
+- :meth:`Baguette.add_route`.
+- :mod:`baguette.httpexceptions` so that HTTP errors can be raised with Python
+  exceptions.
+- :class:`TestClient` for testing a Baguette application.
+- Type hinting.
+- Docs.
+
+Changed
+*******
+
+- ``Baguette.endpoint`` decorator was renamed to :meth:`Baguette.route` because
+  it makes more sense with the name of :class:`Router`.
 
 Version 0.0.2 (2021-04-14)
 --------------------------
 
-.. todo:: Complete this
+Added
+*****
+
+- :class:`Baguette` with basic HTTP request handling.
+- :class:`Headers`.
+- :class:`Request`.
+- Responses: :class:`JSONResponse`, :class:`PlainTextResponse`,
+  :class:`HTMLResponse` and :class:`EmptyResponse`.
+- Class based endpoints with :class:`View`
+- License
+
+Changed
+*******
+
+- README
 
 Version 0.0.1 (2021-04-12)
 --------------------------
