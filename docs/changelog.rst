@@ -15,7 +15,9 @@ Version 0.4.0 (unreleased)
 Added
 *****
 
-- Websockets
+- Websockets, see :ref:`websocket`: :class:`Websocket`,
+  :mod:`baguette.websocketexceptions`, :class:`WebsocketRouter` and
+  :class:`WebsocketRoute`.
 
 Version 0.3.1 (2021-05-23)
 --------------------------
@@ -23,9 +25,13 @@ Version 0.3.1 (2021-05-23)
 Added
 *****
 
-- JSON encoders in `baguette.json`.
-- Setters in :class:`Request`.
-- Properties in :class:`Response`.
+- JSON encoders in `baguette.json`, using
+  `ujson <https://github.com/ultrajson/ultrajson>`_.
+- Setters in :class:`Request`, mainly for setting the body of a request in
+  middlewares or while testing.
+- Properties in :class:`Response`, mainly for setting the body of a response in
+  middlewares or while testing.
+- :meth:`Form.copy`.
 
 Version 0.3.0 (2021-05-21)
 --------------------------
@@ -33,17 +39,25 @@ Version 0.3.0 (2021-05-21)
 Added
 *****
 
-- Middlewares.
-- :class:`Config`.
-- Customizable JSON encoder for JSON responses.
+- Middlewares: see :ref:`middlewares`. ``middlewares`` keyword argument in
+  :class:`Baguette`, :meth:`Baguette.middleware` decorator,
+  :meth:`Baguette.build_middlewares`, :meth:`Baguette.add_middleware` and
+  :meth:`Baguette.remove_middleware`.
+- Default middlewares: :class:`DefaultHeadersMiddleware` and
+  :class:`ErrorMiddleware`.
+- :class:`Config` and :attr:`Baguette.config`.
+- Customizable JSON encoder for JSON responses:
+  :attr:`JSONResponse.JSON_ENCODER`.
 
-Version 0.2.1(2021-05-15)
+Version 0.2.1 (2021-05-15)
 --------------------------
 
 Added
 *****
 
 - Accept bytes as handler return value.
+- :attr:`Form.files`.
+- :attr:`PathConverter.allow_empty`.
 
 Version 0.2.0 (2021-05-09)
 --------------------------
@@ -51,9 +65,9 @@ Version 0.2.0 (2021-05-09)
 Added
 *****
 
-- HTML templates rendering.
-
-- Redirects.
+- HTML templates rendering: :func:`render`, ``templates_directory`` keyword
+  argument in :class:`Baguette`.
+- Redirects: :class:`RedirectResponse` and :func:`redirect`
 
 Version 0.1.6 (2021-05-05)
 --------------------------
@@ -61,7 +75,7 @@ Version 0.1.6 (2021-05-05)
 Fixed
 *****
 
-- Bug in ``await request.form(include_querystring=True)``.
+- Bug in :meth:`Request.form` when ``include_querystring`` was ``True``.
 
 Version 0.1.5 (2021-05-01)
 --------------------------
@@ -71,6 +85,7 @@ Added
 
 - :meth:`request.form`, with support for ``application/x-www-form-urlencoded``
   and ``multipart/form-data`` form content types.
+- Support for strings in :func:`make_headers`.
 
 Version 0.1.4 (2021-04-29)
 --------------------------
@@ -79,7 +94,17 @@ Added
 *****
 
 - Add static file serving.
-- :class:`FileResponse`
+- Add ``static_url_path`` and ``static_directory`` keyword arguments to
+  :class:`Baguette`.
+- :class:`FileResponse`, credits to
+  `Quart's implementation <https://gitlab.com/pgjones/quart>`__.
+- :func:`make_error_response`.
+
+Changed
+*******
+
+- Errors in routes are handled and the traceback is sent back along with the 500
+  status code when :attr:`Baguette.debug` is ``True``.
 
 Version 0.1.3 (2021-04-27)
 --------------------------
