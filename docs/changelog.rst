@@ -25,7 +25,7 @@ Version 0.3.1 (2021-05-23)
 Added
 *****
 
-- JSON encoders in `baguette.json`, using
+- JSON encoders in :mod:`baguette.json`, using
   `ujson <https://github.com/ultrajson/ultrajson>`_.
 - Setters in :class:`Request`, mainly for setting the body of a request in
   middlewares or while testing.
@@ -67,7 +67,7 @@ Added
 
 - HTML templates rendering: :func:`render`, ``templates_directory`` keyword
   argument in :class:`Baguette`.
-- Redirects: :class:`RedirectResponse` and :func:`redirect`
+- Redirects: :class:`RedirectResponse` and :func:`redirect`.
 
 Version 0.1.6 (2021-05-05)
 --------------------------
@@ -165,7 +165,6 @@ Added
   exceptions.
 - :class:`TestClient` for testing a Baguette application.
 - Type hinting.
-- Docs.
 
 Changed
 *******
@@ -184,13 +183,8 @@ Added
 - :class:`Request`.
 - Responses: :class:`JSONResponse`, :class:`PlainTextResponse`,
   :class:`HTMLResponse` and :class:`EmptyResponse`.
-- Class based endpoints with :class:`View`
-- License
-
-Changed
-*******
-
-- README
+- Class based endpoints with :class:`View`.
+- License.
 
 Version 0.0.1 (2021-04-12)
 --------------------------
